@@ -1,0 +1,5271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RestBox - Gruvbox Dark API Client & cURL Executor</title>
+  <style>
+    :root {
+      /* Gruvbox Dark Authentic Palette */
+      --bg0-hard: #1d2021;
+      --bg0: #282828;
+      --bg0-s: #32302f;
+      --bg1: #3c3836;
+      --bg2: #504945;
+      --bg3: #665c54;
+      --bg4: #7c6f64;
+
+      --fg0: #fbf1c7;
+      --fg1: #ebdbb2;
+      --fg2: #d5c4a1;
+      --fg3: #bdae93;
+      --fg4: #a89984;
+      --gray: #928374;
+
+      --red: #fb4934;
+      --red-dim: #cc241d;
+      --green: #b8bb26;
+      --green-dim: #98971a;
+      --yellow: #fabd2f;
+      --yellow-dim: #d79921;
+      --blue: #83a598;
+      --blue-dim: #458588;
+      --purple: #d3869b;
+      --purple-dim: #b16286;
+      --aqua: #8ec07c;
+      --aqua-dim: #689d6a;
+      --orange: #fe8019;
+      --orange-dim: #d65d0e;
+
+      /* Semantic Mapping for Gruvbox Dark */
+      --bg-base: var(--bg0);
+      --bg-surface: var(--bg0-s);
+      --bg-surface-elevated: var(--bg1);
+      --bg-surface-hover: var(--bg2);
+      --bg-input: var(--bg0-hard);
+      --bg-active: var(--bg1);
+      --border-color: var(--bg2);
+      --border-subtle: var(--bg1);
+      --border-focus: var(--orange);
+
+      --text-primary: var(--fg1);
+      --text-secondary: var(--fg2);
+      --text-muted: var(--gray);
+      --accent: var(--orange);
+      --accent-hover: var(--yellow);
+      --accent-dim: rgba(254, 128, 25, 0.15);
+
+      --color-get: var(--green);
+      --color-post: var(--blue);
+      --color-put: var(--yellow);
+      --color-patch: var(--purple);
+      --color-delete: var(--red);
+      --color-head: var(--fg4);
+      --color-options: var(--aqua);
+
+      --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "Fira Code", "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+
+      --radius-sm: 3px;
+      --radius-md: 5px;
+      --radius-lg: 7px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-size: 13px;
+      line-height: 1.45;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scrollbars Gruvbox */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg0-hard);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg2);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--bg3);
+    }
+
+    /* Top Navbar */
+    .navbar {
+      height: 44px;
+      background-color: var(--bg0-s);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+      color: var(--fg0);
+    }
+
+    .brand-icon {
+      width: 22px;
+      height: 22px;
+      background: var(--orange);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bg0-hard);
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .brand-badge {
+      font-size: 10px;
+      padding: 1px 7px;
+      background: rgba(254, 128, 25, 0.15);
+      color: var(--orange);
+      border: 1px solid rgba(254, 128, 25, 0.35);
+      border-radius: 9999px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Button base Gruvbox */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.12s ease;
+      white-space: nowrap;
+      height: 30px;
+    }
+
+    .btn:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--bg3);
+      color: var(--fg0);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--orange);
+      border-color: var(--orange-dim);
+      color: var(--bg0-hard);
+      font-weight: 700;
+    }
+    .btn-primary:hover {
+      background: var(--yellow);
+      border-color: var(--yellow-dim);
+      color: var(--bg0-hard);
+    }
+
+    .btn-accent {
+      background: var(--bg1);
+      border-color: var(--orange);
+      color: var(--orange);
+      font-weight: 600;
+    }
+    .btn-accent:hover {
+      background: var(--orange);
+      color: var(--bg0-hard);
+    }
+
+    .btn-sm {
+      padding: 3px 8px;
+      font-size: 11px;
+      height: 24px;
+    }
+
+    .btn-icon {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Main Container */
+    .app-main {
+      flex: 1;
+      display: flex;
+      height: calc(100vh - 44px);
+      overflow: hidden;
+    }
+
+    /* Sidebar Gruvbox */
+    .sidebar {
+      width: 270px;
+      background: var(--bg0-s);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: width 0.18s ease;
+      z-index: 10;
+    }
+
+    .sidebar.collapsed {
+      width: 0;
+      overflow: hidden;
+      border-right: none;
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg0-hard);
+    }
+
+    .sidebar-tab-btn {
+      flex: 1;
+      padding: 8px 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.12s ease;
+      text-align: center;
+    }
+
+    .sidebar-tab-btn.active {
+      color: var(--orange);
+      border-bottom-color: var(--orange);
+      background: var(--bg0-s);
+    }
+
+    .sidebar-tab-btn:hover:not(.active) {
+      color: var(--fg2);
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+    .sidebar-panel.active {
+      display: flex;
+    }
+
+    .sidebar-search {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--fg1);
+      padding: 5px 8px;
+      font-size: 12px;
+      transition: border 0.15s ease;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--orange);
+    }
+
+    .list-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .history-item, .preset-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: background 0.1s ease;
+    }
+
+    .history-item:hover, .preset-item:hover {
+      background: var(--bg2);
+    }
+
+    .history-item.active, .preset-item.active {
+      background: var(--bg1);
+    }
+
+    .method-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      min-width: 42px;
+      text-align: center;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .method-get { color: var(--color-get); background: rgba(184, 187, 38, 0.16); }
+    .method-post { color: var(--color-post); background: rgba(131, 165, 152, 0.16); }
+    .method-put { color: var(--color-put); background: rgba(250, 189, 47, 0.16); }
+    .method-patch { color: var(--color-patch); background: rgba(211, 134, 155, 0.16); }
+    .method-delete { color: var(--color-delete); background: rgba(251, 73, 52, 0.16); }
+    .method-head { color: var(--color-head); background: rgba(146, 131, 116, 0.16); }
+    .method-options { color: var(--color-options); background: rgba(142, 192, 124, 0.16); }
+
+    .item-url {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .empty-history {
+      padding: 24px 16px;
+      text-align: center;
+      color: var(--gray);
+      font-size: 12px;
+    }
+
+    /* Workspace */
+    .workspace {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg0);
+    }
+
+    /* Multiple Tabs Strip (Gruvbox Style) */
+    .tabs-bar-strip {
+      height: 36px;
+      background: var(--bg0-hard);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: stretch;
+      overflow-x: auto;
+      overflow-y: hidden;
+      flex-shrink: 0;
+    }
+
+    .tabs-bar-list {
+      display: flex;
+      align-items: stretch;
+      gap: 1px;
+    }
+
+    .req-tab-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 10px 0 12px;
+      min-width: 130px;
+      max-width: 220px;
+      background: var(--bg0-s);
+      border-right: 1px solid var(--border-color);
+      border-top: 2px solid transparent;
+      color: var(--fg4);
+      font-size: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s ease, color 0.1s ease;
+      position: relative;
+    }
+
+    .req-tab-item:hover {
+      background: var(--bg1);
+      color: var(--fg1);
+    }
+
+    .req-tab-item.active {
+      background: var(--bg0);
+      color: var(--fg0);
+      border-top-color: var(--orange);
+      font-weight: 600;
+    }
+
+    .req-tab-title {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 11.5px;
+    }
+
+    .req-tab-close {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      opacity: 0.6;
+      transition: all 0.1s ease;
+    }
+
+    .req-tab-item:hover .req-tab-close {
+      opacity: 1;
+    }
+
+    .req-tab-close:hover {
+      background: rgba(251, 73, 52, 0.25);
+      color: var(--red);
+    }
+
+    .btn-new-tab {
+      width: 34px;
+      background: transparent;
+      border: none;
+      color: var(--fg4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      flex-shrink: 0;
+    }
+    .btn-new-tab:hover {
+      color: var(--orange);
+      background: var(--bg1);
+    }
+
+    /* Request Bar Container */
+    .request-bar-container {
+      padding: 10px 14px 8px 14px;
+      background: var(--bg0-s);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .request-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .method-select {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 12.5px;
+      background: var(--bg0-hard);
+      color: var(--color-get);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0 10px;
+      cursor: pointer;
+      outline: none;
+      height: 36px;
+      transition: border 0.12s ease;
+    }
+    .method-select:focus {
+      border-color: var(--orange);
+    }
+
+    .url-input-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .url-input {
+      width: 100%;
+      height: 36px;
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--fg0);
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      padding: 0 12px;
+      outline: none;
+      transition: border 0.12s ease, box-shadow 0.12s ease;
+    }
+    .url-input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 1px var(--accent-dim);
+    }
+    .url-input::placeholder {
+      color: var(--gray);
+    }
+
+    .btn-send {
+      height: 36px;
+      padding: 0 18px;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: var(--orange);
+      color: var(--bg0-hard);
+      border: 1px solid var(--orange-dim);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.12s ease;
+    }
+    .btn-send:hover {
+      background: var(--yellow);
+      border-color: var(--yellow-dim);
+    }
+    .btn-send:active {
+      transform: translateY(1px);
+    }
+    .btn-send.loading {
+      background: var(--bg2);
+      color: var(--fg4);
+      border-color: var(--bg3);
+      cursor: not-allowed;
+    }
+
+    .request-subbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--fg4);
+    }
+
+    .proxy-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .proxy-toggle input {
+      cursor: pointer;
+      accent-color: var(--orange);
+    }
+
+    .badge-cors {
+      background: rgba(250, 189, 47, 0.15);
+      border: 1px solid rgba(250, 189, 47, 0.35);
+      color: var(--yellow);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* Content Area Split (Request Config vs Response) */
+    .content-split {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Request Config Section */
+    .request-section {
+      height: 42%;
+      min-height: 160px;
+      border-bottom: 2px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      background: var(--bg0);
+    }
+
+    .tabs-header {
+      display: flex;
+      align-items: center;
+      background: var(--bg0-s);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 10px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .tab-btn {
+      padding: 7px 12px;
+      background: transparent;
+      border: none;
+      color: var(--fg4);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.1s ease;
+    }
+    .tab-btn:hover {
+      color: var(--fg1);
+    }
+    .tab-btn.active {
+      color: var(--fg0);
+      font-weight: 600;
+      border-bottom-color: var(--orange);
+    }
+
+    .tab-count-badge {
+      background: rgba(235, 219, 178, 0.1);
+      color: var(--fg2);
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 9999px;
+    }
+
+    .tab-content-area {
+      flex: 1;
+      overflow: auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg0);
+    }
+
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* Table key-value editor */
+    .kv-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .kv-table th {
+      text-align: left;
+      padding: 5px 8px;
+      color: var(--fg4);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 11px;
+    }
+
+    .kv-table td {
+      padding: 3px 5px;
+      border-bottom: 1px solid rgba(80, 73, 69, 0.4);
+    }
+
+    .kv-table input[type="text"] {
+      width: 100%;
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--fg1);
+      padding: 4px 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      transition: border 0.12s ease;
+    }
+    .kv-table input[type="text"]:focus {
+      outline: none;
+      border-color: var(--orange);
+    }
+
+    .kv-checkbox {
+      cursor: pointer;
+      accent-color: var(--orange);
+    }
+
+    .btn-row-delete {
+      background: transparent;
+      border: none;
+      color: var(--gray);
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: var(--radius-sm);
+      line-height: 1;
+    }
+    .btn-row-delete:hover {
+      color: var(--red);
+      background: rgba(251, 73, 52, 0.18);
+    }
+
+    /* Auth Tab */
+    .auth-type-select {
+      width: 220px;
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--fg1);
+      padding: 6px 10px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      outline: none;
+    }
+    .auth-type-select:focus {
+      border-color: var(--orange);
+    }
+
+    .auth-form-group {
+      margin-bottom: 10px;
+      max-width: 500px;
+    }
+    .auth-form-group label {
+      display: block;
+      color: var(--fg3);
+      font-size: 11.5px;
+      margin-bottom: 3px;
+    }
+    .auth-form-group input {
+      width: 100%;
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--fg1);
+      padding: 5px 9px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      outline: none;
+    }
+    .auth-form-group input:focus {
+      border-color: var(--orange);
+    }
+
+    /* Body Tab */
+    .body-type-selector {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--fg2);
+    }
+
+    .body-radio-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .body-radio-label input {
+      accent-color: var(--orange);
+    }
+
+    .body-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .editor-textarea {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 110px;
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--fg1);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 10px;
+      resize: none;
+      line-height: 1.5;
+      tab-size: 2;
+      outline: none;
+    }
+    .editor-textarea:focus {
+      border-color: var(--orange);
+    }
+
+    /* Response Section */
+    .response-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg0);
+    }
+
+    .response-header {
+      height: 38px;
+      background: var(--bg0-s);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
+    }
+
+    .response-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+    }
+
+    .status-badge {
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 11.5px;
+      letter-spacing: 0.02em;
+    }
+    .status-badge.s-2xx { background: rgba(184, 187, 38, 0.18); color: var(--green); border: 1px solid rgba(184, 187, 38, 0.4); }
+    .status-badge.s-3xx { background: rgba(131, 165, 152, 0.18); color: var(--blue); border: 1px solid rgba(131, 165, 152, 0.4); }
+    .status-badge.s-4xx { background: rgba(250, 189, 47, 0.18); color: var(--yellow); border: 1px solid rgba(250, 189, 47, 0.4); }
+    .status-badge.s-5xx { background: rgba(251, 73, 52, 0.18); color: var(--red); border: 1px solid rgba(251, 73, 52, 0.4); }
+    .status-badge.s-err { background: rgba(251, 73, 52, 0.18); color: var(--red); border: 1px solid rgba(251, 73, 52, 0.4); }
+
+    .meta-stat {
+      color: var(--fg3);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .meta-stat strong {
+      color: var(--fg1);
+    }
+
+    .res-view-btn {
+      background: transparent;
+      border: none;
+      color: var(--fg4);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .res-view-btn:hover {
+      color: var(--fg1);
+    }
+    .res-view-btn.active {
+      background: var(--bg2);
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    .response-body-container {
+      flex: 1;
+      overflow: auto;
+      padding: 12px 14px;
+      background: var(--bg0-hard);
+      position: relative;
+    }
+
+    .response-pretty-view {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--fg1);
+      user-select: text;
+    }
+
+    /* Gruvbox Syntax Highlighting */
+    .json-key { color: var(--aqua); }
+    .json-string { color: var(--green); }
+    .json-number { color: var(--purple); }
+    .json-boolean { color: var(--orange); }
+    .json-null { color: var(--gray); font-style: italic; }
+
+    .empty-state {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      text-align: center;
+      gap: 10px;
+    }
+    .empty-state svg {
+      width: 44px;
+      height: 44px;
+      stroke: var(--gray);
+      opacity: 0.5;
+    }
+
+    /* Modal Gruvbox */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(29, 32, 33, 0.85);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg0-s);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 650px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--fg0);
+    }
+    .modal-title {
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .modal-body {
+      padding: 14px 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .modal-footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--bg1);
+      color: var(--fg0);
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+      font-size: 12px;
+      z-index: 2000;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.18s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: absolute;
+        z-index: 100;
+        height: calc(100vh - 44px);
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.7);
+      }
+      .sidebar.collapsed {
+        width: 0;
+        box-shadow: none;
+      }
+      .request-section {
+        height: 50%;
+      }
+      .request-bar {
+        flex-wrap: wrap;
+      }
+      .url-input-wrap {
+        min-width: 180px;
+      }
+    }
+
+    /* Theme Modal & Customizer Styles */
+    .theme-preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .theme-card {
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 9px 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.15s ease;
+      position: relative;
+      user-select: none;
+    }
+
+    .theme-card:hover {
+      border-color: var(--accent);
+      background: var(--bg-surface-elevated);
+      transform: translateY(-1px);
+    }
+
+    .theme-card.active {
+      border-color: var(--accent);
+      background: var(--bg-surface-elevated);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .theme-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .theme-card-name {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .theme-card-badge {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--accent);
+      display: none;
+    }
+
+    .theme-card.active .theme-card-badge {
+      display: inline-block;
+    }
+
+    .theme-card-swatches {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .theme-swatch {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      flex-shrink: 0;
+    }
+
+    .theme-customizer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 14px;
+      margin-top: 6px;
+    }
+
+    .accent-chips {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .accent-chip {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.1s ease, border-color 0.1s ease;
+      flex-shrink: 0;
+    }
+
+    .accent-chip:hover {
+      transform: scale(1.2);
+    }
+
+    .accent-chip.active {
+      border-color: var(--fg0);
+      transform: scale(1.15);
+      box-shadow: 0 0 0 1px var(--bg0-hard);
+    }
+
+    .color-picker-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .color-picker-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      background: var(--bg0-hard);
+      padding: 4px 8px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+    }
+
+    .color-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-picker-input {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .color-picker-input::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .color-picker-input::-webkit-color-swatch {
+      border: none;
+      border-radius: 2px;
+    }
+
+    .color-hex-input {
+      width: 68px;
+      height: 24px;
+      background: var(--bg0-s);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--fg1);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 0 6px;
+      text-transform: uppercase;
+    }
+
+    .color-hex-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .theme-preview-box {
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 11.5px;
+    }
+
+    @media (max-width: 600px) {
+      .color-picker-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Enhanced Code Editor with Live Syntax Highlighting & Line Numbers */
+    .code-editor-wrap {
+      flex: 1;
+      display: flex;
+      min-height: 130px;
+      height: 100%;
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      position: relative;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease;
+    }
+    .code-editor-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-dim);
+    }
+
+    .code-editor-gutter {
+      width: 36px;
+      background: var(--bg0-s);
+      border-right: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 10px 6px 10px 0;
+      text-align: right;
+      user-select: none;
+      overflow: hidden;
+      flex-shrink: 0;
+      white-space: pre;
+    }
+
+    .code-editor-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-editor-highlight,
+    .code-editor-textarea {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 10px;
+      box-sizing: border-box;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      tab-size: 2;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      border: none;
+      outline: none;
+    }
+
+    .code-editor-highlight {
+      pointer-events: none;
+      user-select: none;
+      overflow: hidden;
+      background: transparent;
+      color: var(--text-primary);
+      z-index: 1;
+    }
+
+    .code-editor-highlight code {
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+    }
+
+    .code-editor-textarea {
+      background: transparent;
+      color: transparent;
+      caret-color: var(--accent);
+      resize: none;
+      overflow: auto;
+      z-index: 2;
+    }
+
+    .code-editor-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .code-editor-textarea::selection {
+      background: var(--accent-dim);
+      color: transparent;
+    }
+
+    /* Form-Data File Upload Styling */
+    .form-data-type-select {
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--fg1);
+      font-size: 11px;
+      padding: 3px 6px;
+      outline: none;
+      width: 65px;
+      cursor: pointer;
+    }
+    .form-data-type-select:focus {
+      border-color: var(--accent);
+    }
+
+    .form-file-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .btn-choose-file {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-surface-elevated);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--fg2);
+      font-size: 11px;
+      padding: 3px 8px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      white-space: nowrap;
+      height: 26px;
+    }
+    .btn-choose-file:hover {
+      border-color: var(--accent);
+      color: var(--fg0);
+      background: var(--bg-surface-hover);
+    }
+
+    .file-badge-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 2px 8px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--fg1);
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-badge-preview .file-badge-size {
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+    .file-badge-preview .btn-clear-file {
+      background: transparent;
+      border: none;
+      color: var(--gray);
+      cursor: pointer;
+      padding: 0 2px;
+      font-size: 12px;
+      line-height: 1;
+    }
+    .file-badge-preview .btn-clear-file:hover {
+      color: var(--red);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <button id="btnToggleSidebar" class="btn btn-icon btn-sm" title="Toggle Sidebar (Ctrl+B)">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <span>Rest<span style="color: var(--orange);">Box</span></span>
+        <span class="brand-badge" id="brandThemeBadge" style="cursor: pointer;" title="Klik untuk ubah tema">Gruvbox Dark</span>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Import cURL Button -->
+      <button id="btnOpenCurlModal" class="btn btn-accent" title="Paste any cURL command to import into active tab">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20"></path></svg>
+        <span>Import cURL</span>
+      </button>
+
+      <!-- Copy as cURL Button -->
+      <button id="btnCopyCurl" class="btn" title="Copy active request as cURL command">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+        <span>Copy cURL</span>
+      </button>
+
+      <!-- Code Snippets Modal -->
+      <button id="btnOpenSnippets" class="btn" title="Generate code snippets (JS, Python, PHP)">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+        <span>Code</span>
+      </button>
+
+      <!-- Theme Switcher Button -->
+      <button id="btnOpenThemeModal" class="btn" title="Pilih Tema & Custom Colors">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+        <span id="navThemeLabel">Theme</span>
+      </button>
+
+      <!-- Clear Button -->
+      <button id="btnResetRequest" class="btn btn-sm" title="Reset active request">
+        Reset
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="app-main">
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab-btn active" data-tab="history">Riwayat</button>
+        <button class="sidebar-tab-btn" data-tab="presets">Presets</button>
+        <button class="sidebar-tab-btn" data-tab="env">Variables</button>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- History Panel -->
+        <div id="sidebar-history" class="sidebar-panel active">
+          <div class="sidebar-search">
+            <input type="text" id="historySearch" class="search-input" placeholder="Cari riwayat...">
+          </div>
+          <div class="list-container" id="historyList">
+            <div class="empty-history">Belum ada riwayat request</div>
+          </div>
+          <div style="padding: 6px 8px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end;">
+            <button id="btnClearHistory" class="btn btn-sm" style="color: var(--fg4);">Hapus Semua</button>
+          </div>
+        </div>
+
+        <!-- Presets Panel -->
+        <div id="sidebar-presets" class="sidebar-panel">
+          <div style="padding: 7px 10px; font-size: 11px; color: var(--fg4); border-bottom: 1px solid var(--border-color);">
+            Klik untuk membuka contoh API di tab baru
+          </div>
+          <div class="list-container" id="presetList">
+            <!-- Preset Items -->
+          </div>
+        </div>
+
+        <!-- Variables / Environment Panel -->
+        <div id="sidebar-env" class="sidebar-panel">
+          <div style="padding: 7px 10px; font-size: 11px; color: var(--fg4); border-bottom: 1px solid var(--border-color);">
+            Gunakan format <code>{{variable_name}}</code> di URL/Header/Body
+          </div>
+          <div class="list-container" style="padding: 8px;">
+            <table class="kv-table" id="envTable">
+              <thead>
+                <tr>
+                  <th style="width: 45%;">Variabel</th>
+                  <th style="width: 45%;">Nilai</th>
+                  <th style="width: 10%;"></th>
+                </tr>
+              </thead>
+              <tbody id="envTableBody">
+                <!-- Rows injected by JS -->
+              </tbody>
+            </table>
+            <button id="btnAddEnvRow" class="btn btn-sm" style="margin-top: 8px;">+ Tambah Variabel</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Workspace Area -->
+    <main class="workspace">
+
+      <!-- Multiple Tabs Strip (Gruvbox style) -->
+      <section class="tabs-bar-strip">
+        <div class="tabs-bar-list" id="tabsBarList">
+          <!-- Dynamic Request Tab Items injected by JS -->
+        </div>
+        <button id="btnNewTab" class="btn-new-tab" title="Buka Tab Baru (Ctrl+T / Alt+N)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+        </button>
+      </section>
+      
+      <!-- Request Bar -->
+      <section class="request-bar-container">
+        <div class="request-bar">
+          <select id="methodSelect" class="method-select">
+            <option value="GET" selected>GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+            <option value="HEAD">HEAD</option>
+            <option value="OPTIONS">OPTIONS</option>
+          </select>
+
+          <div class="url-input-wrap">
+            <input type="text" id="urlInput" class="url-input" value="https://jsonplaceholder.typicode.com/posts/1" placeholder="https://api.example.com/v1/users atau paste cURL command..." autocomplete="off" spellcheck="false">
+          </div>
+
+          <button id="btnSend" class="btn-send">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            <span>Send</span>
+          </button>
+        </div>
+
+        <div class="request-subbar">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <label class="proxy-toggle" title="Aktifkan jika request API diblokir oleh CORS browser (menggunakan CORS Proxy)">
+              <input type="checkbox" id="corsProxyToggle">
+              <span>Enable CORS Proxy</span>
+            </label>
+            <span class="badge-cors" id="proxyStatusBadge" style="display: none;">Proxy Active</span>
+          </div>
+          <div style="font-size: 11px;">
+            Tip: <kbd style="background: var(--bg1); color: var(--fg1); padding: 1px 4px; border-radius: 3px; font-family: monospace;">Ctrl + Enter</kbd> Kirim &bull; <kbd style="background: var(--bg1); color: var(--fg1); padding: 1px 4px; border-radius: 3px; font-family: monospace;">Alt + N</kbd> Tab Baru
+          </div>
+        </div>
+      </section>
+
+      <!-- Content Split (Request Tabs & Response Panel) -->
+      <div class="content-split">
+        
+        <!-- Request Config Section -->
+        <section class="request-section">
+          <div class="tabs-header">
+            <button class="tab-btn active" data-tab="params">
+              Params <span class="tab-count-badge" id="paramsCount">0</span>
+            </button>
+            <button class="tab-btn" data-tab="headers">
+              Headers <span class="tab-count-badge" id="headersCount">0</span>
+            </button>
+            <button class="tab-btn" data-tab="auth">
+              Auth <span class="tab-count-badge" id="authBadge" style="display: none;">•</span>
+            </button>
+            <button class="tab-btn" data-tab="body">
+              Body <span class="tab-count-badge" id="bodyBadge" style="display: none;">•</span>
+            </button>
+            <button class="tab-btn" data-tab="curl">
+              cURL Raw
+            </button>
+          </div>
+
+          <div class="tab-content-area">
+            
+            <!-- Params Tab -->
+            <div id="tab-params" class="tab-panel active">
+              <div style="margin-bottom: 6px; font-size: 11px; color: var(--fg4);">
+                Query Parameters otomatis tersinkronisasi dua arah dengan URL di atas.
+              </div>
+              <table class="kv-table" id="paramsTable">
+                <thead>
+                  <tr>
+                    <th style="width: 30px;"></th>
+                    <th style="width: 35%;">Key</th>
+                    <th style="width: 35%;">Value</th>
+                    <th>Description</th>
+                    <th style="width: 30px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="paramsTableBody">
+                  <!-- Parameter Rows -->
+                </tbody>
+              </table>
+              <div style="margin-top: 6px;">
+                <button id="btnAddParamRow" class="btn btn-sm">+ Tambah Parameter</button>
+              </div>
+            </div>
+
+            <!-- Headers Tab -->
+            <div id="tab-headers" class="tab-panel">
+              <div style="margin-bottom: 6px; font-size: 11px; color: var(--fg4); display: flex; justify-content: space-between; align-items: center;">
+                <span>HTTP Request Headers</span>
+                <div style="display: flex; gap: 6px;">
+                  <button id="btnHeaderJsonPreset" class="btn btn-sm" style="font-size: 10.5px;">+ JSON Preset</button>
+                  <button id="btnHeaderAuthPreset" class="btn btn-sm" style="font-size: 10.5px;">+ Bearer Auth</button>
+                </div>
+              </div>
+              <table class="kv-table" id="headersTable">
+                <thead>
+                  <tr>
+                    <th style="width: 30px;"></th>
+                    <th style="width: 45%;">Header Key</th>
+                    <th style="width: 45%;">Value</th>
+                    <th style="width: 30px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="headersTableBody">
+                  <!-- Header Rows -->
+                </tbody>
+              </table>
+              <div style="margin-top: 6px;">
+                <button id="btnAddHeaderRow" class="btn btn-sm">+ Tambah Header</button>
+              </div>
+            </div>
+
+            <!-- Auth Tab -->
+            <div id="tab-auth" class="tab-panel">
+              <div style="display: flex; gap: 24px;">
+                <div>
+                  <label style="display: block; margin-bottom: 5px; font-size: 11.5px; color: var(--fg3);">Tipe Autentikasi:</label>
+                  <select id="authTypeSelect" class="auth-type-select">
+                    <option value="none">No Auth</option>
+                    <option value="bearer">Bearer Token</option>
+                    <option value="basic">Basic Auth (Username / Password)</option>
+                    <option value="apikey">API Key</option>
+                  </select>
+                </div>
+
+                <div id="authConfigContainer" style="flex: 1;">
+                  <!-- No Auth -->
+                  <div id="auth-none" class="auth-fields">
+                    <div style="color: var(--fg4); font-size: 12px; padding: 10px 0;">
+                      Request ini tidak menggunakan autentikasi tambahan.
+                    </div>
+                  </div>
+
+                  <!-- Bearer -->
+                  <div id="auth-bearer" class="auth-fields" style="display: none;">
+                    <div class="auth-form-group">
+                      <label>Token:</label>
+                      <input type="text" id="bearerTokenInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                    </div>
+                  </div>
+
+                  <!-- Basic -->
+                  <div id="auth-basic" class="auth-fields" style="display: none;">
+                    <div class="auth-form-group">
+                      <label>Username:</label>
+                      <input type="text" id="basicUsernameInput" placeholder="admin">
+                    </div>
+                    <div class="auth-form-group">
+                      <label>Password:</label>
+                      <input type="password" id="basicPasswordInput" placeholder="password">
+                    </div>
+                  </div>
+
+                  <!-- API Key -->
+                  <div id="auth-apikey" class="auth-fields" style="display: none;">
+                    <div class="auth-form-group">
+                      <label>Key Name:</label>
+                      <input type="text" id="apiKeyNameInput" placeholder="X-API-Key atau api_key">
+                    </div>
+                    <div class="auth-form-group">
+                      <label>Value:</label>
+                      <input type="text" id="apiKeyValueInput" placeholder="secret-key-value">
+                    </div>
+                    <div class="auth-form-group">
+                      <label>Add To:</label>
+                      <select id="apiKeyLocationSelect" class="search-input" style="max-width: 180px;">
+                        <option value="header">Header</option>
+                        <option value="query">Query Parameter</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Body Tab -->
+            <div id="tab-body" class="tab-panel">
+              <div class="body-type-selector">
+                <label class="body-radio-label">
+                  <input type="radio" name="bodyType" value="none" checked> none
+                </label>
+                <label class="body-radio-label">
+                  <input type="radio" name="bodyType" value="json"> json
+                </label>
+                <label class="body-radio-label">
+                  <input type="radio" name="bodyType" value="form-data"> form-data
+                </label>
+                <label class="body-radio-label">
+                  <input type="radio" name="bodyType" value="urlencoded"> x-www-form-urlencoded
+                </label>
+                <label class="body-radio-label">
+                  <input type="radio" name="bodyType" value="raw"> raw text
+                </label>
+              </div>
+
+              <!-- JSON / Raw Editor -->
+              <div id="bodyRawContainer" style="display: none; flex: 1; flex-direction: column;">
+                <div class="body-toolbar">
+                  <span id="jsonValidationMsg" style="font-size: 11px; margin-right: auto; align-self: center;"></span>
+                  <button id="btnFormatJson" class="btn btn-sm">Beautify JSON</button>
+                  <button id="btnClearBody" class="btn btn-sm">Clear</button>
+                </div>
+                <div class="code-editor-wrap" id="bodyEditorWrap">
+                  <div class="code-editor-gutter" id="bodyEditorGutter">1</div>
+                  <div class="code-editor-area">
+                    <pre class="code-editor-highlight" id="bodyHighlightPre" aria-hidden="true"><code id="bodyHighlightCode"></code></pre>
+                    <textarea id="bodyTextarea" class="code-editor-textarea" placeholder='{\n  "key": "value"\n}' spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Data Table -->
+              <div id="bodyFormDataContainer" style="display: none; flex-direction: column;">
+                <table class="kv-table" id="formDataTable">
+                  <thead>
+                    <tr>
+                      <th style="width: 30px;"></th>
+                      <th style="width: 28%;">Key</th>
+                      <th style="width: 75px;">Type</th>
+                      <th>Value / File</th>
+                      <th style="width: 30px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="formDataTableBody"></tbody>
+                </table>
+                <div style="margin-top: 6px;">
+                  <button id="btnAddFormDataRow" class="btn btn-sm">+ Tambah Baris Form</button>
+                </div>
+              </div>
+
+              <!-- URL Encoded Table -->
+              <div id="bodyUrlEncodedContainer" style="display: none; flex-direction: column;">
+                <table class="kv-table" id="urlEncodedTable">
+                  <thead>
+                    <tr>
+                      <th style="width: 30px;"></th>
+                      <th style="width: 45%;">Key</th>
+                      <th style="width: 45%;">Value</th>
+                      <th style="width: 30px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="urlEncodedTableBody"></tbody>
+                </table>
+                <div style="margin-top: 6px;">
+                  <button id="btnAddUrlEncodedRow" class="btn btn-sm">+ Tambah Baris URL-Encoded</button>
+                </div>
+              </div>
+
+              <!-- None Body -->
+              <div id="bodyNoneContainer" style="padding: 20px; color: var(--fg4); font-size: 12px; text-align: center;">
+                Request ini tidak memiliki body.
+              </div>
+            </div>
+
+            <!-- cURL Raw Tab -->
+            <div id="tab-curl" class="tab-panel">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; color: var(--fg4);">
+                  Perintah cURL yang digenerate otomatis dari tab aktif:
+                </span>
+                <button id="btnCopyCurlTab" class="btn btn-sm">Copy cURL</button>
+              </div>
+              <textarea id="liveCurlTextarea" class="editor-textarea" readonly spellcheck="false" style="background: var(--bg0-hard);"></textarea>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Response Section -->
+        <section class="response-section">
+          <div class="response-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="tabs-header" style="background: transparent; border-bottom: none; padding: 0;">
+                <button class="tab-btn active" data-res-tab="body">Response Body</button>
+                <button class="tab-btn" data-res-tab="headers">Headers <span class="tab-count-badge" id="resHeadersCount">0</span></button>
+              </div>
+
+              <!-- Body View Modes: Pretty, Raw, Preview -->
+              <div id="resViewModeGroup" style="display: none; align-items: center; background: var(--bg0-hard); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 2px; margin-left: 6px;">
+                <button class="res-view-btn active" data-mode="pretty">Pretty</button>
+                <button class="res-view-btn" data-mode="raw">Raw</button>
+                <button class="res-view-btn" data-mode="preview">Preview</button>
+              </div>
+            </div>
+
+            <div class="response-meta" id="responseMeta" style="display: none;">
+              <div id="resSearchGroup" style="display: flex; align-items: center;">
+                <input type="text" id="resSearchInput" placeholder="Cari di response..." class="search-input" style="width: 130px; height: 26px; padding: 2px 8px; font-size: 11px;">
+              </div>
+              <span id="statusBadge" class="status-badge s-2xx">200 OK</span>
+              <span class="meta-stat">Time: <strong id="responseTime">0 ms</strong></span>
+              <span class="meta-stat">Size: <strong id="responseSize">0 B</strong></span>
+              <div style="display: flex; gap: 4px; margin-left: 4px;">
+                <button id="btnCopyResponse" class="btn btn-sm btn-icon" title="Copy Response Body">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </button>
+                <button id="btnDownloadResponse" class="btn btn-sm btn-icon" title="Download Response">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="response-body-container">
+            
+            <!-- Response Body Tab -->
+            <div id="res-tab-body" class="res-panel" style="height: 100%;">
+              <div id="emptyResponseState" class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <div>
+                  <div style="font-weight: 600; color: var(--fg2); margin-bottom: 3px;">Belum ada response</div>
+                  <div style="font-size: 11px;">Kirim request atau paste cURL command untuk mulai testing.</div>
+                </div>
+              </div>
+
+              <!-- Loading Skeleton -->
+              <div id="loadingState" class="empty-state" style="display: none;">
+                <svg style="animation: spin 1s linear infinite; width: 34px; height: 34px; stroke: var(--orange);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path></svg>
+                <div style="margin-top: 10px; font-weight: 500; color: var(--fg1);">Mengirim request...</div>
+                <button id="btnAbortRequest" class="btn btn-sm" style="margin-top: 8px;">Cancel Request</button>
+              </div>
+
+              <!-- Response Pretty Pre -->
+              <pre id="responseContent" class="response-pretty-view" style="display: none;"></pre>
+              <!-- Response Raw Pre -->
+              <pre id="responseRawContent" class="response-pretty-view" style="display: none; color: var(--fg2);"></pre>
+              <!-- Response Preview Frame -->
+              <iframe id="responsePreviewFrame" style="display: none; width: 100%; height: 100%; min-height: 250px; border: none; background: #ffffff; border-radius: var(--radius-sm);" sandbox="allow-same-origin"></iframe>
+              <!-- Response Preview Image -->
+              <div id="responsePreviewImgWrap" style="display: none; height: 100%; align-items: center; justify-content: center; padding: 20px;">
+                <img id="responsePreviewImg" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--radius-md); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.6);" />
+              </div>
+            </div>
+
+            <!-- Response Headers Tab -->
+            <div id="res-tab-headers" class="res-panel" style="display: none;">
+              <table class="kv-table" id="resHeadersTable">
+                <thead>
+                  <tr>
+                    <th style="width: 40%;">Header</th>
+                    <th style="width: 60%;">Value</th>
+                  </tr>
+                </thead>
+                <tbody id="resHeadersBody"></tbody>
+              </table>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Import cURL Modal -->
+  <div id="curlModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Import dari cURL Command</div>
+        <button class="btn btn-sm btn-icon" id="btnCloseCurlModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 8px; font-size: 12px; color: var(--fg3);">
+          Paste perintah <code>curl</code> apa saja di bawah ini. Method, URL, headers, parameter, dan body akan diekstrak otomatis ke tab aktif:
+        </div>
+        <textarea id="curlInputModal" class="editor-textarea" style="height: 190px;" placeholder="curl --location 'https://api.example.com/users' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer token123' \
+--data '{\&quot;name\&quot;: \&quot;John Doe\&quot;}'" spellcheck="false"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="btnCancelCurlModal">Batal</button>
+        <button class="btn btn-accent" id="btnApplyCurlModal">Import ke Tab Aktif</button>
+        <button class="btn btn-primary" id="btnApplyCurlNewTab">Import ke Tab Baru</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code Snippets Modal -->
+  <div id="snippetsModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 750px;">
+      <div class="modal-header">
+        <div class="modal-title">Generate Code Snippet</div>
+        <button class="btn btn-sm btn-icon" id="btnCloseSnippetsModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+          <button class="btn btn-sm snippet-lang-btn active" data-lang="curl">cURL</button>
+          <button class="btn btn-sm snippet-lang-btn" data-lang="js">JavaScript (Fetch)</button>
+          <button class="btn btn-sm snippet-lang-btn" data-lang="python">Python (Requests)</button>
+          <button class="btn btn-sm snippet-lang-btn" data-lang="php">PHP (cURL)</button>
+        </div>
+        <textarea id="snippetCodeArea" class="editor-textarea" style="height: 250px;" readonly spellcheck="false"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnCopySnippet">Copy Code</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Color Theme & Customizer Modal -->
+  <div id="themeModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+          <span class="modal-title">Color Themes & Customizer</span>
+        </div>
+        <button class="btn btn-sm btn-icon" id="btnCloseThemeModal">✕</button>
+      </div>
+      <div class="modal-body" style="padding-top: 10px;">
+        <div style="margin-bottom: 8px; font-size: 11px; font-weight: 600; color: var(--fg3); text-transform: uppercase; letter-spacing: 0.05em;">
+          Preset Themes
+        </div>
+        <div class="theme-preset-grid" id="themePresetGrid">
+          <!-- Preset theme cards injected by JS -->
+        </div>
+
+        <!-- Custom Theme Builder Section -->
+        <div class="theme-customizer">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--fg0); display: flex; align-items: center; gap: 6px;">
+              <span>Custom Theme Builder</span>
+              <span id="customThemeActiveBadge" class="brand-badge" style="display: none;">Active</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button id="btnExportTheme" class="btn btn-sm" title="Copy Theme JSON to clipboard">Export JSON</button>
+              <button id="btnImportTheme" class="btn btn-sm" title="Import Theme from JSON">Import JSON</button>
+              <button id="btnResetTheme" class="btn btn-sm" title="Reset to default Gruvbox Dark">Reset</button>
+            </div>
+          </div>
+
+          <!-- Quick Accent Color Chips -->
+          <div style="margin-bottom: 6px; font-size: 11px; color: var(--fg4);">Quick Accent Color:</div>
+          <div class="accent-chips" id="accentChipsContainer">
+            <!-- Chips injected by JS -->
+          </div>
+
+          <!-- Color Pickers Grid -->
+          <div class="color-picker-grid">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--fg4); margin-bottom: 2px;">SURFACES & BACKGROUNDS</div>
+              <div class="color-picker-item">
+                <span>Base Background</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-bg0" class="color-picker-input">
+                  <input type="text" id="hex-bg0" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+              <div class="color-picker-item">
+                <span>Panels & Surface</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-bg0-s" class="color-picker-input">
+                  <input type="text" id="hex-bg0-s" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+              <div class="color-picker-item">
+                <span>Input / Editor Background</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-bg0-hard" class="color-picker-input">
+                  <input type="text" id="hex-bg0-hard" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+              <div class="color-picker-item">
+                <span>Card & Elevated Surface</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-bg1" class="color-picker-input">
+                  <input type="text" id="hex-bg1" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+              <div class="color-picker-item">
+                <span>Border Color</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-bg2" class="color-picker-input">
+                  <input type="text" id="hex-bg2" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--fg4); margin-bottom: 2px;">TYPOGRAPHY & ACCENTS</div>
+              <div class="color-picker-item">
+                <span>Primary Accent</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-orange" class="color-picker-input">
+                  <input type="text" id="hex-orange" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+              <div class="color-picker-item">
+                <span>Primary Text</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-fg1" class="color-picker-input">
+                  <input type="text" id="hex-fg1" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+              <div class="color-picker-item">
+                <span>Muted / Gray Text</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-gray" class="color-picker-input">
+                  <input type="text" id="hex-gray" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+              <div class="color-picker-item">
+                <span>GET Method Color</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-green" class="color-picker-input">
+                  <input type="text" id="hex-green" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+              <div class="color-picker-item">
+                <span>POST Method Color</span>
+                <div class="color-input-wrap">
+                  <input type="color" id="picker-blue" class="color-picker-input">
+                  <input type="text" id="hex-blue" class="color-hex-input" maxlength="7">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Theme Mini Preview -->
+          <div class="theme-preview-box" id="themePreviewBox">
+            <div style="font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Live Theme Preview</div>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="method-tag method-get">GET</span>
+                <span class="method-tag method-post">POST</span>
+                <span class="method-tag method-delete">DEL</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="btn btn-sm btn-primary">Send ⚡</button>
+                <button class="btn btn-sm btn-accent">Action</button>
+                <button class="btn btn-sm">Button</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-accent" id="btnSaveCustomTheme">Save as Custom Theme</button>
+        <button class="btn btn-primary" id="btnApplyAndCloseTheme">Selesai</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast">Notifikasi</div>
+
+  <!-- Application Logic -->
+  <script>
+    // State management with Multiple Tabs Architecture & Gruvbox Dark
+    const state = {
+      tabs: [],
+      activeTabId: null,
+      useCorsProxy: false,
+      corsProxyUrl: 'https://corsproxy.io/?',
+      variables: [
+        { key: 'base_url', value: 'https://jsonplaceholder.typicode.com' }
+      ],
+      history: [],
+      currentAbortController: null,
+      currentTheme: 'gruvbox-dark'
+    };
+
+    // Predefined Presets
+    const PRESETS = [
+      {
+        name: 'Get Single Post',
+        method: 'GET',
+        url: 'https://jsonplaceholder.typicode.com/posts/1',
+        headers: [],
+        bodyType: 'none',
+        bodyContent: ''
+      },
+      {
+        name: 'Create Post (JSON)',
+        method: 'POST',
+        url: 'https://jsonplaceholder.typicode.com/posts',
+        headers: [{ active: true, key: 'Content-Type', value: 'application/json; charset=UTF-8' }],
+        bodyType: 'json',
+        bodyContent: JSON.stringify({
+          title: 'Halo dari RestBox',
+          body: 'Testing execute API & cURL via browser',
+          userId: 1
+        }, null, 2)
+      },
+      {
+        name: 'HttpBin IP & Headers',
+        method: 'GET',
+        url: 'https://httpbin.org/get',
+        headers: [{ active: true, key: 'Accept', value: 'application/json' }],
+        bodyType: 'none',
+        bodyContent: ''
+      },
+      {
+        name: 'HttpBin POST Echo',
+        method: 'POST',
+        url: 'https://httpbin.org/post',
+        headers: [{ active: true, key: 'Content-Type', value: 'application/json' }],
+        bodyType: 'json',
+        bodyContent: JSON.stringify({ message: "Hello RestBox", timestamp: Date.now() }, null, 2)
+      },
+      {
+        name: 'ReqRes Users List',
+        method: 'GET',
+        url: 'https://reqres.in/api/users?page=2',
+        headers: [],
+        bodyType: 'none',
+        bodyContent: ''
+      }
+    ];
+
+    // Method colors mapping
+    const METHOD_COLORS = {
+      GET: 'var(--color-get)',
+      POST: 'var(--color-post)',
+      PUT: 'var(--color-put)',
+      PATCH: 'var(--color-patch)',
+      DELETE: 'var(--color-delete)',
+      HEAD: 'var(--color-head)',
+      OPTIONS: 'var(--color-options)'
+    };
+
+    const STATUS_MAP = {
+      200: 'OK', 201: 'Created', 202: 'Accepted', 204: 'No Content',
+      301: 'Moved Permanently', 302: 'Found', 304: 'Not Modified',
+      400: 'Bad Request', 401: 'Unauthorized', 403: 'Forbidden', 404: 'Not Found',
+      405: 'Method Not Allowed', 422: 'Unprocessable Entity', 429: 'Too Many Requests',
+      500: 'Internal Server Error', 502: 'Bad Gateway', 503: 'Service Unavailable', 504: 'Gateway Timeout'
+    };
+
+    // Built-in Themes Collection
+    const THEMES = {
+      'gruvbox-dark': {
+        name: 'Gruvbox Dark',
+        type: 'dark',
+        swatches: ['#1d2021', '#282828', '#ebdbb2', '#fe8019'],
+        vars: {
+          '--bg0-hard': '#1d2021',
+          '--bg0': '#282828',
+          '--bg0-s': '#32302f',
+          '--bg1': '#3c3836',
+          '--bg2': '#504945',
+          '--bg3': '#665c54',
+          '--bg4': '#7c6f64',
+          '--fg0': '#fbf1c7',
+          '--fg1': '#ebdbb2',
+          '--fg2': '#d5c4a1',
+          '--fg3': '#bdae93',
+          '--fg4': '#a89984',
+          '--gray': '#928374',
+          '--red': '#fb4934',
+          '--red-dim': '#cc241d',
+          '--green': '#b8bb26',
+          '--green-dim': '#98971a',
+          '--yellow': '#fabd2f',
+          '--yellow-dim': '#d79921',
+          '--blue': '#83a598',
+          '--blue-dim': '#458588',
+          '--purple': '#d3869b',
+          '--purple-dim': '#b16286',
+          '--aqua': '#8ec07c',
+          '--aqua-dim': '#689d6a',
+          '--orange': '#fe8019',
+          '--orange-dim': '#d65d0e',
+          '--bg-base': '#282828',
+          '--bg-surface': '#32302f',
+          '--bg-surface-elevated': '#3c3836',
+          '--bg-surface-hover': '#504945',
+          '--bg-input': '#1d2021',
+          '--bg-active': '#3c3836',
+          '--border-color': '#504945',
+          '--border-subtle': '#3c3836',
+          '--border-focus': '#fe8019',
+          '--text-primary': '#ebdbb2',
+          '--text-secondary': '#d5c4a1',
+          '--text-muted': '#928374',
+          '--accent': '#fe8019',
+          '--accent-hover': '#fabd2f',
+          '--accent-dim': 'rgba(254, 128, 25, 0.15)',
+          '--color-get': '#b8bb26',
+          '--color-post': '#83a598',
+          '--color-put': '#fabd2f',
+          '--color-patch': '#d3869b',
+          '--color-delete': '#fb4934',
+          '--color-head': '#a89984',
+          '--color-options': '#8ec07c'
+        }
+      },
+      'gruvbox-light': {
+        name: 'Gruvbox Light',
+        type: 'light',
+        swatches: ['#fbf1c7', '#ebdbb2', '#3c3836', '#af3a03'],
+        vars: {
+          '--bg0-hard': '#f9f5d7',
+          '--bg0': '#fbf1c7',
+          '--bg0-s': '#f2e5bc',
+          '--bg1': '#ebdbb2',
+          '--bg2': '#d5c4a1',
+          '--bg3': '#bdae93',
+          '--bg4': '#a89984',
+          '--fg0': '#282828',
+          '--fg1': '#3c3836',
+          '--fg2': '#504945',
+          '--fg3': '#665c54',
+          '--fg4': '#7c6f64',
+          '--gray': '#928374',
+          '--red': '#cc241d',
+          '--red-dim': '#9d0006',
+          '--green': '#79740e',
+          '--green-dim': '#79740e',
+          '--yellow': '#b57614',
+          '--yellow-dim': '#b57614',
+          '--blue': '#076678',
+          '--blue-dim': '#076678',
+          '--purple': '#8f3f71',
+          '--purple-dim': '#8f3f71',
+          '--aqua': '#427b58',
+          '--aqua-dim': '#427b58',
+          '--orange': '#af3a03',
+          '--orange-dim': '#af3a03',
+          '--bg-base': '#fbf1c7',
+          '--bg-surface': '#f2e5bc',
+          '--bg-surface-elevated': '#ebdbb2',
+          '--bg-surface-hover': '#d5c4a1',
+          '--bg-input': '#f9f5d7',
+          '--bg-active': '#ebdbb2',
+          '--border-color': '#d5c4a1',
+          '--border-subtle': '#ebdbb2',
+          '--border-focus': '#af3a03',
+          '--text-primary': '#3c3836',
+          '--text-secondary': '#504945',
+          '--text-muted': '#7c6f64',
+          '--accent': '#af3a03',
+          '--accent-hover': '#d65d0e',
+          '--accent-dim': 'rgba(175, 58, 3, 0.15)',
+          '--color-get': '#79740e',
+          '--color-post': '#076678',
+          '--color-put': '#b57614',
+          '--color-patch': '#8f3f71',
+          '--color-delete': '#cc241d',
+          '--color-head': '#7c6f64',
+          '--color-options': '#427b58'
+        }
+      },
+      'tokyo-night': {
+        name: 'Tokyo Night',
+        type: 'dark',
+        swatches: ['#16161e', '#1a1b26', '#c0caf5', '#7aa2f7'],
+        vars: {
+          '--bg0-hard': '#16161e',
+          '--bg0': '#1a1b26',
+          '--bg0-s': '#1f2335',
+          '--bg1': '#24283b',
+          '--bg2': '#292e42',
+          '--bg3': '#414868',
+          '--bg4': '#565f89',
+          '--fg0': '#c0caf5',
+          '--fg1': '#a9b1d6',
+          '--fg2': '#9aa5ce',
+          '--fg3': '#787c99',
+          '--fg4': '#565f89',
+          '--gray': '#565f89',
+          '--red': '#f7768e',
+          '--red-dim': '#db4b4b',
+          '--green': '#9ece6a',
+          '--green-dim': '#73daca',
+          '--yellow': '#e0af68',
+          '--yellow-dim': '#e0af68',
+          '--blue': '#7aa2f7',
+          '--blue-dim': '#2ac3de',
+          '--purple': '#bb9af7',
+          '--purple-dim': '#9d7cd8',
+          '--aqua': '#7dcfff',
+          '--aqua-dim': '#2ac3de',
+          '--orange': '#ff9e64',
+          '--orange-dim': '#ff9e64',
+          '--bg-base': '#1a1b26',
+          '--bg-surface': '#1f2335',
+          '--bg-surface-elevated': '#24283b',
+          '--bg-surface-hover': '#292e42',
+          '--bg-input': '#16161e',
+          '--bg-active': '#24283b',
+          '--border-color': '#292e42',
+          '--border-subtle': '#24283b',
+          '--border-focus': '#7aa2f7',
+          '--text-primary': '#c0caf5',
+          '--text-secondary': '#a9b1d6',
+          '--text-muted': '#565f89',
+          '--accent': '#7aa2f7',
+          '--accent-hover': '#7dcfff',
+          '--accent-dim': 'rgba(122, 162, 247, 0.15)',
+          '--color-get': '#9ece6a',
+          '--color-post': '#7aa2f7',
+          '--color-put': '#e0af68',
+          '--color-patch': '#bb9af7',
+          '--color-delete': '#f7768e',
+          '--color-head': '#565f89',
+          '--color-options': '#7dcfff'
+        }
+      },
+      'catppuccin-mocha': {
+        name: 'Catppuccin Mocha',
+        type: 'dark',
+        swatches: ['#11111b', '#1e1e2e', '#cdd6f4', '#cba6f7'],
+        vars: {
+          '--bg0-hard': '#11111b',
+          '--bg0': '#1e1e2e',
+          '--bg0-s': '#181825',
+          '--bg1': '#313244',
+          '--bg2': '#45475a',
+          '--bg3': '#585b70',
+          '--bg4': '#6c7086',
+          '--fg0': '#cdd6f4',
+          '--fg1': '#bac2de',
+          '--fg2': '#a6adc8',
+          '--fg3': '#9399b2',
+          '--fg4': '#7f849c',
+          '--gray': '#6c7086',
+          '--red': '#f38ba8',
+          '--red-dim': '#eba0ac',
+          '--green': '#a6e3a1',
+          '--green-dim': '#94e2d5',
+          '--yellow': '#f9e2af',
+          '--yellow-dim': '#f9e2af',
+          '--blue': '#89b4fa',
+          '--blue-dim': '#74c7ec',
+          '--purple': '#cba6f7',
+          '--purple-dim': '#b4befe',
+          '--aqua': '#94e2d5',
+          '--aqua-dim': '#89dceb',
+          '--orange': '#fab387',
+          '--orange-dim': '#fab387',
+          '--bg-base': '#1e1e2e',
+          '--bg-surface': '#181825',
+          '--bg-surface-elevated': '#313244',
+          '--bg-surface-hover': '#45475a',
+          '--bg-input': '#11111b',
+          '--bg-active': '#313244',
+          '--border-color': '#45475a',
+          '--border-subtle': '#313244',
+          '--border-focus': '#cba6f7',
+          '--text-primary': '#cdd6f4',
+          '--text-secondary': '#bac2de',
+          '--text-muted': '#6c7086',
+          '--accent': '#cba6f7',
+          '--accent-hover': '#f5c2e7',
+          '--accent-dim': 'rgba(203, 166, 247, 0.15)',
+          '--color-get': '#a6e3a1',
+          '--color-post': '#89b4fa',
+          '--color-put': '#f9e2af',
+          '--color-patch': '#cba6f7',
+          '--color-delete': '#f38ba8',
+          '--color-head': '#7f849c',
+          '--color-options': '#94e2d5'
+        }
+      },
+      'nord': {
+        name: 'Nord Arctic',
+        type: 'dark',
+        swatches: ['#242933', '#2e3440', '#eceff4', '#88c0d0'],
+        vars: {
+          '--bg0-hard': '#242933',
+          '--bg0': '#2e3440',
+          '--bg0-s': '#3b4252',
+          '--bg1': '#434c5e',
+          '--bg2': '#4c566a',
+          '--bg3': '#616e88',
+          '--bg4': '#7b88a1',
+          '--fg0': '#eceff4',
+          '--fg1': '#e5e9f0',
+          '--fg2': '#d8dee9',
+          '--fg3': '#abb2bf',
+          '--fg4': '#9aa2b1',
+          '--gray': '#616e88',
+          '--red': '#bf616a',
+          '--red-dim': '#bf616a',
+          '--green': '#a3be8c',
+          '--green-dim': '#a3be8c',
+          '--yellow': '#ebcb8b',
+          '--yellow-dim': '#ebcb8b',
+          '--blue': '#81a1c1',
+          '--blue-dim': '#5e81ac',
+          '--purple': '#b48ead',
+          '--purple-dim': '#b48ead',
+          '--aqua': '#88c0d0',
+          '--aqua-dim': '#8fbcbb',
+          '--orange': '#d08770',
+          '--orange-dim': '#d08770',
+          '--bg-base': '#2e3440',
+          '--bg-surface': '#3b4252',
+          '--bg-surface-elevated': '#434c5e',
+          '--bg-surface-hover': '#4c566a',
+          '--bg-input': '#242933',
+          '--bg-active': '#434c5e',
+          '--border-color': '#4c566a',
+          '--border-subtle': '#434c5e',
+          '--border-focus': '#88c0d0',
+          '--text-primary': '#eceff4',
+          '--text-secondary': '#e5e9f0',
+          '--text-muted': '#7b88a1',
+          '--accent': '#88c0d0',
+          '--accent-hover': '#8fbcbb',
+          '--accent-dim': 'rgba(136, 192, 208, 0.15)',
+          '--color-get': '#a3be8c',
+          '--color-post': '#81a1c1',
+          '--color-put': '#ebcb8b',
+          '--color-patch': '#b48ead',
+          '--color-delete': '#bf616a',
+          '--color-head': '#9aa2b1',
+          '--color-options': '#88c0d0'
+        }
+      },
+      'dracula': {
+        name: 'Dracula',
+        type: 'dark',
+        swatches: ['#1e1f29', '#282a36', '#f8f8f2', '#bd93f9'],
+        vars: {
+          '--bg0-hard': '#1e1f29',
+          '--bg0': '#282a36',
+          '--bg0-s': '#21222c',
+          '--bg1': '#343746',
+          '--bg2': '#44475a',
+          '--bg3': '#6272a4',
+          '--bg4': '#7b8cb8',
+          '--fg0': '#ffffff',
+          '--fg1': '#f8f8f2',
+          '--fg2': '#e2e2dc',
+          '--fg3': '#bfbfb8',
+          '--fg4': '#9a9a92',
+          '--gray': '#6272a4',
+          '--red': '#ff5555',
+          '--red-dim': '#ff5555',
+          '--green': '#50fa7b',
+          '--green-dim': '#50fa7b',
+          '--yellow': '#f1fa8c',
+          '--yellow-dim': '#f1fa8c',
+          '--blue': '#8be9fd',
+          '--blue-dim': '#8be9fd',
+          '--purple': '#bd93f9',
+          '--purple-dim': '#bd93f9',
+          '--aqua': '#8be9fd',
+          '--aqua-dim': '#8be9fd',
+          '--orange': '#ffb86c',
+          '--orange-dim': '#ffb86c',
+          '--bg-base': '#282a36',
+          '--bg-surface': '#21222c',
+          '--bg-surface-elevated': '#343746',
+          '--bg-surface-hover': '#44475a',
+          '--bg-input': '#1e1f29',
+          '--bg-active': '#343746',
+          '--border-color': '#44475a',
+          '--border-subtle': '#343746',
+          '--border-focus': '#bd93f9',
+          '--text-primary': '#f8f8f2',
+          '--text-secondary': '#e2e2dc',
+          '--text-muted': '#6272a4',
+          '--accent': '#bd93f9',
+          '--accent-hover': '#ff79c6',
+          '--accent-dim': 'rgba(189, 147, 249, 0.15)',
+          '--color-get': '#50fa7b',
+          '--color-post': '#8be9fd',
+          '--color-put': '#f1fa8c',
+          '--color-patch': '#bd93f9',
+          '--color-delete': '#ff5555',
+          '--color-head': '#6272a4',
+          '--color-options': '#8be9fd'
+        }
+      },
+      'monokai-pro': {
+        name: 'Monokai Pro',
+        type: 'dark',
+        swatches: ['#221f22', '#2d2a2e', '#fcfcfa', '#ffd866'],
+        vars: {
+          '--bg0-hard': '#221f22',
+          '--bg0': '#2d2a2e',
+          '--bg0-s': '#252226',
+          '--bg1': '#403e41',
+          '--bg2': '#5b595c',
+          '--bg3': '#727072',
+          '--bg4': '#939293',
+          '--fg0': '#fcfcfa',
+          '--fg1': '#e3e3e1',
+          '--fg2': '#c1c0c0',
+          '--fg3': '#a4a3a3',
+          '--fg4': '#939293',
+          '--gray': '#727072',
+          '--red': '#ff6188',
+          '--red-dim': '#ff6188',
+          '--green': '#a9dc76',
+          '--green-dim': '#a9dc76',
+          '--yellow': '#ffd866',
+          '--yellow-dim': '#ffd866',
+          '--blue': '#78dce8',
+          '--blue-dim': '#78dce8',
+          '--purple': '#ab9df2',
+          '--purple-dim': '#ab9df2',
+          '--aqua': '#78dce8',
+          '--aqua-dim': '#78dce8',
+          '--orange': '#fc9867',
+          '--orange-dim': '#fc9867',
+          '--bg-base': '#2d2a2e',
+          '--bg-surface': '#252226',
+          '--bg-surface-elevated': '#403e41',
+          '--bg-surface-hover': '#5b595c',
+          '--bg-input': '#221f22',
+          '--bg-active': '#403e41',
+          '--border-color': '#5b595c',
+          '--border-subtle': '#403e41',
+          '--border-focus': '#ffd866',
+          '--text-primary': '#fcfcfa',
+          '--text-secondary': '#e3e3e1',
+          '--text-muted': '#727072',
+          '--accent': '#ffd866',
+          '--accent-hover': '#fc9867',
+          '--accent-dim': 'rgba(255, 216, 102, 0.15)',
+          '--color-get': '#a9dc76',
+          '--color-post': '#78dce8',
+          '--color-put': '#ffd866',
+          '--color-patch': '#ab9df2',
+          '--color-delete': '#ff6188',
+          '--color-head': '#727072',
+          '--color-options': '#78dce8'
+        }
+      }
+    };
+
+    const ACCENT_CHIPS = [
+      { label: 'Orange', hex: '#fe8019' },
+      { label: 'Amber', hex: '#fabd2f' },
+      { label: 'Green', hex: '#b8bb26' },
+      { label: 'Teal', hex: '#8ec07c' },
+      { label: 'Tokyo Blue', hex: '#7aa2f7' },
+      { label: 'Nord Frost', hex: '#88c0d0' },
+      { label: 'Mauve', hex: '#cba6f7' },
+      { label: 'Pink', hex: '#ff79c6' },
+      { label: 'Rose', hex: '#ff6188' },
+      { label: 'Red', hex: '#fb4934' }
+    ];
+
+    function hexToRgba(hex, alpha) {
+      if (!hex || !hex.startsWith('#') || hex.length !== 7) return `rgba(254, 128, 25, ${alpha})`;
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // DOM Elements
+    const methodSelect = document.getElementById('methodSelect');
+    const urlInput = document.getElementById('urlInput');
+    const btnSend = document.getElementById('btnSend');
+    const corsProxyToggle = document.getElementById('corsProxyToggle');
+    const proxyStatusBadge = document.getElementById('proxyStatusBadge');
+    const tabsBarList = document.getElementById('tabsBarList');
+    const authTypeSelect = document.getElementById('authTypeSelect');
+    const curlModal = document.getElementById('curlModal');
+    const snippetsModal = document.getElementById('snippetsModal');
+    const themeModal = document.getElementById('themeModal');
+
+    let toastTimeout = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function safeBtoa(str) {
+      try {
+        return btoa(unescape(encodeURIComponent(str)));
+      } catch (e) {
+        return btoa(str);
+      }
+    }
+
+    function safeAtob(b64) {
+      try {
+        return decodeURIComponent(escape(atob(b64)));
+      } catch (e) {
+        return atob(b64);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str && str !== 0) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Apply a Theme (Built-in or Custom)
+    function applyTheme(themeKey, customColors = null, persist = true) {
+      const root = document.documentElement;
+      let themeName = 'Gruvbox Dark';
+      let activeThemeKey = themeKey;
+
+      if (themeKey === 'custom' && customColors) {
+        themeName = customColors.name || 'Custom Theme';
+        const vars = customColors.vars || {};
+        Object.entries(vars).forEach(([prop, val]) => {
+          root.style.setProperty(prop, val);
+        });
+        if (persist) {
+          try {
+            localStorage.setItem('restbox_theme', 'custom');
+            localStorage.setItem('restbox_custom_theme', JSON.stringify(customColors));
+          } catch (e) {}
+        }
+      } else if (THEMES[themeKey]) {
+        const th = THEMES[themeKey];
+        themeName = th.name;
+        Object.entries(th.vars).forEach(([prop, val]) => {
+          root.style.setProperty(prop, val);
+        });
+        if (persist) {
+          try {
+            localStorage.setItem('restbox_theme', themeKey);
+          } catch (e) {}
+        }
+      } else {
+        return applyTheme('gruvbox-dark', null, persist);
+      }
+
+      state.currentTheme = activeThemeKey;
+
+      // Update navbar badges and titles
+      const badge = document.getElementById('brandThemeBadge');
+      if (badge) badge.textContent = themeName;
+      const navLabel = document.getElementById('navThemeLabel');
+      if (navLabel) navLabel.textContent = themeName.split(' ')[0];
+
+      // Update active state in preset cards
+      document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.toggle('active', card.dataset.theme === activeThemeKey);
+      });
+
+      const customBadge = document.getElementById('customThemeActiveBadge');
+      if (customBadge) {
+        customBadge.style.display = activeThemeKey === 'custom' ? 'inline-block' : 'none';
+      }
+
+      syncPickersToActiveTheme();
+
+      // Refresh method colors
+      renderTabsBar();
+      renderPresets();
+      renderHistory();
+      updateLiveCurl();
+    }
+
+    function renderThemePresets() {
+      const grid = document.getElementById('themePresetGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      Object.entries(THEMES).forEach(([key, th]) => {
+        const card = document.createElement('div');
+        card.className = 'theme-card' + (state.currentTheme === key ? ' active' : '');
+        card.dataset.theme = key;
+
+        card.innerHTML = `
+          <div class="theme-card-header">
+            <span class="theme-card-name">${escapeHtml(th.name)}</span>
+            <span class="theme-card-badge">✓</span>
+          </div>
+          <div class="theme-card-swatches">
+            ${th.swatches.map(s => `<span class="theme-swatch" style="background: ${s};"></span>`).join('')}
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          applyTheme(key, null, true);
+          showToast(`Tema diubah ke ${th.name}`);
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    function renderAccentChips() {
+      const container = document.getElementById('accentChipsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      ACCENT_CHIPS.forEach(chip => {
+        const btn = document.createElement('button');
+        btn.className = 'accent-chip';
+        btn.style.backgroundColor = chip.hex;
+        btn.title = chip.label;
+
+        btn.addEventListener('click', () => {
+          onCustomColorChange('orange', chip.hex);
+          syncPickersToActiveTheme();
+          showToast(`Aksen warna diubah: ${chip.label}`);
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    function syncPickersToActiveTheme() {
+      const root = document.documentElement;
+      const cs = getComputedStyle(root);
+
+      const map = {
+        'bg0': '--bg0',
+        'bg0-s': '--bg0-s',
+        'bg0-hard': '--bg0-hard',
+        'bg1': '--bg1',
+        'bg2': '--bg2',
+        'orange': '--orange',
+        'fg1': '--fg1',
+        'gray': '--gray',
+        'green': '--color-get',
+        'blue': '--color-post'
+      };
+
+      Object.entries(map).forEach(([key, prop]) => {
+        let val = (root.style.getPropertyValue(prop) || cs.getPropertyValue(prop)).trim();
+        if (val.startsWith('#') && val.length === 7) {
+          const picker = document.getElementById(`picker-${key}`);
+          const hexInput = document.getElementById(`hex-${key}`);
+          if (picker) picker.value = val;
+          if (hexInput) hexInput.value = val.toUpperCase();
+        }
+      });
+    }
+
+    function onCustomColorChange(key, hexVal) {
+      if (!/^#[0-9A-Fa-f]{6}$/.test(hexVal)) return;
+      const root = document.documentElement;
+
+      if (key === 'bg0') {
+        root.style.setProperty('--bg0', hexVal);
+        root.style.setProperty('--bg-base', hexVal);
+      } else if (key === 'bg0-s') {
+        root.style.setProperty('--bg0-s', hexVal);
+        root.style.setProperty('--bg-surface', hexVal);
+      } else if (key === 'bg0-hard') {
+        root.style.setProperty('--bg0-hard', hexVal);
+        root.style.setProperty('--bg-input', hexVal);
+      } else if (key === 'bg1') {
+        root.style.setProperty('--bg1', hexVal);
+        root.style.setProperty('--bg-surface-elevated', hexVal);
+        root.style.setProperty('--bg-active', hexVal);
+      } else if (key === 'bg2') {
+        root.style.setProperty('--bg2', hexVal);
+        root.style.setProperty('--border-color', hexVal);
+      } else if (key === 'orange') {
+        root.style.setProperty('--orange', hexVal);
+        root.style.setProperty('--accent', hexVal);
+        root.style.setProperty('--border-focus', hexVal);
+        root.style.setProperty('--accent-dim', hexToRgba(hexVal, 0.15));
+      } else if (key === 'fg1') {
+        root.style.setProperty('--fg1', hexVal);
+        root.style.setProperty('--text-primary', hexVal);
+        root.style.setProperty('--fg0', hexVal);
+      } else if (key === 'gray') {
+        root.style.setProperty('--gray', hexVal);
+        root.style.setProperty('--text-muted', hexVal);
+      } else if (key === 'green') {
+        root.style.setProperty('--green', hexVal);
+        root.style.setProperty('--color-get', hexVal);
+      } else if (key === 'blue') {
+        root.style.setProperty('--blue', hexVal);
+        root.style.setProperty('--color-post', hexVal);
+      }
+
+      state.currentTheme = 'custom';
+      document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+      const customBadge = document.getElementById('customThemeActiveBadge');
+      if (customBadge) customBadge.style.display = 'inline-block';
+      const badge = document.getElementById('brandThemeBadge');
+      if (badge) badge.textContent = 'Custom Theme';
+      const navLabel = document.getElementById('navThemeLabel');
+      if (navLabel) navLabel.textContent = 'Custom';
+
+      renderTabsBar();
+      updateLiveCurl();
+    }
+
+    function saveCurrentAsCustomTheme() {
+      const customVars = {};
+      const currentStyles = getComputedStyle(document.documentElement);
+      const keysToSave = [
+        '--bg0-hard', '--bg0', '--bg0-s', '--bg1', '--bg2', '--bg3', '--bg4',
+        '--fg0', '--fg1', '--fg2', '--fg3', '--fg4', '--gray',
+        '--red', '--red-dim', '--green', '--green-dim', '--yellow', '--yellow-dim',
+        '--blue', '--blue-dim', '--purple', '--purple-dim', '--aqua', '--aqua-dim',
+        '--orange', '--orange-dim',
+        '--bg-base', '--bg-surface', '--bg-surface-elevated', '--bg-surface-hover',
+        '--bg-input', '--bg-active', '--border-color', '--border-subtle', '--border-focus',
+        '--text-primary', '--text-secondary', '--text-muted',
+        '--accent', '--accent-hover', '--accent-dim',
+        '--color-get', '--color-post', '--color-put', '--color-patch', '--color-delete', '--color-head', '--color-options'
+      ];
+
+      keysToSave.forEach(k => {
+        customVars[k] = document.documentElement.style.getPropertyValue(k) || currentStyles.getPropertyValue(k).trim();
+      });
+
+      const customThemeObj = {
+        name: 'Custom Theme',
+        type: 'custom',
+        vars: customVars
+      };
+
+      try {
+        localStorage.setItem('restbox_theme', 'custom');
+        localStorage.setItem('restbox_custom_theme', JSON.stringify(customThemeObj));
+        showToast('Custom theme berhasil disimpan!');
+      } catch (e) {
+        showToast('Gagal menyimpan ke localStorage');
+      }
+    }
+
+    function exportCurrentTheme() {
+      const customVars = {};
+      const currentStyles = getComputedStyle(document.documentElement);
+      const keys = [
+        '--bg0-hard', '--bg0', '--bg0-s', '--bg1', '--bg2',
+        '--fg0', '--fg1', '--gray', '--red', '--green', '--yellow', '--blue', '--purple', '--aqua', '--orange',
+        '--accent', '--accent-hover', '--border-color', '--text-primary', '--color-get', '--color-post'
+      ];
+      keys.forEach(k => {
+        customVars[k] = document.documentElement.style.getPropertyValue(k) || currentStyles.getPropertyValue(k).trim();
+      });
+
+      const exportData = {
+        app: 'RestBox',
+        themeName: state.currentTheme === 'custom' ? 'Custom Theme' : (THEMES[state.currentTheme]?.name || 'Theme'),
+        colors: customVars
+      };
+
+      copyText(JSON.stringify(exportData, null, 2), 'Theme JSON disalin ke clipboard!');
+    }
+
+    function importThemeJson() {
+      const input = prompt('Paste theme JSON di sini:');
+      if (!input) return;
+      try {
+        const data = JSON.parse(input);
+        const colors = data.colors || data.vars || data;
+        if (typeof colors !== 'object') throw new Error('Format JSON tidak valid');
+
+        Object.entries(colors).forEach(([k, v]) => {
+          if (k.startsWith('--') && typeof v === 'string') {
+            document.documentElement.style.setProperty(k, v);
+          }
+        });
+
+        saveCurrentAsCustomTheme();
+        applyTheme('custom', { name: data.themeName || 'Imported Theme', vars: colors });
+        showToast('Theme berhasil di-import!');
+      } catch (err) {
+        showToast('Gagal import theme: ' + err.message);
+      }
+    }
+
+    function initThemeEvents() {
+      // Modal open/close
+      const openModal = () => {
+        themeModal.classList.add('active');
+        syncPickersToActiveTheme();
+      };
+      const closeModal = () => themeModal.classList.remove('active');
+
+      document.getElementById('btnOpenThemeModal').addEventListener('click', openModal);
+      document.getElementById('brandThemeBadge').addEventListener('click', openModal);
+      document.getElementById('btnCloseThemeModal').addEventListener('click', closeModal);
+      document.getElementById('btnApplyAndCloseTheme').addEventListener('click', () => {
+        if (state.currentTheme === 'custom') {
+          saveCurrentAsCustomTheme();
+        }
+        closeModal();
+      });
+
+      // Custom theme action buttons
+      document.getElementById('btnSaveCustomTheme').addEventListener('click', saveCurrentAsCustomTheme);
+      document.getElementById('btnExportTheme').addEventListener('click', exportCurrentTheme);
+      document.getElementById('btnImportTheme').addEventListener('click', importThemeJson);
+      document.getElementById('btnResetTheme').addEventListener('click', () => {
+        applyTheme('gruvbox-dark', null, true);
+        showToast('Tema direset ke Gruvbox Dark');
+      });
+
+      // Color pickers and hex inputs
+      const keys = ['bg0', 'bg0-s', 'bg0-hard', 'bg1', 'bg2', 'orange', 'fg1', 'gray', 'green', 'blue'];
+      keys.forEach(key => {
+        const picker = document.getElementById(`picker-${key}`);
+        const hex = document.getElementById(`hex-${key}`);
+
+        if (picker && hex) {
+          picker.addEventListener('input', (e) => {
+            hex.value = e.target.value.toUpperCase();
+            onCustomColorChange(key, e.target.value);
+          });
+
+          hex.addEventListener('input', (e) => {
+            let val = e.target.value.trim();
+            if (!val.startsWith('#')) val = '#' + val;
+            if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+              picker.value = val;
+              onCustomColorChange(key, val);
+            }
+          });
+        }
+      });
+    }
+
+    // Helper: Create default Tab object
+    function createTabObject(overrides = {}) {
+      const id = 'tab_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+      const isCustom = Boolean(overrides.isCustomName || (overrides.name && overrides.name !== 'Untitled Request'));
+      return {
+        id: id,
+        name: overrides.name || 'Untitled Request',
+        isCustomName: isCustom,
+        method: overrides.method || 'GET',
+        url: overrides.url !== undefined ? overrides.url : 'https://jsonplaceholder.typicode.com/posts/1',
+        params: overrides.params ? JSON.parse(JSON.stringify(overrides.params)) : [],
+        headers: overrides.headers ? JSON.parse(JSON.stringify(overrides.headers)) : [],
+        auth: overrides.auth ? JSON.parse(JSON.stringify(overrides.auth)) : {
+          type: 'none',
+          bearer: '',
+          basicUser: '',
+          basicPass: '',
+          apiKeyName: '',
+          apiKeyValue: '',
+          apiKeyLocation: 'header'
+        },
+        bodyType: overrides.bodyType || 'none',
+        bodyContent: overrides.bodyContent || '',
+        formData: overrides.formData ? overrides.formData.map(f => ({
+          active: f.active !== false,
+          key: f.key || '',
+          type: f.type || 'text',
+          value: f.value || '',
+          file: f.file || null
+        })) : [],
+        urlEncoded: overrides.urlEncoded ? JSON.parse(JSON.stringify(overrides.urlEncoded)) : [],
+        activeSubTab: overrides.activeSubTab || 'params',
+        activeResTab: overrides.activeResTab || 'body',
+        responseViewMode: overrides.responseViewMode || 'pretty',
+        responseFilterText: overrides.responseFilterText || '',
+        response: overrides.response || null
+      };
+    }
+
+    function getActiveTab() {
+      return state.tabs.find(t => t.id === state.activeTabId) || state.tabs[0];
+    }
+
+    // Derive concise tab display name from URL
+    function deriveTabName(method, url) {
+      if (!url || !url.trim()) return 'Untitled Request';
+      const cleanUrl = url.trim().split('?')[0].split('#')[0];
+      try {
+        const u = new URL(cleanUrl.startsWith('http') ? cleanUrl : 'https://' + cleanUrl);
+        const path = u.pathname;
+        if (path && path !== '/') {
+          const parts = path.split('/').filter(Boolean);
+          if (parts.length > 0) {
+            return parts.slice(-2).join('/');
+          }
+        }
+        return u.hostname + (u.port ? ':' + u.port : '');
+      } catch (e) {
+        return cleanUrl.replace(/^https?:\/\//, '') || 'Untitled Request';
+      }
+    }
+
+    // Render Tab Strip
+    function renderTabsBar() {
+      tabsBarList.innerHTML = '';
+      state.tabs.forEach((tab) => {
+        const isActive = tab.id === state.activeTabId;
+        const item = document.createElement('div');
+        item.className = 'req-tab-item' + (isActive ? ' active' : '');
+        item.dataset.id = tab.id;
+
+        const methodColor = METHOD_COLORS[tab.method] || 'var(--text-primary)';
+        const displayName = tab.name && tab.name !== 'Untitled Request' ? tab.name : deriveTabName(tab.method, tab.url);
+
+        item.innerHTML = `
+          <span style="font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: ${methodColor}; flex-shrink: 0;">${tab.method}</span>
+          <span class="req-tab-title" title="${tab.url || 'Untitled Request'} (Double-click to rename)">${escapeHtml(displayName)}</span>
+          <button class="req-tab-close" data-id="${tab.id}" title="Tutup Tab">×</button>
+        `;
+
+        item.addEventListener('click', (e) => {
+          if (e.target.closest('.req-tab-close') || e.target.closest('input')) return;
+          if (tab.id !== state.activeTabId) {
+            switchTab(tab.id);
+          }
+        });
+
+        // Double-click to rename
+        const titleEl = item.querySelector('.req-tab-title');
+        titleEl.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          const currentName = tab.name && tab.name !== 'Untitled Request' ? tab.name : deriveTabName(tab.method, tab.url);
+          const renameInput = document.createElement('input');
+          renameInput.type = 'text';
+          renameInput.value = currentName;
+          renameInput.style.cssText = 'width: 100%; background: var(--bg0-hard); color: var(--fg0); border: 1px solid var(--orange); border-radius: 2px; padding: 1px 4px; font-size: 11px; outline: none; font-family: var(--font-ui);';
+
+          let committed = false;
+          function commitRename() {
+            if (committed) return;
+            committed = true;
+            const newName = renameInput.value.trim();
+            if (newName) {
+              tab.name = newName;
+              tab.isCustomName = true;
+            }
+            renderTabsBar();
+          }
+
+          renameInput.addEventListener('blur', commitRename);
+          renameInput.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter') {
+              ev.preventDefault();
+              commitRename();
+            } else if (ev.key === 'Escape') {
+              committed = true;
+              renderTabsBar();
+            }
+          });
+
+          titleEl.replaceWith(renameInput);
+          renameInput.focus();
+          renameInput.select();
+        });
+
+        const closeBtn = item.querySelector('.req-tab-close');
+        closeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          closeTab(tab.id);
+        });
+
+        tabsBarList.appendChild(item);
+      });
+    }
+
+    // Switch Tab
+    function switchTab(newTabId) {
+      saveActiveTabState();
+      state.activeTabId = newTabId;
+      loadActiveTabState();
+      renderTabsBar();
+    }
+
+    // Add New Tab
+    function addNewTab(overrides = {}) {
+      saveActiveTabState();
+      const newTab = createTabObject(overrides);
+      state.tabs.push(newTab);
+      state.activeTabId = newTab.id;
+      loadActiveTabState();
+      renderTabsBar();
+      urlInput.focus();
+      urlInput.select();
+    }
+
+    // Close Tab
+    function closeTab(tabId) {
+      if (state.tabs.length <= 1) {
+        state.tabs = [createTabObject()];
+        state.activeTabId = state.tabs[0].id;
+        loadActiveTabState();
+        renderTabsBar();
+        showToast('Tab direset');
+        return;
+      }
+
+      const idx = state.tabs.findIndex(t => t.id === tabId);
+      state.tabs.splice(idx, 1);
+
+      if (state.activeTabId === tabId) {
+        const nextActive = state.tabs[Math.max(0, idx - 1)];
+        state.activeTabId = nextActive.id;
+      }
+
+      loadActiveTabState();
+      renderTabsBar();
+    }
+
+    // Save Active Tab State from current DOM
+    function saveActiveTabState() {
+      const tab = getActiveTab();
+      if (!tab) return;
+
+      tab.method = methodSelect.value;
+      tab.url = urlInput.value;
+      if (!tab.isCustomName) {
+        tab.name = deriveTabName(tab.method, tab.url);
+      }
+      tab.bodyContent = document.getElementById('bodyTextarea').value;
+      tab.responseFilterText = document.getElementById('resSearchInput').value;
+
+      // Save Auth fields from DOM
+      tab.auth.type = authTypeSelect.value || 'none';
+      if (tab.auth.type === 'bearer') {
+        tab.auth.bearer = document.getElementById('bearerTokenInput').value;
+      } else if (tab.auth.type === 'basic') {
+        tab.auth.basicUser = document.getElementById('basicUsernameInput').value;
+        tab.auth.basicPass = document.getElementById('basicPasswordInput').value;
+      } else if (tab.auth.type === 'apikey') {
+        tab.auth.apiKeyName = document.getElementById('apiKeyNameInput').value;
+        tab.auth.apiKeyValue = document.getElementById('apiKeyValueInput').value;
+        tab.auth.apiKeyLocation = document.getElementById('apiKeyLocationSelect').value;
+      }
+    }
+
+    // Load Active Tab State into DOM
+    function loadActiveTabState() {
+      const tab = getActiveTab();
+      if (!tab) return;
+
+      methodSelect.value = tab.method;
+      updateMethodColor(false);
+      urlInput.value = tab.url;
+
+      if (!tab.params || tab.params.length === 0) {
+        syncUrlToParamsForTab(tab);
+      }
+      renderParams();
+      renderHeaders();
+
+      authTypeSelect.value = tab.auth.type || 'none';
+      document.getElementById('bearerTokenInput').value = tab.auth.bearer || '';
+      document.getElementById('basicUsernameInput').value = tab.auth.basicUser || '';
+      document.getElementById('basicPasswordInput').value = tab.auth.basicPass || '';
+      document.getElementById('apiKeyNameInput').value = tab.auth.apiKeyName || '';
+      document.getElementById('apiKeyValueInput').value = tab.auth.apiKeyValue || '';
+      document.getElementById('apiKeyLocationSelect').value = tab.auth.apiKeyLocation || 'header';
+      applyAuthUI();
+
+      const bodyRadio = document.querySelector(`input[name="bodyType"][value="${tab.bodyType}"]`);
+      if (bodyRadio) bodyRadio.checked = true;
+      setBodyType(tab.bodyType, false);
+      document.getElementById('bodyTextarea').value = tab.bodyContent || '';
+      validateJson();
+      updateBodyEditor();
+      renderFormData();
+      renderUrlEncoded();
+
+      setSubTab(tab.activeSubTab || 'params');
+      restoreResponseUI(tab);
+      updateLiveCurl();
+    }
+
+    function setSubTab(tabKey) {
+      const activeTab = getActiveTab();
+      if (activeTab) activeTab.activeSubTab = tabKey;
+
+      document.querySelectorAll('.request-section .tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tabKey);
+      });
+      document.querySelectorAll('.request-section .tab-panel').forEach(p => {
+        p.classList.toggle('active', p.id === `tab-${tabKey}`);
+      });
+      if (tabKey === 'curl') updateLiveCurl();
+    }
+
+    function restoreResponseUI(tab) {
+      const emptyState = document.getElementById('emptyResponseState');
+      const metaEl = document.getElementById('responseMeta');
+      const viewModeGroup = document.getElementById('resViewModeGroup');
+      const prettyEl = document.getElementById('responseContent');
+      const rawEl = document.getElementById('responseRawContent');
+      const frameEl = document.getElementById('responsePreviewFrame');
+      const imgWrap = document.getElementById('responsePreviewImgWrap');
+      const searchInput = document.getElementById('resSearchInput');
+
+      if (!tab.response) {
+        emptyState.style.display = 'flex';
+        metaEl.style.display = 'none';
+        viewModeGroup.style.display = 'none';
+        prettyEl.style.display = 'none';
+        rawEl.style.display = 'none';
+        frameEl.style.display = 'none';
+        imgWrap.style.display = 'none';
+        document.getElementById('resHeadersBody').innerHTML = '';
+        document.getElementById('resHeadersCount').textContent = '0';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      metaEl.style.display = 'flex';
+      viewModeGroup.style.display = 'flex';
+
+      const res = tab.response;
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = `${res.status} ${res.statusText || STATUS_MAP[res.status] || ''}`.trim();
+      badge.className = 'status-badge';
+      if (typeof res.status === 'number') {
+        if (res.status >= 200 && res.status < 300) badge.classList.add('s-2xx');
+        else if (res.status >= 300 && res.status < 400) badge.classList.add('s-3xx');
+        else if (res.status >= 400 && res.status < 500) badge.classList.add('s-4xx');
+        else badge.classList.add('s-5xx');
+      } else {
+        badge.classList.add('s-err');
+      }
+
+      document.getElementById('responseTime').textContent = `${res.duration} ms`;
+      document.getElementById('responseSize').textContent = res.size;
+      searchInput.value = tab.responseFilterText || '';
+
+      document.querySelectorAll('.res-view-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === (tab.responseViewMode || 'pretty'));
+      });
+
+      renderResponseBody(searchInput.value.trim());
+
+      const resHBody = document.getElementById('resHeadersBody');
+      resHBody.innerHTML = '';
+      const headers = res.headers || [];
+      document.getElementById('resHeadersCount').textContent = headers.length;
+      headers.forEach(h => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td style="font-family: var(--font-mono);">${escapeHtml(h.key)}</td><td style="font-family: var(--font-mono);">${escapeHtml(h.value)}</td>`;
+        resHBody.appendChild(row);
+      });
+    }
+
+    function updateMethodColor(updateTab = true) {
+      const val = methodSelect.value;
+      const tab = getActiveTab();
+      if (tab) {
+        tab.method = val;
+        if (!tab.isCustomName) {
+          tab.name = deriveTabName(tab.method, tab.url);
+        }
+      }
+      methodSelect.style.color = METHOD_COLORS[val] || 'var(--text-primary)';
+      if (updateTab) renderTabsBar();
+      updateLiveCurl();
+    }
+
+    methodSelect.addEventListener('change', () => updateMethodColor(true));
+
+    function interpolate(str) {
+      if (!str || typeof str !== 'string') return '';
+      let res = str;
+      state.variables.forEach(v => {
+        if (v.key && v.key.trim()) {
+          const escaped = v.key.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const pattern = new RegExp(`{{\\s*${escaped}\\s*}}`, 'g');
+          res = res.replace(pattern, v.value !== undefined ? v.value : '');
+        }
+      });
+      return res;
+    }
+
+    function renderVariables() {
+      const tbody = document.getElementById('envTableBody');
+      tbody.innerHTML = '';
+      state.variables.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" value="${escapeHtml(item.key || '')}" placeholder="key" data-index="${index}" data-field="key"></td>
+          <td><input type="text" value="${escapeHtml(item.value || '')}" placeholder="value" data-index="${index}" data-field="value"></td>
+          <td><button class="btn-row-delete" data-index="${index}">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          const field = e.target.dataset.field;
+          state.variables[idx][field] = e.target.value;
+          updateLiveCurl();
+        });
+      });
+
+      tbody.querySelectorAll('.btn-row-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          state.variables.splice(idx, 1);
+          renderVariables();
+          updateLiveCurl();
+        });
+      });
+    }
+
+    document.getElementById('btnAddEnvRow').addEventListener('click', () => {
+      state.variables.push({ key: '', value: '' });
+      renderVariables();
+    });
+
+    function renderPresets() {
+      const list = document.getElementById('presetList');
+      list.innerHTML = '';
+      PRESETS.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'preset-item';
+        const methodClass = (p.method || 'GET').toLowerCase();
+        item.innerHTML = `
+          <span class="method-tag method-${methodClass}">${p.method}</span>
+          <div style="flex: 1; overflow: hidden;">
+            <div style="font-weight: 600; font-size: 11.5px; color: var(--fg0); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${escapeHtml(p.name)}</div>
+            <div class="item-url">${escapeHtml(p.url)}</div>
+          </div>
+        `;
+        item.addEventListener('click', () => {
+          addNewTab({
+            name: p.name,
+            isCustomName: true,
+            method: p.method,
+            url: p.url,
+            headers: p.headers,
+            bodyType: p.bodyType,
+            bodyContent: p.bodyContent
+          });
+          showToast(`Dibuka di tab baru: ${p.name}`);
+        });
+        list.appendChild(item);
+      });
+    }
+
+    function renderHistory(filter = '') {
+      const container = document.getElementById('historyList');
+      container.innerHTML = '';
+
+      const filtered = state.history.filter(h => {
+        if (!filter) return true;
+        return (h.url || '').toLowerCase().includes(filter.toLowerCase()) ||
+               (h.method || '').toLowerCase().includes(filter.toLowerCase());
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-history">Tidak ada riwayat yang cocok</div>';
+        return;
+      }
+
+      filtered.forEach((h) => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const statusNum = parseInt(h.status);
+        let statusClass = 's-err';
+        if (!isNaN(statusNum)) {
+          if (statusNum >= 200 && statusNum < 300) statusClass = 's-2xx';
+          else if (statusNum >= 300 && statusNum < 400) statusClass = 's-3xx';
+          else if (statusNum >= 400 && statusNum < 500) statusClass = 's-4xx';
+          else statusClass = 's-5xx';
+        }
+        item.innerHTML = `
+          <span class="method-tag method-${(h.method || 'GET').toLowerCase()}">${h.method}</span>
+          <span class="item-url" title="${escapeHtml(h.url)}">${escapeHtml(h.url)}</span>
+          <span class="status-badge ${statusClass}" style="font-size: 9.5px; padding: 1px 4px;">${h.status || 'ERR'}</span>
+        `;
+        item.addEventListener('click', () => {
+          addNewTab({
+            name: deriveTabName(h.method, h.url),
+            method: h.method || 'GET',
+            url: h.url || '',
+            headers: JSON.parse(JSON.stringify(h.headers || [])),
+            bodyType: h.bodyType || 'none',
+            bodyContent: h.bodyContent || ''
+          });
+          showToast('Riwayat dibuka di tab baru');
+        });
+        container.appendChild(item);
+      });
+    }
+
+    document.getElementById('historySearch').addEventListener('input', (e) => {
+      renderHistory(e.target.value);
+    });
+
+    document.getElementById('btnClearHistory').addEventListener('click', () => {
+      state.history = [];
+      renderHistory();
+      showToast('Riwayat dihapus');
+    });
+
+    function syncUrlToParamsForTab(tab) {
+      if (!tab) return;
+      try {
+        const rawUrl = (tab.url || '').trim();
+        if (!rawUrl.includes('?')) {
+          tab.params = [];
+          return;
+        }
+        const qIndex = rawUrl.indexOf('?');
+        const queryString = rawUrl.substring(qIndex + 1).split('#')[0];
+        const sp = new URLSearchParams(queryString);
+
+        const oldParamsMap = new Map();
+        (tab.params || []).forEach(p => {
+          if (p.key && !oldParamsMap.has(p.key)) {
+            oldParamsMap.set(p.key, p);
+          }
+        });
+
+        const newParams = [];
+        sp.forEach((val, key) => {
+          const existing = oldParamsMap.get(key);
+          newParams.push({
+            active: existing ? existing.active : true,
+            key: key,
+            value: val,
+            desc: existing ? existing.desc : ''
+          });
+          if (existing) oldParamsMap.delete(key);
+        });
+        tab.params = newParams;
+      } catch (e) {}
+    }
+
+    function syncUrlToParams() {
+      const tab = getActiveTab();
+      if (!tab) return;
+      tab.url = urlInput.value;
+      syncUrlToParamsForTab(tab);
+      renderParams();
+    }
+
+    function syncParamsToUrl() {
+      const tab = getActiveTab();
+      if (!tab) return;
+      try {
+        let rawUrl = urlInput.value.trim();
+        const hashIdx = rawUrl.indexOf('#');
+        const hash = hashIdx > -1 ? rawUrl.substring(hashIdx) : '';
+        const cleanUrl = hashIdx > -1 ? rawUrl.substring(0, hashIdx) : rawUrl;
+        const base = cleanUrl.split('?')[0];
+
+        const activeParams = (tab.params || []).filter(p => p.active && p.key.trim() !== '');
+        if (activeParams.length === 0) {
+          urlInput.value = base + hash;
+        } else {
+          // Build query string manually to avoid URLSearchParams percent-encoding {{variables}}
+          const pairs = activeParams.map(p => {
+            const k = encodeURIComponent(p.key).replace(/%7B%7B/g, '{{').replace(/%7D%7D/g, '}}');
+            const v = encodeURIComponent(p.value).replace(/%7B%7B/g, '{{').replace(/%7D%7D/g, '}}');
+            return `${k}=${v}`;
+          });
+          urlInput.value = `${base}?${pairs.join('&')}${hash}`;
+        }
+        tab.url = urlInput.value;
+        if (!tab.isCustomName) {
+          tab.name = deriveTabName(tab.method, tab.url);
+        }
+        renderTabsBar();
+        updateLiveCurl();
+      } catch (e) {}
+    }
+
+    function renderParams() {
+      const tab = getActiveTab();
+      const tbody = document.getElementById('paramsTableBody');
+      tbody.innerHTML = '';
+      if (!tab) return;
+
+      document.getElementById('paramsCount').textContent = tab.params.filter(p => p.active && p.key).length;
+
+      tab.params.forEach((param, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align: center;">
+            <input type="checkbox" class="kv-checkbox" ${param.active ? 'checked' : ''} data-index="${index}">
+          </td>
+          <td>
+            <input type="text" value="${escapeHtml(param.key || '')}" placeholder="Key" data-field="key" data-index="${index}">
+          </td>
+          <td>
+            <input type="text" value="${escapeHtml(param.value || '')}" placeholder="Value" data-field="value" data-index="${index}">
+          </td>
+          <td>
+            <input type="text" value="${escapeHtml(param.desc || '')}" placeholder="Description" data-field="desc" data-index="${index}">
+          </td>
+          <td>
+            <button class="btn-row-delete" data-index="${index}">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.kv-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          tab.params[parseInt(e.target.dataset.index)].active = e.target.checked;
+          syncParamsToUrl();
+        });
+      });
+
+      tbody.querySelectorAll('input[type="text"]').forEach(inp => {
+        inp.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          const field = e.target.dataset.field;
+          tab.params[idx][field] = e.target.value;
+          syncParamsToUrl();
+        });
+      });
+
+      tbody.querySelectorAll('.btn-row-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          tab.params.splice(idx, 1);
+          renderParams();
+          syncParamsToUrl();
+        });
+      });
+    }
+
+    document.getElementById('btnAddParamRow').addEventListener('click', () => {
+      const tab = getActiveTab();
+      if (tab) {
+        tab.params.push({ active: true, key: '', value: '', desc: '' });
+        renderParams();
+      }
+    });
+
+    urlInput.addEventListener('input', () => {
+      const val = urlInput.value.trim();
+      if (val.startsWith('curl ') || val.startsWith('curl\n') || val.startsWith('curl\t')) {
+        parseAndApplyCurl(val, false);
+        showToast('cURL berhasil dideteksi & di-import otomatis!');
+        return;
+      }
+      const tab = getActiveTab();
+      if (tab) {
+        tab.url = urlInput.value;
+        if (!tab.isCustomName) {
+          tab.name = deriveTabName(tab.method, tab.url);
+        }
+      }
+      syncUrlToParams();
+      renderTabsBar();
+      updateLiveCurl();
+    });
+
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        executeRequest();
+      }
+    });
+
+    function renderHeaders() {
+      const tab = getActiveTab();
+      const tbody = document.getElementById('headersTableBody');
+      tbody.innerHTML = '';
+      if (!tab) return;
+
+      document.getElementById('headersCount').textContent = tab.headers.filter(h => h.active && h.key).length;
+
+      tab.headers.forEach((h, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align: center;">
+            <input type="checkbox" class="kv-checkbox" ${h.active ? 'checked' : ''} data-index="${index}">
+          </td>
+          <td>
+            <input type="text" value="${escapeHtml(h.key || '')}" placeholder="Header Name (e.g. Authorization)" data-field="key" data-index="${index}">
+          </td>
+          <td>
+            <input type="text" value="${escapeHtml(h.value || '')}" placeholder="Value" data-field="value" data-index="${index}">
+          </td>
+          <td>
+            <button class="btn-row-delete" data-index="${index}">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.kv-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          tab.headers[parseInt(e.target.dataset.index)].active = e.target.checked;
+          document.getElementById('headersCount').textContent = tab.headers.filter(h => h.active && h.key).length;
+          updateLiveCurl();
+        });
+      });
+
+      tbody.querySelectorAll('input[type="text"]').forEach(inp => {
+        inp.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          const field = e.target.dataset.field;
+          tab.headers[idx][field] = e.target.value;
+          document.getElementById('headersCount').textContent = tab.headers.filter(h => h.active && h.key).length;
+          updateLiveCurl();
+        });
+      });
+
+      tbody.querySelectorAll('.btn-row-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          tab.headers.splice(idx, 1);
+          renderHeaders();
+          updateLiveCurl();
+        });
+      });
+    }
+
+    document.getElementById('btnAddHeaderRow').addEventListener('click', () => {
+      const tab = getActiveTab();
+      if (tab) {
+        tab.headers.push({ active: true, key: '', value: '' });
+        renderHeaders();
+      }
+    });
+
+    document.getElementById('btnHeaderJsonPreset').addEventListener('click', () => {
+      const tab = getActiveTab();
+      if (tab) {
+        tab.headers.push({ active: true, key: 'Content-Type', value: 'application/json' });
+        tab.headers.push({ active: true, key: 'Accept', value: 'application/json' });
+        renderHeaders();
+        updateLiveCurl();
+        showToast('Header JSON ditambahkan');
+      }
+    });
+
+    document.getElementById('btnHeaderAuthPreset').addEventListener('click', () => {
+      const tab = getActiveTab();
+      if (tab) {
+        tab.headers.push({ active: true, key: 'Authorization', value: 'Bearer {{token}}' });
+        renderHeaders();
+        updateLiveCurl();
+        showToast('Header Bearer Token ditambahkan');
+      }
+    });
+
+    function applyAuthUI() {
+      const tab = getActiveTab();
+      if (!tab) return;
+
+      document.querySelectorAll('.auth-fields').forEach(f => f.style.display = 'none');
+      const activeFields = document.getElementById(`auth-${tab.auth.type}`);
+      if (activeFields) activeFields.style.display = 'block';
+
+      const badge = document.getElementById('authBadge');
+      badge.style.display = tab.auth.type !== 'none' ? 'inline-block' : 'none';
+      updateLiveCurl();
+    }
+
+    authTypeSelect.addEventListener('change', () => {
+      const tab = getActiveTab();
+      if (tab) {
+        tab.auth.type = authTypeSelect.value;
+        applyAuthUI();
+      }
+    });
+
+    document.getElementById('bearerTokenInput').addEventListener('input', (e) => {
+      const tab = getActiveTab();
+      if (tab) { tab.auth.bearer = e.target.value; updateLiveCurl(); }
+    });
+
+    document.getElementById('basicUsernameInput').addEventListener('input', (e) => {
+      const tab = getActiveTab();
+      if (tab) { tab.auth.basicUser = e.target.value; updateLiveCurl(); }
+    });
+
+    document.getElementById('basicPasswordInput').addEventListener('input', (e) => {
+      const tab = getActiveTab();
+      if (tab) { tab.auth.basicPass = e.target.value; updateLiveCurl(); }
+    });
+
+    document.getElementById('apiKeyNameInput').addEventListener('input', (e) => {
+      const tab = getActiveTab();
+      if (tab) { tab.auth.apiKeyName = e.target.value; updateLiveCurl(); }
+    });
+
+    document.getElementById('apiKeyValueInput').addEventListener('input', (e) => {
+      const tab = getActiveTab();
+      if (tab) { tab.auth.apiKeyValue = e.target.value; updateLiveCurl(); }
+    });
+
+    document.getElementById('apiKeyLocationSelect').addEventListener('change', (e) => {
+      const tab = getActiveTab();
+      if (tab) { tab.auth.apiKeyLocation = e.target.value; updateLiveCurl(); }
+    });
+
+    
+    // Syntax Highlighter for Request Body Editor
+    function highlightEditorCode(text) {
+      if (!text) return '';
+
+      let escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Tokenizer with non-capturing groups
+      const tokenRegex = /({{\s*[\w.-]+\s*}})|("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"\s*:)|("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*")|(\b(?:true|false)\b)|(\bnull\b)|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|([{}[],:])/g;
+
+      escaped = escaped.replace(tokenRegex, (match, envVar, key, str, bool, nul, num, punct) => {
+        if (envVar) {
+          return '<span style="color: var(--yellow); font-weight: 600; background: rgba(250, 189, 47, 0.14); border-radius: 2px; padding: 0 2px;">' + envVar + '</span>';
+        }
+        if (key) {
+          const colonIdx = key.lastIndexOf(':');
+          const keyName = key.substring(0, colonIdx);
+          const colon = key.substring(colonIdx);
+          return '<span class="json-key" style="color: var(--aqua); font-weight: 600;">' + keyName + '</span><span style="color: var(--fg4);">' + colon + '</span>';
+        }
+        if (str) {
+          if (str.includes('{{')) {
+            const highlighted = str.replace(/({{\s*[\w.-]+\s*}})/g, '<span style="color: var(--yellow); font-weight: 600; background: rgba(250, 189, 47, 0.18); border-radius: 2px;">$1</span>');
+            return '<span class="json-string" style="color: var(--green);">' + highlighted + '</span>';
+          }
+          return '<span class="json-string" style="color: var(--green);">' + str + '</span>';
+        }
+        if (bool) {
+          return '<span class="json-boolean" style="color: var(--orange); font-weight: 600;">' + bool + '</span>';
+        }
+        if (nul) {
+          return '<span class="json-null" style="color: var(--gray); font-style: italic;">' + nul + '</span>';
+        }
+        if (num) {
+          return '<span class="json-number" style="color: var(--purple); font-weight: 600;">' + num + '</span>';
+        }
+        if (punct) {
+          return '<span style="color: var(--fg4); font-weight: 600;">' + punct + '</span>';
+        }
+        return match;
+      });
+
+      return escaped + (text.endsWith('\n') ? ' ' : '');
+    }
+
+    function updateBodyEditor() {
+      const ta = document.getElementById('bodyTextarea');
+      if (!ta) return;
+      const codeEl = document.getElementById('bodyHighlightCode');
+      const gutterEl = document.getElementById('bodyEditorGutter');
+      const preEl = document.getElementById('bodyHighlightPre');
+
+      const val = ta.value || '';
+      if (codeEl) {
+        codeEl.innerHTML = highlightEditorCode(val);
+      }
+
+      if (gutterEl) {
+        const lineCount = Math.max(val.split('\n').length, 1);
+        let nums = '';
+        for (let i = 1; i <= lineCount; i++) {
+          nums += (i === 1 ? '' : '\n') + i;
+        }
+        gutterEl.textContent = nums;
+      }
+
+      if (preEl) {
+        preEl.scrollTop = ta.scrollTop;
+        preEl.scrollLeft = ta.scrollLeft;
+      }
+      if (gutterEl) {
+        gutterEl.scrollTop = ta.scrollTop;
+      }
+    }
+
+    function setupBodyEditor() {
+      const ta = document.getElementById('bodyTextarea');
+      const preEl = document.getElementById('bodyHighlightPre');
+      const gutterEl = document.getElementById('bodyEditorGutter');
+      if (!ta) return;
+
+      // Scroll synchronization
+      ta.addEventListener('scroll', () => {
+        if (preEl) {
+          preEl.scrollTop = ta.scrollTop;
+          preEl.scrollLeft = ta.scrollLeft;
+        }
+        if (gutterEl) {
+          gutterEl.scrollTop = ta.scrollTop;
+        }
+      });
+
+      // Auto-closing quotes, brackets, and smart indent
+      ta.addEventListener('keydown', (e) => {
+        let selStart = ta.selectionStart;
+        let selEnd = ta.selectionEnd;
+        let val = ta.value;
+
+        // Auto-close double quotes: "
+        if (e.key === '"') {
+          e.preventDefault();
+          if (selStart !== selEnd) {
+            // Wrap selected text in quotes
+            const selected = val.substring(selStart, selEnd);
+            ta.value = val.substring(0, selStart) + '"' + selected + '"' + val.substring(selEnd);
+            ta.selectionStart = selStart + 1;
+            ta.selectionEnd = selEnd + 1;
+          } else if (val[selStart] === '"') {
+            // Step over existing quote
+            ta.selectionStart = selStart + 1;
+            ta.selectionEnd = selStart + 1;
+          } else {
+            // Insert quote pair
+            ta.value = val.substring(0, selStart) + '""' + val.substring(selEnd);
+            ta.selectionStart = selStart + 1;
+            ta.selectionEnd = selStart + 1;
+          }
+          dispatchEditorChange();
+          return;
+        }
+
+        // Auto-close curly braces: {
+        if (e.key === '{') {
+          e.preventDefault();
+          if (selStart !== selEnd) {
+            const selected = val.substring(selStart, selEnd);
+            ta.value = val.substring(0, selStart) + '{' + selected + '}' + val.substring(selEnd);
+            ta.selectionStart = selStart + 1;
+            ta.selectionEnd = selEnd + 1;
+          } else {
+            ta.value = val.substring(0, selStart) + '{}' + val.substring(selEnd);
+            ta.selectionStart = selStart + 1;
+            ta.selectionEnd = selStart + 1;
+          }
+          dispatchEditorChange();
+          return;
+        }
+
+        // Step over closing brace: }
+        if (e.key === '}') {
+          if (selStart === selEnd && val[selStart] === '}') {
+            e.preventDefault();
+            ta.selectionStart = selStart + 1;
+            ta.selectionEnd = selStart + 1;
+            return;
+          }
+        }
+
+        // Auto-close square brackets: [
+        if (e.key === '[') {
+          e.preventDefault();
+          if (selStart !== selEnd) {
+            const selected = val.substring(selStart, selEnd);
+            ta.value = val.substring(0, selStart) + '[' + selected + ']' + val.substring(selEnd);
+            ta.selectionStart = selStart + 1;
+            ta.selectionEnd = selEnd + 1;
+          } else {
+            ta.value = val.substring(0, selStart) + '[]' + val.substring(selEnd);
+            ta.selectionStart = selStart + 1;
+            ta.selectionEnd = selStart + 1;
+          }
+          dispatchEditorChange();
+          return;
+        }
+
+        // Step over closing bracket: ]
+        if (e.key === ']') {
+          if (selStart === selEnd && val[selStart] === ']') {
+            e.preventDefault();
+            ta.selectionStart = selStart + 1;
+            ta.selectionEnd = selStart + 1;
+            return;
+          }
+        }
+
+        // Backspace: delete matching pair
+        if (e.key === 'Backspace') {
+          if (selStart === selEnd && selStart > 0) {
+            const charBefore = val[selStart - 1];
+            const charAfter = val[selStart];
+            if ((charBefore === '"' && charAfter === '"') ||
+                (charBefore === '{' && charAfter === '}') ||
+                (charBefore === '[' && charAfter === ']')) {
+              e.preventDefault();
+              ta.value = val.substring(0, selStart - 1) + val.substring(selStart + 1);
+              ta.selectionStart = selStart - 1;
+              ta.selectionEnd = selStart - 1;
+              dispatchEditorChange();
+              return;
+            }
+          }
+        }
+
+        // Enter: smart indent inside {}
+        if (e.key === 'Enter') {
+          if (selStart === selEnd && selStart > 0) {
+            const charBefore = val[selStart - 1];
+            const charAfter = val[selStart];
+            if (charBefore === '{' && charAfter === '}') {
+              e.preventDefault();
+              const lineStart = val.lastIndexOf('\n', selStart - 2) + 1;
+              const currentIndent = val.substring(lineStart, selStart - 1).match(/^\s*/)[0];
+              const innerIndent = currentIndent + '  ';
+              ta.value = val.substring(0, selStart) + '\n' + innerIndent + '\n' + currentIndent + val.substring(selStart);
+              ta.selectionStart = selStart + 1 + innerIndent.length;
+              ta.selectionEnd = ta.selectionStart;
+              dispatchEditorChange();
+              return;
+            }
+          }
+        }
+
+        // Tab: insert 2 spaces
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          if (selStart === selEnd) {
+            ta.value = val.substring(0, selStart) + '  ' + val.substring(selEnd);
+            ta.selectionStart = selStart + 2;
+            ta.selectionEnd = selStart + 2;
+          } else {
+            const selected = val.substring(selStart, selEnd);
+            const indented = selected.split('\n').map(l => '  ' + l).join('\n');
+            ta.value = val.substring(0, selStart) + indented + val.substring(selEnd);
+            ta.selectionStart = selStart;
+            ta.selectionEnd = selStart + indented.length;
+          }
+          dispatchEditorChange();
+          return;
+        }
+      });
+
+      function dispatchEditorChange() {
+        const tab = getActiveTab();
+        if (tab) {
+          tab.bodyContent = ta.value;
+        }
+        validateJson();
+        updateBodyEditor();
+        updateLiveCurl();
+      }
+    }
+
+    function setBodyType(type, triggerLiveCurl = true) {
+      const tab = getActiveTab();
+      if (tab) tab.bodyType = type;
+
+      const rawCont = document.getElementById('bodyRawContainer');
+      const formCont = document.getElementById('bodyFormDataContainer');
+      const urlEncCont = document.getElementById('bodyUrlEncodedContainer');
+      const noneCont = document.getElementById('bodyNoneContainer');
+      const badge = document.getElementById('bodyBadge');
+
+      rawCont.style.display = 'none';
+      formCont.style.display = 'none';
+      urlEncCont.style.display = 'none';
+      noneCont.style.display = 'none';
+
+      badge.style.display = type !== 'none' ? 'inline-block' : 'none';
+
+      if (type === 'none') {
+        noneCont.style.display = 'block';
+      } else if (type === 'json' || type === 'raw') {
+        rawCont.style.display = 'flex';
+        if (type === 'json' && tab && !tab.headers.some(h => h.key.toLowerCase() === 'content-type')) {
+          tab.headers.push({ active: true, key: 'Content-Type', value: 'application/json' });
+          renderHeaders();
+        }
+      } else if (type === 'form-data') {
+        formCont.style.display = 'flex';
+      } else if (type === 'urlencoded') {
+        urlEncCont.style.display = 'flex';
+      }
+      if (type === "json" || type === "raw") updateBodyEditor();
+      if (triggerLiveCurl) updateLiveCurl();
+    }
+
+    document.querySelectorAll('input[name="bodyType"]').forEach(r => {
+      r.addEventListener('change', (e) => setBodyType(e.target.value));
+    });
+
+    document.getElementById('bodyTextarea').addEventListener('input', (e) => {
+      const tab = getActiveTab();
+      if (tab) {
+        tab.bodyContent = e.target.value;
+        validateJson();
+        updateBodyEditor();
+        updateLiveCurl();
+      }
+    });
+
+    function validateJson() {
+      const tab = getActiveTab();
+      const msgEl = document.getElementById('jsonValidationMsg');
+      if (!tab || tab.bodyType !== 'json' || !tab.bodyContent.trim()) {
+        msgEl.textContent = '';
+        return;
+      }
+      try {
+        JSON.parse(tab.bodyContent);
+        msgEl.textContent = '✓ Valid JSON';
+        msgEl.style.color = 'var(--green)';
+      } catch (err) {
+        msgEl.textContent = '✗ Invalid JSON: ' + err.message;
+        msgEl.style.color = 'var(--red)';
+      }
+    }
+
+    document.getElementById('btnFormatJson').addEventListener('click', () => {
+      const area = document.getElementById('bodyTextarea');
+      const tab = getActiveTab();
+      try {
+        const obj = JSON.parse(area.value);
+        area.value = JSON.stringify(obj, null, 2);
+        if (tab) tab.bodyContent = area.value;
+        validateJson();
+        updateBodyEditor();
+        updateLiveCurl();
+        showToast('JSON rapi diformat');
+      } catch (e) {
+        showToast('Gagal format: JSON tidak valid');
+      }
+    });
+
+    document.getElementById('btnClearBody').addEventListener('click', () => {
+      document.getElementById('bodyTextarea').value = '';
+      const tab = getActiveTab();
+      if (tab) tab.bodyContent = '';
+      validateJson();
+      updateBodyEditor();
+      updateLiveCurl();
+    });
+
+    function renderFormData() {
+      const tab = getActiveTab();
+      const tbody = document.getElementById('formDataTableBody');
+      tbody.innerHTML = '';
+      if (!tab) return;
+
+      tab.formData.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        const isFile = item.type === 'file';
+
+        let valueCellHtml = '';
+        if (isFile) {
+          const hasFile = item.file || item.value;
+          const fileName = item.file ? item.file.name : (item.value || '');
+          let fileSize = '';
+          if (item.file && item.file.size !== undefined) {
+            fileSize = item.file.size > 1024 * 1024 
+              ? (item.file.size / (1024 * 1024)).toFixed(1) + ' MB'
+              : (item.file.size > 1024 ? (item.file.size / 1024).toFixed(1) + ' KB' : item.file.size + ' B');
+          }
+
+          if (hasFile) {
+            valueCellHtml = `
+              <div class="form-file-wrap">
+                <div class="file-badge-preview">
+                  <span title="${escapeHtml(fileName)}">📄 ${escapeHtml(fileName)}</span>
+                  ${fileSize ? `<span class="file-badge-size">(${fileSize})</span>` : ''}
+                  <button type="button" class="btn-clear-file" data-index="${index}" title="Hapus file">✕</button>
+                </div>
+                <button type="button" class="btn btn-sm btn-choose-file" data-index="${index}">Ganti...</button>
+                <input type="file" class="hidden-file-input" data-index="${index}" style="display: none;">
+              </div>
+            `;
+          } else {
+            valueCellHtml = `
+              <div class="form-file-wrap">
+                <button type="button" class="btn btn-sm btn-choose-file" data-index="${index}">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                  <span>Pilih File...</span>
+                </button>
+                <input type="file" class="hidden-file-input" data-index="${index}" style="display: none;">
+              </div>
+            `;
+          }
+        } else {
+          valueCellHtml = `<input type="text" value="${escapeHtml(item.value || '')}" placeholder="Value" data-field="value" data-index="${index}">`;
+        }
+
+        tr.innerHTML = `
+          <td style="text-align: center;"><input type="checkbox" class="kv-checkbox" ${item.active ? 'checked' : ''} data-index="${index}"></td>
+          <td><input type="text" value="${escapeHtml(item.key || '')}" placeholder="Key (e.g. file, avatar)" data-field="key" data-index="${index}"></td>
+          <td>
+            <select class="form-data-type-select" data-index="${index}">
+              <option value="text" ${!isFile ? 'selected' : ''}>Text</option>
+              <option value="file" ${isFile ? 'selected' : ''}>File</option>
+            </select>
+          </td>
+          <td>${valueCellHtml}</td>
+          <td><button class="btn-row-delete" data-index="${index}">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.kv-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          tab.formData[parseInt(e.target.dataset.index)].active = e.target.checked;
+          updateLiveCurl();
+        });
+      });
+
+      tbody.querySelectorAll('.form-data-type-select').forEach(sel => {
+        sel.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          const newType = e.target.value;
+          tab.formData[idx].type = newType;
+          if (newType === 'file') {
+            tab.formData[idx].file = null;
+          }
+          renderFormData();
+          updateLiveCurl();
+        });
+      });
+
+      tbody.querySelectorAll('input[type="text"]').forEach(inp => {
+        inp.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          tab.formData[idx][e.target.dataset.field] = e.target.value;
+          updateLiveCurl();
+        });
+      });
+
+      tbody.querySelectorAll('.btn-choose-file').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const tr = btn.closest('tr');
+          const fileInput = tr.querySelector('.hidden-file-input');
+          if (fileInput) fileInput.click();
+        });
+      });
+
+      tbody.querySelectorAll('.hidden-file-input').forEach(fileInp => {
+        fileInp.addEventListener('change', (e) => {
+          const idx = parseInt(fileInp.dataset.index);
+          if (fileInp.files && fileInp.files[0]) {
+            const pickedFile = fileInp.files[0];
+            tab.formData[idx].file = pickedFile;
+            tab.formData[idx].value = pickedFile.name;
+            if (!tab.formData[idx].key) {
+              tab.formData[idx].key = 'file';
+            }
+            renderFormData();
+            updateLiveCurl();
+            showToast(`File dipilih: ${pickedFile.name}`);
+          }
+        });
+      });
+
+      tbody.querySelectorAll('.btn-clear-file').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(btn.dataset.index);
+          tab.formData[idx].file = null;
+          tab.formData[idx].value = '';
+          renderFormData();
+          updateLiveCurl();
+        });
+      });
+
+      tbody.querySelectorAll('.btn-row-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          tab.formData.splice(parseInt(e.target.dataset.index), 1);
+          renderFormData();
+          updateLiveCurl();
+        });
+      });
+    }
+
+    document.getElementById('btnAddFormDataRow').addEventListener('click', () => {
+      const tab = getActiveTab();
+      if (tab) {
+        tab.formData.push({ active: true, key: '', type: 'text', value: '', file: null });
+        renderFormData();
+      }
+    });
+
+    function renderUrlEncoded() {
+      const tab = getActiveTab();
+      const tbody = document.getElementById('urlEncodedTableBody');
+      tbody.innerHTML = '';
+      if (!tab) return;
+
+      tab.urlEncoded.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align: center;"><input type="checkbox" class="kv-checkbox" ${item.active ? 'checked' : ''} data-index="${index}"></td>
+          <td><input type="text" value="${escapeHtml(item.key || '')}" placeholder="Key" data-field="key" data-index="${index}"></td>
+          <td><input type="text" value="${escapeHtml(item.value || '')}" placeholder="Value" data-field="value" data-index="${index}"></td>
+          <td><button class="btn-row-delete" data-index="${index}">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.kv-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          tab.urlEncoded[parseInt(e.target.dataset.index)].active = e.target.checked;
+          updateLiveCurl();
+        });
+      });
+      tbody.querySelectorAll('input[type="text"]').forEach(inp => {
+        inp.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          tab.urlEncoded[idx][e.target.dataset.field] = e.target.value;
+          updateLiveCurl();
+        });
+      });
+      tbody.querySelectorAll('.btn-row-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          tab.urlEncoded.splice(parseInt(e.target.dataset.index), 1);
+          renderUrlEncoded();
+          updateLiveCurl();
+        });
+      });
+    }
+
+    document.getElementById('btnAddUrlEncodedRow').addEventListener('click', () => {
+      const tab = getActiveTab();
+      if (tab) {
+        tab.urlEncoded.push({ active: true, key: '', value: '' });
+        renderUrlEncoded();
+      }
+    });
+
+    function generateCurl() {
+      const tab = getActiveTab();
+      if (!tab) return 'curl https://api.example.com';
+
+      const method = tab.method;
+      let url = interpolate(tab.url.trim()) || 'https://api.example.com';
+
+      if (tab.auth.type === 'apikey' && tab.auth.apiKeyLocation === 'query' && tab.auth.apiKeyName) {
+        const sep = url.includes('?') ? '&' : '?';
+        url += `${sep}${encodeURIComponent(tab.auth.apiKeyName)}=${encodeURIComponent(interpolate(tab.auth.apiKeyValue))}`;
+      }
+
+      const parts = [`curl --location --request ${method} '${url.replace(/'/g, "'\\''")}'`];
+
+      const effectiveHeaders = [];
+      tab.headers.filter(h => h.active && h.key.trim()).forEach(h => {
+        if (tab.auth.type !== 'none' && h.key.trim().toLowerCase() === 'authorization') {
+          return;
+        }
+        effectiveHeaders.push({ key: h.key.trim(), value: interpolate(h.value) });
+      });
+
+      if (tab.auth.type === 'bearer' && tab.auth.bearer) {
+        effectiveHeaders.push({ key: 'Authorization', value: `Bearer ${interpolate(tab.auth.bearer)}` });
+      } else if (tab.auth.type === 'basic' && (tab.auth.basicUser || tab.auth.basicPass)) {
+        const encoded = safeBtoa(`${interpolate(tab.auth.basicUser)}:${interpolate(tab.auth.basicPass)}`);
+        effectiveHeaders.push({ key: 'Authorization', value: `Basic ${encoded}` });
+      } else if (tab.auth.type === 'apikey' && tab.auth.apiKeyLocation === 'header' && tab.auth.apiKeyName) {
+        effectiveHeaders.push({ key: tab.auth.apiKeyName, value: interpolate(tab.auth.apiKeyValue) });
+      }
+
+      effectiveHeaders.forEach(h => {
+        parts.push(`--header '${h.key}: ${h.value.replace(/'/g, "'\\''")}'`);
+      });
+
+      if (method !== 'GET' && method !== 'HEAD') {
+        if (tab.bodyType === 'json' || tab.bodyType === 'raw') {
+          const bodyVal = document.getElementById('bodyTextarea').value;
+          if (bodyVal) {
+            parts.push(`--data-raw '${interpolate(bodyVal).replace(/'/g, "'\\''")}'`);
+          }
+        } else if (tab.bodyType === 'urlencoded') {
+          const activeEnc = tab.urlEncoded.filter(u => u.active && u.key);
+          activeEnc.forEach(item => {
+            parts.push(`--data-urlencode '${item.key}=${interpolate(item.value).replace(/'/g, "'\\''")}'`);
+          });
+        } else if (tab.bodyType === 'form-data') {
+          const activeForm = tab.formData.filter(f => f.active && f.key);
+          activeForm.forEach(item => {
+            if (item.type === 'file') {
+              const fn = (item.file ? item.file.name : item.value) || 'file.bin';
+              parts.push(`--form '${item.key}=@"${fn}"'`);
+            } else {
+              parts.push(`--form '${item.key}="${interpolate(item.value).replace(/"/g, '\\"')}"'`);
+            }
+          });
+        }
+      }
+
+      return parts.join(' \\\n  ');
+    }
+
+    function updateLiveCurl() {
+      const curlStr = generateCurl();
+      const area = document.getElementById('liveCurlTextarea');
+      if (area) area.value = curlStr;
+    }
+
+    // Robust cURL parser
+    function parseAndApplyCurl(curlString, openInNewTab = false) {
+      if (!curlString || typeof curlString !== 'string') return;
+
+      let clean = curlString.replace(/\\\r?\n/g, ' ').replace(/\r?\n/g, ' ').trim();
+
+      // Shell tokenization
+      const tokens = [];
+      let i = 0;
+      while (i < clean.length) {
+        while (i < clean.length && /\s/.test(clean[i])) i++;
+        if (i >= clean.length) break;
+
+        let token = '';
+        while (i < clean.length && !/\s/.test(clean[i])) {
+          const char = clean[i];
+          if (char === "'") {
+            i++;
+            while (i < clean.length && clean[i] !== "'") {
+              if (clean[i] === '\\' && i + 1 < clean.length && clean[i + 1] === "'") {
+                token += "'";
+                i += 2;
+              } else {
+                token += clean[i];
+                i++;
+              }
+            }
+            if (i < clean.length && clean[i] === "'") i++;
+          } else if (char === '"') {
+            i++;
+            while (i < clean.length && clean[i] !== '"') {
+              if (clean[i] === '\\' && i + 1 < clean.length) {
+                token += clean[i + 1];
+                i += 2;
+              } else {
+                token += clean[i];
+                i++;
+              }
+            }
+            if (i < clean.length && clean[i] === '"') i++;
+          } else if (char === '\\' && i + 1 < clean.length) {
+            token += clean[i + 1];
+            i += 2;
+          } else {
+            token += char;
+            i++;
+          }
+        }
+        if (token) tokens.push(token);
+      }
+
+      if (tokens.length === 0 || tokens[0] !== 'curl') {
+        showToast('Format cURL tidak valid (harus dimulai dengan "curl")');
+        return;
+      }
+
+      let parsedMethod = null;
+      let parsedUrl = '';
+      const parsedHeaders = [];
+      const dataParts = [];
+      const parsedFormData = [];
+      const parsedUrlEncoded = [];
+      let parsedAuth = { type: 'none', bearer: '', basicUser: '', basicPass: '', apiKeyName: '', apiKeyValue: '', apiKeyLocation: 'header' };
+
+      const flagsWithArg = new Set([
+        '-X', '--request',
+        '-H', '--header',
+        '-d', '--data', '--data-raw', '--data-binary', '--data-ascii',
+        '--data-urlencode',
+        '-F', '--form',
+        '-u', '--user',
+        '-b', '--cookie',
+        '-A', '--user-agent',
+        '-e', '--referer',
+        '--url',
+        '-o', '--output',
+        '-x', '--proxy',
+        '-m', '--max-time',
+        '--connect-timeout',
+        '--retry'
+      ]);
+
+      for (let idx = 1; idx < tokens.length; idx++) {
+        let t = tokens[idx];
+
+        // Method
+        if ((t === '-X' || t === '--request') && idx + 1 < tokens.length) {
+          parsedMethod = tokens[++idx].toUpperCase();
+        } else if (t.startsWith('--request=')) {
+          parsedMethod = t.substring(10).toUpperCase();
+        } else if (/^-X[A-Za-z]+$/.test(t)) {
+          parsedMethod = t.substring(2).toUpperCase();
+        } else if (t === '-I' || t === '--head') {
+          parsedMethod = 'HEAD';
+        }
+        // Headers
+        else if ((t === '-H' || t === '--header') && idx + 1 < tokens.length) {
+          addParsedHeader(tokens[++idx]);
+        } else if (t.startsWith('--header=')) {
+          addParsedHeader(t.substring(9));
+        } else if (t.startsWith('-H') && t.length > 2) {
+          addParsedHeader(t.substring(2));
+        }
+        // Specific header shortcuts
+        else if ((t === '-A' || t === '--user-agent') && idx + 1 < tokens.length) {
+          parsedHeaders.push({ active: true, key: 'User-Agent', value: tokens[++idx] });
+        } else if (t.startsWith('--user-agent=')) {
+          parsedHeaders.push({ active: true, key: 'User-Agent', value: t.substring(13) });
+        } else if ((t === '-e' || t === '--referer') && idx + 1 < tokens.length) {
+          parsedHeaders.push({ active: true, key: 'Referer', value: tokens[++idx] });
+        } else if (t.startsWith('--referer=')) {
+          parsedHeaders.push({ active: true, key: 'Referer', value: t.substring(10) });
+        } else if ((t === '-b' || t === '--cookie') && idx + 1 < tokens.length) {
+          parsedHeaders.push({ active: true, key: 'Cookie', value: tokens[++idx] });
+        } else if (t.startsWith('--cookie=')) {
+          parsedHeaders.push({ active: true, key: 'Cookie', value: t.substring(9) });
+        }
+        // Data / Body
+        else if ((t === '-d' || t === '--data' || t === '--data-raw' || t === '--data-binary' || t === '--data-ascii') && idx + 1 < tokens.length) {
+          dataParts.push(tokens[++idx]);
+        } else if (t.startsWith('--data=') || t.startsWith('--data-raw=') || t.startsWith('--data-binary=')) {
+          dataParts.push(t.substring(t.indexOf('=') + 1));
+        } else if (t.startsWith('-d') && t.length > 2) {
+          dataParts.push(t.substring(2));
+        }
+        // Form data
+        else if ((t === '-F' || t === '--form') && idx + 1 < tokens.length) {
+          addParsedForm(tokens[++idx]);
+        } else if (t.startsWith('--form=')) {
+          addParsedForm(t.substring(7));
+        } else if (t.startsWith('-F') && t.length > 2) {
+          addParsedForm(t.substring(2));
+        }
+        // Urlencode
+        else if (t === '--data-urlencode' && idx + 1 < tokens.length) {
+          addParsedUrlEncoded(tokens[++idx]);
+        } else if (t.startsWith('--data-urlencode=')) {
+          addParsedUrlEncoded(t.substring(17));
+        }
+        // Auth
+        else if ((t === '-u' || t === '--user') && idx + 1 < tokens.length) {
+          setBasicAuth(tokens[++idx]);
+        } else if (t.startsWith('--user=')) {
+          setBasicAuth(t.substring(7));
+        } else if (t.startsWith('-u') && t.length > 2) {
+          setBasicAuth(t.substring(2));
+        }
+        // URL
+        else if (t === '--url' && idx + 1 < tokens.length) {
+          parsedUrl = tokens[++idx];
+        } else if (t.startsWith('--url=')) {
+          parsedUrl = t.substring(6);
+        }
+        // Skip flags with ignored arguments
+        else if (flagsWithArg.has(t) && idx + 1 < tokens.length) {
+          idx++;
+        }
+        // Positional URL
+        else if (!t.startsWith('-') && !parsedUrl) {
+          parsedUrl = t;
+        }
+      }
+
+      function addParsedHeader(headerStr) {
+        if (!headerStr) return;
+        const colon = headerStr.indexOf(':');
+        if (colon > -1) {
+          parsedHeaders.push({
+            active: true,
+            key: headerStr.substring(0, colon).trim(),
+            value: headerStr.substring(colon + 1).trim()
+          });
+        }
+      }
+
+      function addParsedForm(formStr) {
+        if (!formStr) return;
+        const eq = formStr.indexOf('=');
+        if (eq > -1) {
+          const key = formStr.substring(0, eq).trim();
+          let val = formStr.substring(eq + 1).trim();
+          let type = 'text';
+          if (val.startsWith('@')) {
+            type = 'file';
+            val = val.substring(1).replace(/^["']|["']$/g, '');
+          }
+          parsedFormData.push({
+            active: true,
+            key: key,
+            type: type,
+            value: val,
+            file: null
+          });
+        } else {
+          parsedFormData.push({ active: true, key: formStr.trim(), type: 'text', value: '', file: null });
+        }
+      }
+
+      function addParsedUrlEncoded(str) {
+        if (!str) return;
+        const eq = str.indexOf('=');
+        if (eq > -1) {
+          parsedUrlEncoded.push({
+            active: true,
+            key: str.substring(0, eq).trim(),
+            value: str.substring(eq + 1).trim()
+          });
+        } else {
+          parsedUrlEncoded.push({ active: true, key: str.trim(), value: '' });
+        }
+      }
+
+      function setBasicAuth(userpass) {
+        if (!userpass) return;
+        const colon = userpass.indexOf(':');
+        parsedAuth.type = 'basic';
+        if (colon > -1) {
+          parsedAuth.basicUser = userpass.substring(0, colon);
+          parsedAuth.basicPass = userpass.substring(colon + 1);
+        } else {
+          parsedAuth.basicUser = userpass;
+          parsedAuth.basicPass = '';
+        }
+      }
+
+      // Extract Auth from headers if not explicitly given via -u
+      const authHeaderIdx = parsedHeaders.findIndex(h => h.key.toLowerCase() === 'authorization');
+      if (authHeaderIdx > -1) {
+        const authVal = parsedHeaders[authHeaderIdx].value;
+        if (authVal.toLowerCase().startsWith('bearer ')) {
+          parsedAuth.type = 'bearer';
+          parsedAuth.bearer = authVal.substring(7).trim();
+          parsedHeaders.splice(authHeaderIdx, 1);
+        } else if (authVal.toLowerCase().startsWith('basic ') && parsedAuth.type === 'none') {
+          try {
+            const decoded = safeAtob(authVal.substring(6).trim());
+            const colon = decoded.indexOf(':');
+            parsedAuth.type = 'basic';
+            if (colon > -1) {
+              parsedAuth.basicUser = decoded.substring(0, colon);
+              parsedAuth.basicPass = decoded.substring(colon + 1);
+            } else {
+              parsedAuth.basicUser = decoded;
+            }
+            parsedHeaders.splice(authHeaderIdx, 1);
+          } catch (e) {}
+        }
+      }
+
+      const hasData = dataParts.length > 0;
+      const hasForm = parsedFormData.length > 0;
+      const hasUrlEnc = parsedUrlEncoded.length > 0;
+
+      if (!parsedMethod) {
+        parsedMethod = (hasData || hasForm || hasUrlEnc) ? 'POST' : 'GET';
+      }
+
+      let parsedBodyType = 'none';
+      let parsedBody = '';
+
+      if (hasForm) {
+        parsedBodyType = 'form-data';
+      } else if (hasUrlEnc) {
+        parsedBodyType = 'urlencoded';
+      } else if (hasData) {
+        parsedBody = dataParts.join('&');
+        const ctHeader = parsedHeaders.find(h => h.key.toLowerCase() === 'content-type');
+        const ctValue = ctHeader ? ctHeader.value.toLowerCase() : '';
+
+        if (ctValue.includes('application/x-www-form-urlencoded') && parsedBody.includes('=')) {
+          parsedBodyType = 'urlencoded';
+          const sp = new URLSearchParams(parsedBody);
+          sp.forEach((val, key) => {
+            parsedUrlEncoded.push({ active: true, key, value: val });
+          });
+        } else {
+          try {
+            JSON.parse(parsedBody);
+            parsedBodyType = 'json';
+          } catch (e) {
+            parsedBodyType = 'raw';
+          }
+        }
+      }
+
+      // Add protocol if missing
+      if (parsedUrl && !parsedUrl.startsWith('http://') && !parsedUrl.startsWith('https://')) {
+        parsedUrl = 'https://' + parsedUrl;
+      }
+
+      const targetTab = openInNewTab ? createTabObject() : getActiveTab();
+      targetTab.method = parsedMethod;
+      targetTab.url = parsedUrl;
+      targetTab.name = deriveTabName(parsedMethod, parsedUrl);
+      targetTab.isCustomName = false;
+      targetTab.headers = parsedHeaders;
+      targetTab.auth = parsedAuth;
+      targetTab.bodyType = parsedBodyType;
+      targetTab.bodyContent = parsedBody;
+      targetTab.formData = parsedFormData;
+      targetTab.urlEncoded = parsedUrlEncoded;
+
+      // Crucial: sync parsed URL query parameters into tab.params!
+      syncUrlToParamsForTab(targetTab);
+
+      if (openInNewTab) {
+        state.tabs.push(targetTab);
+        state.activeTabId = targetTab.id;
+      }
+
+      loadActiveTabState();
+      renderTabsBar();
+    }
+
+    // Modal Events
+    document.getElementById('btnOpenCurlModal').addEventListener('click', () => {
+      curlModal.classList.add('active');
+      document.getElementById('curlInputModal').focus();
+    });
+    document.getElementById('btnCloseCurlModal').addEventListener('click', () => curlModal.classList.remove('active'));
+    document.getElementById('btnCancelCurlModal').addEventListener('click', () => curlModal.classList.remove('active'));
+
+    document.getElementById('btnApplyCurlModal').addEventListener('click', () => {
+      const val = document.getElementById('curlInputModal').value.trim();
+      if (!val) return;
+      parseAndApplyCurl(val, false);
+      curlModal.classList.remove('active');
+      showToast('cURL berhasil di-import ke tab aktif!');
+    });
+
+    document.getElementById('btnApplyCurlNewTab').addEventListener('click', () => {
+      const val = document.getElementById('curlInputModal').value.trim();
+      if (!val) return;
+      parseAndApplyCurl(val, true);
+      curlModal.classList.remove('active');
+      showToast('cURL berhasil di-import ke tab baru!');
+    });
+
+    function copyText(text, successMsg = 'Berhasil disalin ke clipboard!') {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(successMsg);
+        }).catch(() => {
+          fallbackCopyText(text, successMsg);
+        });
+      } else {
+        fallbackCopyText(text, successMsg);
+      }
+    }
+
+    function fallbackCopyText(text, successMsg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (e) {
+        showToast('Gagal menyalin');
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.getElementById('btnCopyCurl').addEventListener('click', () => copyText(generateCurl(), 'cURL disalin!'));
+    document.getElementById('btnCopyCurlTab').addEventListener('click', () => copyText(generateCurl(), 'cURL disalin!'));
+
+    let currentSnippetLang = 'curl';
+
+    function generateSnippet(lang) {
+      const tab = getActiveTab();
+      if (!tab) return '';
+
+      const method = tab.method;
+      let url = interpolate(tab.url.trim()) || 'https://api.example.com';
+      const curl = generateCurl();
+
+      if (tab.auth.type === 'apikey' && tab.auth.apiKeyLocation === 'query' && tab.auth.apiKeyName) {
+        const sep = url.includes('?') ? '&' : '?';
+        url += `${sep}${encodeURIComponent(tab.auth.apiKeyName)}=${encodeURIComponent(interpolate(tab.auth.apiKeyValue))}`;
+      }
+
+      const effectiveHeaders = {};
+      tab.headers.filter(h => h.active && h.key.trim()).forEach(h => {
+        if (tab.auth.type !== 'none' && h.key.trim().toLowerCase() === 'authorization') return;
+        effectiveHeaders[h.key.trim()] = interpolate(h.value);
+      });
+
+      if (tab.auth.type === 'bearer' && tab.auth.bearer) {
+        effectiveHeaders['Authorization'] = `Bearer ${interpolate(tab.auth.bearer)}`;
+      } else if (tab.auth.type === 'basic' && (tab.auth.basicUser || tab.auth.basicPass)) {
+        const encoded = safeBtoa(`${interpolate(tab.auth.basicUser)}:${interpolate(tab.auth.basicPass)}`);
+        effectiveHeaders['Authorization'] = `Basic ${encoded}`;
+      } else if (tab.auth.type === 'apikey' && tab.auth.apiKeyLocation === 'header' && tab.auth.apiKeyName) {
+        effectiveHeaders[tab.auth.apiKeyName] = interpolate(tab.auth.apiKeyValue);
+      }
+
+      const hasBody = method !== 'GET' && method !== 'HEAD' && tab.bodyType !== 'none';
+      let rawBody = '';
+      if (tab.bodyType === 'json' || tab.bodyType === 'raw') {
+        rawBody = interpolate(tab.bodyContent || '');
+      } else if (tab.bodyType === 'urlencoded') {
+        const sp = new URLSearchParams();
+        tab.urlEncoded.filter(u => u.active && u.key).forEach(item => {
+          sp.append(item.key, interpolate(item.value));
+        });
+        rawBody = sp.toString();
+      }
+
+      if (lang === 'curl') {
+        return curl;
+      } else if (lang === 'js') {
+        let bodyCode = '';
+        if (hasBody && (rawBody || tab.bodyType === 'form-data')) {
+          if (tab.bodyType === 'json') {
+            try {
+              const parsed = JSON.parse(rawBody);
+              bodyCode = `\n  body: JSON.stringify(${JSON.stringify(parsed, null, 2).replace(/\n/g, '\n  ')})`;
+            } catch (e) {
+              bodyCode = `\n  body: ${JSON.stringify(rawBody)}`;
+            }
+          } else if (tab.bodyType === 'form-data') {
+            const lines = ['\nconst formData = new FormData();'];
+            tab.formData.filter(f => f.active && f.key).forEach(item => {
+              lines.push(`formData.append(${JSON.stringify(item.key)}, ${JSON.stringify(interpolate(item.value))});`);
+            });
+            delete effectiveHeaders['Content-Type'];
+            delete effectiveHeaders['content-type'];
+            return `// JavaScript (Fetch API)\nconst url = '${url}';${lines.join('\n')}\n\nconst options = {\n  method: '${method}',\n  headers: ${JSON.stringify(effectiveHeaders, null, 2)},\n  body: formData\n};\n\ntry {\n  const response = await fetch(url, options);\n  const data = await response.json();\n  console.log(data);\n} catch (error) {\n  console.error('Error:', error);\n}`;
+          } else {
+            bodyCode = `\n  body: ${JSON.stringify(rawBody)}`;
+          }
+        }
+
+        return `// JavaScript (Fetch API)\nconst url = '${url}';\nconst options = {\n  method: '${method}',\n  headers: ${JSON.stringify(effectiveHeaders, null, 2)}${bodyCode ? ',' + bodyCode : ''}\n};\n\ntry {\n  const response = await fetch(url, options);\n  const data = await response.json();\n  console.log(data);\n} catch (error) {\n  console.error('Error:', error);\n}`;
+      } else if (lang === 'python') {
+        let bodySetup = '';
+        let bodyArg = '';
+        let authArg = '';
+
+        if (tab.auth.type === 'basic') {
+          authArg = `, auth=(${JSON.stringify(tab.auth.basicUser)}, ${JSON.stringify(tab.auth.basicPass)})`;
+          delete effectiveHeaders['Authorization'];
+        }
+
+        if (hasBody && rawBody) {
+          if (tab.bodyType === 'json') {
+            try {
+              const parsed = JSON.parse(rawBody);
+              const pyObj = JSON.stringify(parsed, null, 4)
+                .replace(/\btrue\b/g, 'True')
+                .replace(/\bfalse\b/g, 'False')
+                .replace(/\bnull\b/g, 'None');
+              bodySetup = `payload = ${pyObj}\n`;
+              bodyArg = `, json=payload`;
+            } catch (e) {
+              bodySetup = `payload = ${JSON.stringify(rawBody)}\n`;
+              bodyArg = `, data=payload`;
+            }
+          } else {
+            bodySetup = `payload = ${JSON.stringify(rawBody)}\n`;
+            bodyArg = `, data=payload`;
+          }
+        }
+
+        return `# Python 3 (Requests)\nimport requests\nimport json\n\nurl = "${url}"\nheaders = ${JSON.stringify(effectiveHeaders, null, 4)}\n${bodySetup}response = requests.request("${method}", url, headers=headers${bodyArg}${authArg})\n\nprint(response.status_code)\nprint(response.text)`;
+      } else if (lang === 'php') {
+        let postFields = '';
+        if (hasBody && rawBody) {
+          postFields = `  CURLOPT_POSTFIELDS => ${JSON.stringify(rawBody)},\n`;
+        }
+        const headerLines = Object.entries(effectiveHeaders).map(([k, v]) => `    '${k}: ${v.replace(/'/g, "\\'")}'`).join(',\n');
+
+        return `<?php\n// PHP cURL\n$curl = curl_init();\n\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => '${url}',\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 30,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => '${method}',\n${postFields}  CURLOPT_HTTPHEADER => array(\n${headerLines}\n  ),\n));\n\n$response = curl_exec($curl);\ncurl_close($curl);\necho $response;`;
+      }
+      return '';
+    }
+
+    document.getElementById('btnOpenSnippets').addEventListener('click', () => {
+      snippetsModal.classList.add('active');
+      document.getElementById('snippetCodeArea').value = generateSnippet(currentSnippetLang);
+    });
+    document.getElementById('btnCloseSnippetsModal').addEventListener('click', () => snippetsModal.classList.remove('active'));
+
+    document.querySelectorAll('.snippet-lang-btn').forEach(b => {
+      b.addEventListener('click', (e) => {
+        document.querySelectorAll('.snippet-lang-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        currentSnippetLang = e.target.dataset.lang;
+        document.getElementById('snippetCodeArea').value = generateSnippet(currentSnippetLang);
+      });
+    });
+
+    document.getElementById('btnCopySnippet').addEventListener('click', () => {
+      copyText(document.getElementById('snippetCodeArea').value, 'Code snippet disalin!');
+    });
+
+    document.getElementById('btnResetRequest').addEventListener('click', () => {
+      if (confirm('Reset request di tab aktif ke nilai awal?')) {
+        const tab = getActiveTab();
+        if (tab) {
+          Object.assign(tab, createTabObject({ id: tab.id, name: 'Untitled Request' }));
+          loadActiveTabState();
+          renderTabsBar();
+          showToast('Tab direset');
+        }
+      }
+    });
+
+    document.getElementById('btnNewTab').addEventListener('click', () => addNewTab());
+
+    function syntaxHighlightJson(json) {
+      if (typeof json !== 'string') {
+        json = JSON.stringify(json, undefined, 2);
+      }
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'json-number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'json-key';
+          } else {
+            cls = 'json-string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'json-boolean';
+        } else if (/null/.test(match)) {
+          cls = 'json-null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    }
+
+    corsProxyToggle.addEventListener('change', (e) => {
+      state.useCorsProxy = e.target.checked;
+      proxyStatusBadge.style.display = state.useCorsProxy ? 'inline-block' : 'none';
+      if (state.useCorsProxy) {
+        showToast('CORS Proxy aktif: request akan diteruskan via proxy');
+      } else {
+        showToast('CORS Proxy non-aktif: request langsung dari browser');
+      }
+    });
+
+    function renderResponseBody(filterText = '') {
+      const tab = getActiveTab();
+      if (!tab || !tab.response) return;
+
+      const prettyEl = document.getElementById('responseContent');
+      const rawEl = document.getElementById('responseRawContent');
+      const frameEl = document.getElementById('responsePreviewFrame');
+      const imgWrap = document.getElementById('responsePreviewImgWrap');
+      const imgEl = document.getElementById('responsePreviewImg');
+
+      prettyEl.style.display = 'none';
+      rawEl.style.display = 'none';
+      frameEl.style.display = 'none';
+      imgWrap.style.display = 'none';
+
+      const mode = tab.responseViewMode || 'pretty';
+      const raw = tab.response.raw || '';
+      const ctype = (tab.response.contentType || '').toLowerCase();
+
+      if (mode === 'pretty') {
+        prettyEl.style.display = 'block';
+        if (tab.response.parsed !== null) {
+          prettyEl.innerHTML = syntaxHighlightJson(tab.response.parsed);
+        } else {
+          prettyEl.textContent = raw || '(Response body kosong)';
+        }
+        if (filterText) {
+          highlightSearch(prettyEl, filterText);
+        }
+      } else if (mode === 'raw') {
+        rawEl.style.display = 'block';
+        rawEl.textContent = raw || '(Response body kosong)';
+        if (filterText) {
+          highlightSearch(rawEl, filterText);
+        }
+      } else if (mode === 'preview') {
+        if (tab.response.blobUrl || ctype.includes('image/') || raw.startsWith('data:image/')) {
+          imgWrap.style.display = 'flex';
+          imgEl.src = tab.response.blobUrl || (raw.startsWith('data:') ? raw : `data:${ctype};base64,${safeBtoa(raw)}`);
+        } else {
+          frameEl.style.display = 'block';
+          frameEl.srcdoc = raw;
+        }
+      }
+    }
+
+    function highlightSearch(element, term) {
+      if (!term || !term.trim()) return;
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+      const textNodes = [];
+      while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapedTerm})`, 'gi');
+
+      textNodes.forEach(node => {
+        const val = node.nodeValue;
+        if (regex.test(val)) {
+          const span = document.createElement('span');
+          span.innerHTML = escapeHtml(val).replace(regex, '<mark style="background: var(--yellow); color: var(--bg0-hard); padding: 0 2px; border-radius: 2px;">$1</mark>');
+          node.parentNode.replaceChild(span, node);
+        }
+      });
+    }
+
+    document.querySelectorAll('.res-view-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.res-view-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        const tab = getActiveTab();
+        if (tab) tab.responseViewMode = e.target.dataset.mode;
+        renderResponseBody(document.getElementById('resSearchInput').value.trim());
+      });
+    });
+
+    document.getElementById('resSearchInput').addEventListener('input', (e) => {
+      const tab = getActiveTab();
+      if (tab) tab.responseFilterText = e.target.value;
+      renderResponseBody(e.target.value.trim());
+    });
+
+    document.getElementById('btnCopyResponse').addEventListener('click', () => {
+      const tab = getActiveTab();
+      if (!tab || !tab.response) return;
+      const text = tab.response.raw || '';
+      if (!text) return;
+      copyText(text, 'Response disalin!');
+    });
+
+    document.getElementById('btnDownloadResponse').addEventListener('click', () => {
+      const tab = getActiveTab();
+      if (!tab || !tab.response) return;
+      const res = tab.response;
+      let ext = 'txt';
+      const ctype = (res.contentType || '').toLowerCase();
+
+      if (res.blobUrl) {
+        if (ctype.includes('png')) ext = 'png';
+        else if (ctype.includes('jpeg') || ctype.includes('jpg')) ext = 'jpg';
+        else if (ctype.includes('gif')) ext = 'gif';
+        else if (ctype.includes('webp')) ext = 'webp';
+        else if (ctype.includes('svg')) ext = 'svg';
+
+        const dl = document.createElement('a');
+        dl.href = res.blobUrl;
+        dl.download = `response_${Date.now()}.${ext}`;
+        dl.click();
+        showToast(`Response diunduh (.${ext})`);
+        return;
+      }
+
+      const isJson = res.parsed !== null;
+      if (isJson) ext = 'json';
+      else if (ctype.includes('html')) ext = 'html';
+      else if (ctype.includes('xml')) ext = 'xml';
+
+      const blob = new Blob([res.raw || ''], { type: isJson ? 'application/json' : 'text/plain' });
+      const dl = document.createElement('a');
+      dl.href = URL.createObjectURL(blob);
+      dl.download = `response_${Date.now()}.${ext}`;
+      dl.click();
+      URL.revokeObjectURL(dl.href);
+      showToast(`Response diunduh (.${ext})`);
+    });
+
+    async function executeRequest() {
+      const tab = getActiveTab();
+      if (!tab) return;
+
+      saveActiveTabState();
+      let rawUrl = interpolate(tab.url.trim());
+      if (!rawUrl) {
+        showToast('URL tidak boleh kosong!');
+        urlInput.focus();
+        return;
+      }
+
+      if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+        rawUrl = 'https://' + rawUrl;
+      }
+
+      if (tab.auth.type === 'apikey' && tab.auth.apiKeyLocation === 'query' && tab.auth.apiKeyName) {
+        const separator = rawUrl.includes('?') ? '&' : '?';
+        rawUrl += `${separator}${encodeURIComponent(tab.auth.apiKeyName)}=${encodeURIComponent(interpolate(tab.auth.apiKeyValue))}`;
+      }
+
+      let finalUrl = rawUrl;
+      if (state.useCorsProxy) {
+        finalUrl = state.corsProxyUrl + encodeURIComponent(rawUrl);
+      }
+
+      const headersObj = {};
+      tab.headers.filter(h => h.active && h.key.trim()).forEach(h => {
+        if (tab.auth.type !== 'none' && h.key.trim().toLowerCase() === 'authorization') return;
+        headersObj[h.key.trim()] = interpolate(h.value);
+      });
+
+      if (tab.auth.type === 'bearer' && tab.auth.bearer) {
+        headersObj['Authorization'] = `Bearer ${interpolate(tab.auth.bearer)}`;
+      } else if (tab.auth.type === 'basic' && (tab.auth.basicUser || tab.auth.basicPass)) {
+        headersObj['Authorization'] = `Basic ${safeBtoa(`${interpolate(tab.auth.basicUser)}:${interpolate(tab.auth.basicPass)}`)}`;
+      } else if (tab.auth.type === 'apikey' && tab.auth.apiKeyLocation === 'header' && tab.auth.apiKeyName) {
+        headersObj[tab.auth.apiKeyName] = interpolate(tab.auth.apiKeyValue);
+      }
+
+      const options = {
+        method: tab.method,
+        headers: headersObj,
+        mode: 'cors'
+      };
+
+      if (tab.method !== 'GET' && tab.method !== 'HEAD') {
+        if (tab.bodyType === 'json' || tab.bodyType === 'raw') {
+          const bodyVal = document.getElementById('bodyTextarea').value;
+          if (bodyVal) {
+            options.body = interpolate(bodyVal);
+            if (tab.bodyType === 'json' && !headersObj['Content-Type'] && !headersObj['content-type']) {
+              headersObj['Content-Type'] = 'application/json';
+            }
+          }
+        } else if (tab.bodyType === 'urlencoded') {
+          const params = new URLSearchParams();
+          tab.urlEncoded.filter(u => u.active && u.key).forEach(item => {
+            params.append(item.key, interpolate(item.value));
+          });
+          options.body = params.toString();
+          headersObj['Content-Type'] = 'application/x-www-form-urlencoded';
+        } else if (tab.bodyType === 'form-data') {
+          const formData = new FormData();
+          tab.formData.filter(f => f.active && f.key).forEach(item => {
+            if (item.type === 'file') {
+              if (item.file instanceof File || item.file instanceof Blob) {
+                formData.append(item.key, item.file, item.file.name || item.value || 'file');
+              } else if (item.value) {
+                formData.append(item.key, new Blob([item.value], { type: 'application/octet-stream' }), item.value);
+              }
+            } else {
+              formData.append(item.key, interpolate(item.value));
+            }
+          });
+          options.body = formData;
+          // Delete Content-Type to let browser set boundary automatically
+          delete headersObj['Content-Type'];
+          delete headersObj['content-type'];
+        }
+      }
+
+      if (state.currentAbortController) {
+        state.currentAbortController.abort();
+      }
+      state.currentAbortController = new AbortController();
+      options.signal = state.currentAbortController.signal;
+
+      btnSend.classList.add('loading');
+      btnSend.innerHTML = '<span>Sending...</span>';
+      document.getElementById('emptyResponseState').style.display = 'none';
+      document.getElementById('responseContent').style.display = 'none';
+      document.getElementById('responseRawContent').style.display = 'none';
+      document.getElementById('responsePreviewFrame').style.display = 'none';
+      document.getElementById('responsePreviewImgWrap').style.display = 'none';
+      document.getElementById('loadingState').style.display = 'flex';
+      document.getElementById('responseMeta').style.display = 'none';
+      document.getElementById('resViewModeGroup').style.display = 'none';
+
+      const startTime = performance.now();
+
+      try {
+        const response = await fetch(finalUrl, options);
+        const duration = Math.round(performance.now() - startTime);
+
+        const resHeaders = [];
+        response.headers.forEach((val, key) => resHeaders.push({ key, value: val }));
+
+        const contentType = (response.headers.get('content-type') || '').toLowerCase();
+        const isImage = contentType.includes('image/');
+
+        let rawText = '';
+        let blobUrl = null;
+        let parsedJson = null;
+        let byteSize = 0;
+
+        if (isImage) {
+          const blob = await response.blob();
+          byteSize = blob.size;
+          blobUrl = URL.createObjectURL(blob);
+          rawText = `[Binary Image: ${contentType}, ${byteSize} bytes]`;
+        } else {
+          const blob = await response.blob();
+          byteSize = blob.size;
+          rawText = await blob.text();
+          try {
+            parsedJson = JSON.parse(rawText);
+          } catch (e) {}
+        }
+
+        const formattedSize = byteSize > 1024 ? (byteSize / 1024).toFixed(1) + ' KB' : byteSize + ' B';
+        const statusDesc = response.statusText || STATUS_MAP[response.status] || '';
+
+        tab.response = {
+          status: response.status,
+          statusText: statusDesc,
+          duration: duration,
+          size: formattedSize,
+          raw: rawText,
+          parsed: parsedJson,
+          contentType: contentType,
+          blobUrl: blobUrl,
+          headers: resHeaders
+        };
+
+        restoreResponseUI(tab);
+
+        state.history.unshift({
+          id: Date.now(),
+          timestamp: new Date().toLocaleTimeString(),
+          method: tab.method,
+          url: rawUrl,
+          status: response.status,
+          duration: duration,
+          headers: JSON.parse(JSON.stringify(tab.headers || [])),
+          bodyType: tab.bodyType,
+          bodyContent: tab.bodyContent
+        });
+        renderHistory();
+
+      } catch (err) {
+        const duration = Math.round(performance.now() - startTime);
+        let errorHelp = '';
+        if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+          errorHelp = `\n\n---------------------------------------------------\n💡 TIPS PEMECAHAN MASALAH (CORS / NETWORK ERROR):\n1. Kemungkinan besar server target memblokir CORS (Cross-Origin Resource Sharing) dari browser.\n2. Solusi cepat: Coba centang checkbox "Enable CORS Proxy" di atas, lalu klik Send lagi.\n3. Jika endpoint adalah localhost (cth: http://localhost:3000), pastikan server backend Anda mengizinkan CORS:\n   - Express.js: app.use(require('cors')());\n   - Laravel / Django / Spring: aktifkan middleware CORS.\n---------------------------------------------------`;
+        }
+
+        tab.response = {
+          status: err.name === 'AbortError' ? 'ABORT' : 'ERR',
+          statusText: err.name === 'AbortError' ? 'Request Aborted' : 'Network Error',
+          duration: duration,
+          size: '0 B',
+          raw: `Request Failed: ${err.message}${errorHelp}`,
+          parsed: null,
+          contentType: 'text/plain',
+          headers: []
+        };
+
+        restoreResponseUI(tab);
+
+      } finally {
+        btnSend.classList.remove('loading');
+        btnSend.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg><span>Send</span>`;
+        document.getElementById('loadingState').style.display = 'none';
+        state.currentAbortController = null;
+      }
+    }
+
+    btnSend.addEventListener('click', executeRequest);
+
+    document.getElementById('btnAbortRequest').addEventListener('click', () => {
+      if (state.currentAbortController) {
+        state.currentAbortController.abort();
+        showToast('Request dibatalkan');
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        executeRequest();
+      } else if (e.altKey && (e.key === 'n' || e.key === 'N')) {
+        e.preventDefault();
+        addNewTab();
+      } else if (e.altKey && (e.key === 'w' || e.key === 'W')) {
+        e.preventDefault();
+        const tab = getActiveTab();
+        if (tab) closeTab(tab.id);
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+        e.preventDefault();
+        document.getElementById('sidebar').classList.toggle('collapsed');
+      }
+    });
+
+    document.querySelectorAll('.request-section .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => setSubTab(btn.dataset.tab));
+    });
+
+    document.querySelectorAll('.response-section .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.response-section .tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.res-panel').forEach(p => p.style.display = 'none');
+        btn.classList.add('active');
+        const target = document.getElementById(`res-tab-${btn.dataset.resTab}`);
+        if (target) target.style.display = 'block';
+      });
+    });
+
+    document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const target = document.getElementById(`sidebar-${btn.dataset.tab}`);
+        if (target) target.classList.add('active');
+      });
+    });
+
+    document.getElementById('btnToggleSidebar').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    });
+
+    function initApp() {
+      const initialTab = createTabObject({
+        name: 'Get Single Post',
+        method: 'GET',
+        url: 'https://jsonplaceholder.typicode.com/posts/1'
+      });
+      state.tabs = [initialTab];
+      state.activeTabId = initialTab.id;
+
+      renderVariables();
+      renderPresets();
+      renderHistory();
+      loadActiveTabState();
+      renderTabsBar();
+
+      // Initialize Theme System
+      renderThemePresets();
+      renderAccentChips();
+      initThemeEvents();
+
+      let savedTheme = 'gruvbox-dark';
+      let savedCustom = null;
+      try {
+        savedTheme = localStorage.getItem('restbox_theme') || 'gruvbox-dark';
+        if (savedTheme === 'custom') {
+          const rawCustom = localStorage.getItem('restbox_custom_theme');
+          if (rawCustom) savedCustom = JSON.parse(rawCustom);
+        }
+      } catch (e) {}
+
+      applyTheme(savedTheme, savedCustom, false);
+      setupBodyEditor();
+      updateBodyEditor();
+    }
+
+    initApp();
+
+    // Expose for testing & DevTools
+    window.state = state;
+    window.getActiveTab = getActiveTab;
+    window.executeRequest = executeRequest;
+    window.addNewTab = addNewTab;
+    window.closeTab = closeTab;
+    window.parseAndApplyCurl = parseAndApplyCurl;
+    window.generateCurl = generateCurl;
+    window.generateSnippet = generateSnippet;
+    window.applyTheme = applyTheme;
+    window.THEMES = THEMES;
+    window.saveCurrentAsCustomTheme = saveCurrentAsCustomTheme;
+    window.exportCurrentTheme = exportCurrentTheme;
+    window.onCustomColorChange = onCustomColorChange;
+    window.updateBodyEditor = updateBodyEditor;
+    window.highlightEditorCode = highlightEditorCode;
+
+  </script>
+</body>
+</html>
