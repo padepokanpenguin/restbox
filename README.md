@@ -149,7 +149,7 @@ RestBox requires no installation, dependencies, or build step.
 ### Quick Start (Direct File)
 1. Clone or download this repository:
    ```bash
-   git clone https://github.com/your-username/restbox.git
+   git clone https://github.com/padepokanpenguin/restbox.git
    cd restbox
    ```
 2. Double-click or open `restbox/index.html` in any modern browser (Chrome, Firefox, Edge, Safari, Brave, Arc).
