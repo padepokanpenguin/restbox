@@ -126,26 +126,29 @@ Export any configured request to production-ready code:
 - **PHP**: Native `curl_init` and `curl_setopt_array` with `CURLOPT_POSTFIELDS`.
 
 
-### 💾 Save & Export Request ke File JSON (.gitignore Protected)
-- **Full Tab State Preservation**: Simpan seluruh konfigurasi API dari tab yang digunakan secara lengkap:
+### 💾 Direct Save & Auto Read Workspace ke JSON (.gitignore Protected)
+- **Direct Write ke JSON saat Save**:
+  - Cukup klik tombol **Save** atau tekan **`Ctrl + S` / `Cmd + S`**: data langsung ditulis (write) seketika ke file `restbox-saved.json` tanpa dialog download atau modal konfirmasi yang bertele-tele.
+  - Saat dijalankan via `server.py`, server Python lokal otomatis menulis file secara langsung ke disk (`restbox/restbox-saved.json` & `restbox-saved.json` di root).
+  - Fallback mulus: Jika dibuka tanpa server, data tetap otomatis tersinkron ke `localStorage` dan mendukung modern File System Access API / direct save.
+- **Auto Read Otomatis saat Buka Halaman**:
+  - Ketika membuka RestBox di browser &mdash; baik lewat local server `server.py` (`http://localhost:8000`) maupun langsung dari file explorer (`file:///...`) &mdash; aplikasi secara otomatis membaca (read) file `restbox-saved.json` dan memulihkan seluruh sesi kerja Anda!
+  - Semua tab yang terbuka, request aktif, token, query params, headers, body editor, variabel environment, dan koleksi tersimpan langsung pulih otomatis.
+- **Full Workspace & Tab State Preservation**:
   - URL & HTTP Method
   - Authentication & Token (Bearer Token, API Key, Basic Auth)
   - Headers & Query Parameters
   - Request Body (JSON, Form-Data, URL-Encoded, Raw)
-  - Custom tab names & active settings
-- **Keamanan Token via `.gitignore`**: File penyimpanan JSON (default: `restbox-saved.json`, `*.saved.json`) secara otomatis terdaftar di `.gitignore` untuk mencegah kebocoran token dan kredensial rahasia ke repositori Git.
-- **Write & Download Langsung**:
-  - Mendukung modern **File System Access API** (`showSaveFilePicker`) untuk menulis langsung ke disk dengan dialog penyimpanan bawaan.
-  - Fallback otomatis ke Blob Download yang berjalan di semua browser.
-- **Sidebar Koleksi Tersimpan**: Panel "Tersimpan" di sidebar untuk mengelola koleksi request, membuka kembali di tab aktif atau tab baru, serta export/import massal.
-- **Smart JSON Importer**: Buka kembali file JSON request yang tersimpan kapan saja untuk melanjutkan proses consume API.
----
+  - Seluruh multi-tab workspace dan tab aktif
+  - Koleksi request tersimpan di sidebar dan Environment Variables
+- **Keamanan Token via `.gitignore`**: File penyimpanan JSON (`restbox-saved.json`, `*.saved.json`) secara otomatis terdaftar di `.gitignore` untuk mencegah kebocoran token dan kredensial rahasia ke repositori Git.
+- **Sidebar Koleksi & Importer**: Panel "Tersimpan" di sidebar untuk mengelola koleksi request, membuka kembali di tab aktif atau tab baru, serta export/import massal file JSON.
 
 ## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
 | :--- | :--- |
-| `Ctrl + S` / `Cmd + S` | Simpan request & token tab aktif ke file JSON |
+| `Ctrl + S` / `Cmd + S` | Simpan langsung workspace & request ke file JSON (`restbox-saved.json`) |
 | `Ctrl + Enter` / `Cmd + Enter` | Send current request |
 | `Enter` *(inside URL bar)* | Send current request |
 | `Alt + N` | Open new request tab |
@@ -184,12 +187,15 @@ npm start
 npx serve restbox
 ```
 
-**Menggunakan Python (Disarankan - Built-in CORS Proxy):**
+**Menggunakan Python (Disarankan - Built-in CORS Proxy & Auto Read/Write JSON Storage):**
 ```bash
 python server.py 8000
-# atau menggunakan http.server bawaan (tanpa proxy):
-# python -m http.server 8000 -d restbox
+# atau cukup: python server.py
 ```
+Server Python lokal RestBox menyediakan 3 fungsi utama sekaligus:
+1. **Web Server**: Melayani UI RestBox di `http://localhost:8000/`.
+2. **Auto Read/Write Storage API**: Menyediakan endpoint `GET /api/data` dan `POST /api/save` agar browser langsung membaca dan menulis `restbox-saved.json` ke disk secara instan saat Anda menekan `Ctrl + S`.
+3. **CORS Reverse Proxy**: Menyediakan endpoint `/proxy?url=...` untuk mem-bypass CORS browser 100% ke API lokal (`localhost:3000`, dll.) maupun API publik.
 **Menggunakan Bun:**
 ```bash
 bun x serve restbox
@@ -202,9 +208,9 @@ Kemudian buka `http://localhost:3000` (atau port yang tertera) di browser Anda.
 
 Browser security prevents web pages from making HTTP requests to different domains unless the destination server includes permissive CORS headers (`Access-Control-Allow-Origin`).
 
-1. **Enable CORS Proxy via `server.py` (Paling Praktis & 100% Bebas CORS)**:
+1. **Enable CORS Proxy & Auto JSON Storage via `server.py` (Paling Praktis & 100% Bebas CORS)**:
    Jalankan RestBox dengan `python server.py 8000` (atau klik ganda `serve.bat`).
-   RestBox akan otomatis mendeteksi local proxy. Cukup centang toggle **Enable CORS Proxy** di bawah kolom URL, dan seluruh request (baik ke `localhost:port` maupun remote API) akan di-forward oleh server Python lokal tanpa terhalang CORS browser.
+   RestBox akan otomatis mendeteksi local proxy dan auto-load file `restbox-saved.json`. Cukup centang toggle **Enable CORS Proxy** di bawah kolom URL, dan seluruh request (baik ke `localhost:port` maupun remote API) akan di-forward oleh server Python lokal tanpa terhalang CORS browser. Setiap kali Anda menekan `Ctrl + S` atau tombol Save, server akan langsung menulis ke file JSON lokal di disk.
 2. **Backend Development**: Untuk testing langsung tanpa proxy, pastikan server backend Anda mengizinkan CORS:
    - **Express.js**: `app.use(require('cors')());`
    - **FastAPI / Python**: `app.add_middleware(CORSMiddleware, allow_origins=["*"])`
@@ -222,7 +228,7 @@ restbox/
 ├── .gitignore          # Excludes restbox-saved.json, tokens & private credentials
 ├── package.json        # Project metadata & npm start script
 ├── serve.bat           # One-click Windows local server launcher
-├── server.py           # Zero-dependency Python static server & local CORS reverse proxy
+├── server.py           # Zero-dependency Python server, local CORS proxy & JSON storage API
 └── README.md           # Project documentation
 ```
 

@@ -7,22 +7,22 @@ RestBox Local Server & Built-in CORS Reverse Proxy
 - Mendukung HTTPS dengan self-signed cert (local development)
 - Otomatis melakukan dekompresi gzip/deflate agar response mudah dibaca browser
 """
-
 import os
 import sys
+import json
 import gzip
 import zlib
 import ssl
 import urllib.request
 import urllib.error
 import urllib.parse
+from datetime import datetime, timezone
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8000
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'restbox')
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.join(ROOT_DIR, 'restbox')
 if not os.path.isdir(BASE_DIR):
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+    BASE_DIR = ROOT_DIR
 # Hop-by-hop headers yang tidak boleh di-forward
 HOP_BY_HOP = {
     'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
@@ -50,20 +50,32 @@ class RestBoxHandler(SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        if self.path.startswith('/proxy'):
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+        if path.startswith('/proxy'):
             self.handle_proxy()
+        elif path in ('/api/save', '/api/data', '/api/load', '/restbox-saved.json') or path.startswith('/api/save') or path.startswith('/api/data'):
+            self.handle_get_saved()
         else:
             super().do_GET()
 
     def do_POST(self):
-        if self.path.startswith('/proxy'):
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+        if path.startswith('/proxy'):
             self.handle_proxy()
+        elif path in ('/api/save', '/api/data', '/restbox-saved.json') or path.startswith('/api/save') or path.startswith('/api/data'):
+            self.handle_post_saved()
         else:
             self.send_error(405, "Method Not Allowed")
 
     def do_PUT(self):
-        if self.path.startswith('/proxy'):
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+        if path.startswith('/proxy'):
             self.handle_proxy()
+        elif path in ('/api/save', '/api/data', '/restbox-saved.json') or path.startswith('/api/save') or path.startswith('/api/data'):
+            self.handle_post_saved()
         else:
             self.send_error(405, "Method Not Allowed")
 
@@ -84,6 +96,99 @@ class RestBoxHandler(SimpleHTTPRequestHandler):
             self.handle_proxy()
         else:
             super().do_HEAD()
+
+    def handle_get_saved(self):
+        candidates = [
+            os.path.join(BASE_DIR, 'restbox-saved.json'),
+            os.path.join(ROOT_DIR, 'restbox-saved.json'),
+        ]
+        target_file = None
+        for c in candidates:
+            if os.path.isfile(c):
+                target_file = c
+                break
+
+        if not target_file:
+            self.send_response(404)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(b'{"status":"not_found","message":"File restbox-saved.json belum ditemukan."}')
+            return
+
+        try:
+            with open(target_file, 'rb') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            err_msg = json.dumps({"error": "Failed to read restbox-saved.json", "details": str(e)})
+            self.wfile.write(err_msg.encode('utf-8'))
+
+    def handle_post_saved(self):
+        try:
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length <= 0:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"error":"Empty payload"}')
+                return
+
+            body = self.rfile.read(content_length)
+            parsed = json.loads(body.decode('utf-8'))
+
+            parsed_url = urllib.parse.urlparse(self.path)
+            params = urllib.parse.parse_qs(parsed_url.query)
+            filename = params.get('filename', ['restbox-saved.json'])[0]
+            clean_filename = os.path.basename(filename).strip()
+            if not clean_filename or clean_filename in ('.json', '..json'):
+                clean_filename = 'restbox-saved.json'
+            if not clean_filename.endswith('.json'):
+                clean_filename += '.json'
+
+            formatted_json = json.dumps(parsed, indent=2, ensure_ascii=False)
+            json_bytes = formatted_json.encode('utf-8')
+
+            # Tulis ke BASE_DIR (restbox/)
+            base_target = os.path.join(BASE_DIR, clean_filename)
+            with open(base_target, 'wb') as f:
+                f.write(json_bytes)
+
+            # Tulis juga ke ROOT_DIR jika berbeda dengan BASE_DIR
+            if os.path.abspath(ROOT_DIR) != os.path.abspath(BASE_DIR):
+                root_target = os.path.join(ROOT_DIR, clean_filename)
+                with open(root_target, 'wb') as f:
+                    f.write(json_bytes)
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            now_iso = datetime.now(timezone.utc).isoformat()
+            resp = {
+                "status": "ok",
+                "message": f"Data berhasil ditulis ke {clean_filename}",
+                "filename": clean_filename,
+                "savedAt": now_iso
+            }
+            self.wfile.write(json.dumps(resp).encode('utf-8'))
+        except json.JSONDecodeError as e:
+            self.send_response(400)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            err_msg = json.dumps({"error": "Invalid JSON", "details": str(e)})
+            self.wfile.write(err_msg.encode('utf-8'))
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            err_msg = json.dumps({"error": "Failed to write json file", "details": str(e)})
+            self.wfile.write(err_msg.encode('utf-8'))
 
     def handle_proxy(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -191,12 +296,13 @@ def main():
     print("========================================================")
     print("  RestBox - Local Web Server & Built-in CORS Proxy")
     print("========================================================")
-    print(f"  Web UI     : http://localhost:{PORT}/")
-    print(f"  Directory  : {BASE_DIR}")
-    print(f"  CORS Proxy : http://localhost:{PORT}/proxy?url=<target_url>")
+    print(f"  Web UI       : http://localhost:{PORT}/")
+    print(f"  Directory    : {BASE_DIR}")
+    print(f"  CORS Proxy   : http://localhost:{PORT}/proxy?url=<target_url>")
+    print(f"  Data Storage : restbox-saved.json (Auto Read & Write)")
     print("--------------------------------------------------------")
-    print("  Buka browser di: http://localhost:8000")
-    print("  Status     : Ready! Tekan Ctrl+C untuk berhenti.")
+    print(f"  Buka browser di: http://localhost:{PORT}/")
+    print("  Status       : Ready! Tekan Ctrl+C untuk berhenti.")
     print("========================================================")
     try:
         httpd.serve_forever()

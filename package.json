@@ -1,0 +1,19 @@
+{
+  "name": "restbox",
+  "version": "1.0.0",
+  "description": "Gruvbox Dark & Multi-Theme API Client & cURL Executor",
+  "scripts": {
+    "start": "npx serve restbox",
+    "serve": "npx serve restbox",
+    "server": "python server.py 8000"
+  },
+  "keywords": [
+    "api-client",
+    "curl",
+    "gruvbox",
+    "rest",
+    "http"
+  ],
+  "author": "padepokanpenguin",
+  "license": "MIT"
+}

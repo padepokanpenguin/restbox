@@ -1514,7 +1514,7 @@
 
     <div class="nav-actions">
       <!-- Save & Import JSON Buttons -->
-      <button id="btnNavSaveJson" class="btn" title="Simpan request aktif ke file JSON (.gitignore) (Ctrl+S)">
+      <button id="btnNavSaveJson" class="btn" title="Simpan langsung ke restbox-saved.json (Ctrl+S)">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zM12 18a3 3 0 100-6 3 3 0 000 6zM8 3v4h8V3"></path></svg>
         <span>Save JSON</span>
       </button>
@@ -1585,7 +1585,7 @@
             <input type="text" id="savedSearch" class="search-input" placeholder="Cari request tersimpan...">
           </div>
           <div style="padding: 6px 8px; border-bottom: 1px solid var(--border-color); display: flex; gap: 6px; justify-content: space-between; align-items: center; background: var(--bg0-hard);">
-            <button id="btnSidebarSaveActive" class="btn btn-sm" style="flex: 1; font-size: 11px;" title="Simpan tab aktif ke koleksi & file JSON">
+            <button id="btnSidebarSaveActive" class="btn btn-sm" style="flex: 1; font-size: 11px;" title="Simpan tab aktif langsung ke restbox-saved.json &amp; koleksi">
               <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
               <span>Simpan Tab Aktif</span>
             </button>
@@ -1673,7 +1673,7 @@
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             <span>Send</span>
           </button>
-          <button id="btnSaveRequest" class="btn-save" title="Simpan request, token & parameter ke file JSON (Ctrl+S)">
+          <button id="btnSaveRequest" class="btn-save" title="Simpan langsung ke restbox-saved.json (Ctrl+S)">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zM12 18a3 3 0 100-6 3 3 0 000 6zM8 3v4h8V3"></path></svg>
             <span>Save</span>
           </button>
@@ -3699,10 +3699,24 @@
       };
     }
 
+    let cachedFileHandle = null;
+
     async function writeJsonToFile(data, filename = 'restbox-saved.json') {
       const jsonStr = JSON.stringify(data, null, 2);
 
-      // 1. Modern File System Access API (supports native file save dialog / direct writing)
+      // 1. Jika ada cached handle dari pemanggilan sebelumnya
+      if (cachedFileHandle) {
+        try {
+          const writable = await cachedFileHandle.createWritable();
+          await writable.write(jsonStr);
+          await writable.close();
+          return { success: true, method: 'cached_handle', filename: cachedFileHandle.name || filename };
+        } catch (e) {
+          cachedFileHandle = null;
+        }
+      }
+
+      // 2. Modern File System Access API
       if (typeof window.showSaveFilePicker === 'function') {
         try {
           const handle = await window.showSaveFilePicker({
@@ -3712,6 +3726,7 @@
               accept: { 'application/json': ['.json'] }
             }]
           });
+          cachedFileHandle = handle;
           const writable = await handle.createWritable();
           await writable.write(jsonStr);
           await writable.close();
@@ -3724,7 +3739,7 @@
         }
       }
 
-      // 2. Fallback: Browser Blob download
+      // 3. Fallback: Browser Blob download
       try {
         const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -3774,6 +3789,7 @@
         persistSavedRequests();
         renderSavedRequests();
         showToast(`Request "${item.name}" dihapus`);
+        syncStateToServerJson();
       }
     }
 
@@ -3784,6 +3800,7 @@
         persistSavedRequests();
         renderSavedRequests();
         showToast('Semua request tersimpan telah dihapus');
+        syncStateToServerJson();
       }
     }
 
@@ -3950,26 +3967,11 @@
     }
 
     async function exportAllSavedRequests() {
-      if (state.savedRequests.length === 0) {
+      if (state.savedRequests.length === 0 && state.tabs.length === 0) {
         showToast('Tidak ada request tersimpan untuk diexport');
         return;
       }
-      const activeTab = getActiveTab();
-      saveActiveTabState();
-      const activeData = extractTabSaveData(activeTab);
-
-      const payload = {
-        app: 'RestBox',
-        version: '1.0',
-        exportedAt: new Date().toISOString(),
-        description: 'RestBox API Requests configuration. Protected by .gitignore to secure tokens and credentials.',
-        activeRequest: activeData,
-        savedRequests: state.savedRequests
-      };
-      const res = await writeJsonToFile(payload, 'restbox-saved.json');
-      if (res.success) {
-        showToast(`Koleksi request berhasil disimpan ke ${res.filename}!`);
-      }
+      return await saveDirectToJson();
     }
 
     let currentSaveTabRef = null;
@@ -4087,6 +4089,273 @@
         showToast(`Request "${extracted.name}" disimpan ke koleksi!`);
       }
     }
+    function flashSaveButton() {
+      const btn = document.getElementById('btnSaveRequest');
+      if (!btn) return;
+      const originalHtml = btn.innerHTML;
+      btn.style.borderColor = 'var(--green)';
+      btn.style.color = 'var(--green)';
+      btn.innerHTML = `
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        <span>Saved</span>
+      `;
+      setTimeout(() => {
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        btn.innerHTML = originalHtml;
+      }, 1200);
+    }
+
+    async function saveDirectToJson(customName = null) {
+      saveActiveTabState();
+      const activeTab = getActiveTab();
+      if (!activeTab) return { success: false };
+
+      if (customName) {
+        activeTab.name = customName;
+        activeTab.isCustomName = true;
+        renderTabsBar();
+      }
+
+      const activeData = extractTabSaveData(activeTab);
+      if (customName) activeData.name = customName;
+
+      // Masukkan ke koleksi request tersimpan (sidebar)
+      saveRequestToCollection(activeData);
+
+      // Siapkan payload lengkap workspace RestBox
+      const payload = {
+        app: 'RestBox',
+        version: '1.0',
+        savedAt: new Date().toISOString(),
+        description: 'RestBox API Requests configuration. Protected by .gitignore to secure tokens and credentials.',
+        activeTabId: state.activeTabId,
+        activeRequest: activeData,
+        request: activeData, // compatibility
+        tabs: state.tabs.map(t => extractTabSaveData(t)),
+        savedRequests: state.savedRequests,
+        variables: state.variables
+      };
+
+      // 1. Simpan selalu ke localStorage
+      try {
+        localStorage.setItem('restbox_saved_json', JSON.stringify(payload));
+        localStorage.setItem('restbox_saved_requests', JSON.stringify(state.savedRequests));
+        localStorage.setItem('restbox_variables', JSON.stringify(state.variables));
+      } catch (e) {
+        console.warn('Gagal menyimpan ke localStorage:', e);
+      }
+
+      flashSaveButton();
+
+      // 2. Coba kirim langsung ke server.py (jika server aktif)
+      const serverUrls = [];
+      if (window.location.protocol.startsWith('http')) {
+        serverUrls.push(window.location.origin);
+      }
+      if (!serverUrls.includes('http://localhost:8000') && !serverUrls.includes('http://127.0.0.1:8000')) {
+        serverUrls.push('http://localhost:8000');
+      }
+
+      for (const baseUrl of serverUrls) {
+        try {
+          const resp = await fetch(baseUrl + '/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (resp.ok) {
+            showToast('✓ Berhasil ditulis langsung ke restbox-saved.json');
+            return { success: true, method: 'server', filename: 'restbox-saved.json' };
+          }
+        } catch (e) {}
+      }
+
+      // 3. Fallback jika server.py tidak sedang berjalan (misal murni file:// tanpa server)
+      const res = await writeJsonToFile(payload, 'restbox-saved.json');
+      if (res.success) {
+        showToast('✓ Disimpan ke restbox-saved.json & koleksi');
+      } else if (!res.cancelled) {
+        showToast('✓ Request tersimpan di koleksi (localStorage)');
+      }
+      return res;
+    }
+
+    async function syncStateToServerJson() {
+      const activeTab = getActiveTab();
+      const activeData = activeTab ? extractTabSaveData(activeTab) : null;
+      const payload = {
+        app: 'RestBox',
+        version: '1.0',
+        savedAt: new Date().toISOString(),
+        description: 'RestBox API Requests configuration. Protected by .gitignore to secure tokens and credentials.',
+        activeTabId: state.activeTabId,
+        activeRequest: activeData,
+        request: activeData,
+        tabs: state.tabs.map(t => extractTabSaveData(t)),
+        savedRequests: state.savedRequests,
+        variables: state.variables
+      };
+      try {
+        localStorage.setItem('restbox_saved_json', JSON.stringify(payload));
+        localStorage.setItem('restbox_saved_requests', JSON.stringify(state.savedRequests));
+      } catch (e) {}
+
+      const serverUrls = [];
+      if (window.location.protocol.startsWith('http')) {
+        serverUrls.push(window.location.origin);
+      }
+      if (!serverUrls.includes('http://localhost:8000') && !serverUrls.includes('http://127.0.0.1:8000')) {
+        serverUrls.push('http://localhost:8000');
+      }
+
+      for (const baseUrl of serverUrls) {
+        try {
+          const resp = await fetch(baseUrl + '/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (resp.ok) return true;
+        } catch (e) {}
+      }
+      return false;
+    }
+
+    function restoreWorkspaceFromJson(data, source = '', showNotification = false) {
+      if (!data) return false;
+
+      // 1. Restore Environment Variables
+      if (Array.isArray(data.variables) && data.variables.length > 0) {
+        state.variables = data.variables;
+        renderVariables();
+      }
+
+      // 2. Restore Saved Requests Collection
+      if (Array.isArray(data.savedRequests) && data.savedRequests.length > 0) {
+        state.savedRequests = data.savedRequests;
+        persistSavedRequests();
+        renderSavedRequests();
+      }
+
+      // 3. Restore Workspace Tabs
+      if (Array.isArray(data.tabs) && data.tabs.length > 0) {
+        state.tabs = data.tabs.map(tabData => {
+          return createTabObject({
+            id: tabData.id,
+            name: tabData.name,
+            isCustomName: Boolean(tabData.isCustomName || (tabData.name && tabData.name !== 'Untitled Request')),
+            method: tabData.method || 'GET',
+            url: tabData.url !== undefined ? tabData.url : '',
+            params: tabData.params || [],
+            headers: tabData.headers || [],
+            auth: tabData.auth || {
+              type: 'none', bearer: '', basicUser: '', basicPass: '',
+              apiKeyName: '', apiKeyValue: '', apiKeyLocation: 'header'
+            },
+            bodyType: tabData.bodyType || 'none',
+            bodyContent: tabData.bodyContent || '',
+            formData: tabData.formData || [],
+            urlEncoded: tabData.urlEncoded || [],
+            activeSubTab: tabData.activeSubTab || 'params'
+          });
+        });
+
+        if (data.activeTabId && state.tabs.some(t => t.id === data.activeTabId)) {
+          state.activeTabId = data.activeTabId;
+        } else {
+          state.activeTabId = state.tabs[0].id;
+        }
+
+        loadActiveTabState();
+        renderTabsBar();
+        if (showNotification) {
+          showToast(`✓ Data otomatis dimuat dari restbox-saved.json (${source || 'disk'})`);
+        }
+        return true;
+      } else if (data.activeRequest || data.request) {
+        const req = data.activeRequest || data.request;
+        loadRequestIntoTab(req);
+        if (showNotification) {
+          showToast(`✓ Request otomatis dimuat dari restbox-saved.json (${source || 'disk'})`);
+        }
+        return true;
+      }
+
+      return false;
+    }
+
+    async function loadSavedJsonOnStartup() {
+      let jsonData = null;
+      let source = '';
+
+      const serverUrls = [];
+      if (window.location.protocol.startsWith('http')) {
+        serverUrls.push(window.location.origin);
+      }
+      if (!serverUrls.includes('http://localhost:8000') && !serverUrls.includes('http://127.0.0.1:8000')) {
+        serverUrls.push('http://localhost:8000');
+      }
+
+      // 1. Coba baca dari server lokal (server.py)
+      for (const baseUrl of serverUrls) {
+        try {
+          const resp = await fetch(baseUrl + '/api/data');
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data && (data.tabs || data.activeRequest || data.request || data.savedRequests)) {
+              jsonData = data;
+              source = baseUrl.includes(window.location.host) ? 'server lokal' : 'server lokal (localhost:8000)';
+              break;
+            }
+          }
+        } catch (e) {}
+
+        try {
+          const resp = await fetch(baseUrl + '/restbox-saved.json');
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data && (data.tabs || data.activeRequest || data.request || data.savedRequests)) {
+              jsonData = data;
+              source = 'server lokal (restbox-saved.json)';
+              break;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 2. Jika via file://, coba relative fetch('restbox-saved.json')
+      if (!jsonData && window.location.protocol === 'file:') {
+        try {
+          const resp = await fetch('restbox-saved.json');
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data && (data.tabs || data.activeRequest || data.request || data.savedRequests)) {
+              jsonData = data;
+              source = 'file lokal';
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 3. Fallback: baca dari localStorage jika file belum didapat lewat network/fetch
+      if (!jsonData) {
+        try {
+          const raw = localStorage.getItem('restbox_saved_json');
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (data && (data.tabs || data.activeRequest || data.request || data.savedRequests)) {
+              jsonData = data;
+              source = 'localStorage';
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (jsonData) {
+        restoreWorkspaceFromJson(jsonData, source, true);
+      }
+    }
 
     function openImportJsonModal() {
       document.getElementById('importJsonTextarea').value = '';
@@ -4111,6 +4380,13 @@
       } catch (err) {
         showToast('Format JSON tidak valid: ' + err.message);
         return false;
+      }
+
+      if (Array.isArray(parsed.tabs) && parsed.tabs.length > 0) {
+        restoreWorkspaceFromJson(parsed, 'import', true);
+        syncStateToServerJson();
+        showToast('✓ Workspace berhasil di-import dari JSON');
+        return true;
       }
 
       let requestToLoad = null;
@@ -4151,20 +4427,21 @@
         loadRequestIntoTab(requestToLoad);
       }
 
+      syncStateToServerJson();
       return true;
     }
 
     function initSaveAndImportEvents() {
-      // Save buttons
-      if (btnSaveRequest) btnSaveRequest.addEventListener('click', openSaveModal);
+      // Direct Save buttons
+      if (btnSaveRequest) btnSaveRequest.addEventListener('click', () => saveDirectToJson());
       const btnNavSave = document.getElementById('btnNavSaveJson');
-      if (btnNavSave) btnNavSave.addEventListener('click', openSaveModal);
+      if (btnNavSave) btnNavSave.addEventListener('click', () => saveDirectToJson());
       const btnNavImport = document.getElementById('btnNavImportJson');
       if (btnNavImport) btnNavImport.addEventListener('click', openImportJsonModal);
 
       // Sidebar Saved panel buttons
       const btnSidebarSave = document.getElementById('btnSidebarSaveActive');
-      if (btnSidebarSave) btnSidebarSave.addEventListener('click', openSaveModal);
+      if (btnSidebarSave) btnSidebarSave.addEventListener('click', () => saveDirectToJson());
       const btnSidebarExport = document.getElementById('btnSidebarExportAll');
       if (btnSidebarExport) btnSidebarExport.addEventListener('click', exportAllSavedRequests);
       const btnSidebarImp = document.getElementById('btnSidebarImport');
@@ -6015,7 +6292,7 @@
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
         e.preventDefault();
-        openSaveModal();
+        saveDirectToJson();
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         executeRequest();
@@ -6076,11 +6353,17 @@
       renderTabsBar();
 
 
-      // Load Saved Requests from localStorage
+      // 1. Restore cepat dari localStorage jika ada
       try {
-        const rawSaved = localStorage.getItem('restbox_saved_requests');
-        if (rawSaved) {
-          state.savedRequests = JSON.parse(rawSaved);
+        const rawSavedJson = localStorage.getItem('restbox_saved_json');
+        if (rawSavedJson) {
+          const parsed = JSON.parse(rawSavedJson);
+          restoreWorkspaceFromJson(parsed, 'localStorage', false);
+        } else {
+          const rawSaved = localStorage.getItem('restbox_saved_requests');
+          if (rawSaved) {
+            state.savedRequests = JSON.parse(rawSaved);
+          }
         }
       } catch (e) {
         state.savedRequests = [];
@@ -6106,17 +6389,28 @@
       setupBodyEditor();
       updateBodyEditor();
 
-      // Deteksi otomatis Local CORS Proxy (tersedia jika dijalankan via server.py)
+      // Muat data langsung dari file restbox-saved.json (server.py / disk)
+      loadSavedJsonOnStartup();
+
+      // Deteksi otomatis Local CORS Proxy (server.py)
+      const detectProxyUrls = [];
       if (window.location.protocol.startsWith('http')) {
-        fetch('/proxy?ping=1')
+        detectProxyUrls.push(window.location.origin);
+      }
+      if (!detectProxyUrls.includes('http://localhost:8000') && !detectProxyUrls.includes('http://127.0.0.1:8000')) {
+        detectProxyUrls.push('http://localhost:8000');
+      }
+
+      for (const pUrl of detectProxyUrls) {
+        fetch(pUrl + '/proxy?ping=1')
           .then(res => res.json())
           .then(data => {
             if (data && data.proxy) {
               state.hasLocalProxy = true;
-              state.corsProxyUrl = '/proxy?url=';
-              corsProxyToggle.parentElement.setAttribute('title', 'Local CORS Proxy aktif (server.py) - bypass CORS untuk API lokal & publik');
+              state.corsProxyUrl = pUrl + '/proxy?url=';
+              corsProxyToggle.parentElement.setAttribute('title', `Local CORS Proxy aktif (${pUrl}) - bypass CORS untuk API lokal & publik`);
               if (proxyStatusBadge) {
-                proxyStatusBadge.title = 'Local CORS Proxy (server.py) siap digunakan';
+                proxyStatusBadge.title = `Local CORS Proxy (${pUrl}) siap digunakan`;
                 if (state.useCorsProxy) {
                   proxyStatusBadge.textContent = 'Local Proxy Active';
                   proxyStatusBadge.style.display = 'inline-block';
@@ -6162,6 +6456,11 @@
     window.openImportJsonModal = openImportJsonModal;
     window.closeImportJsonModal = closeImportJsonModal;
     window.importJsonContent = importJsonContent;
+    window.saveDirectToJson = saveDirectToJson;
+    window.loadSavedJsonOnStartup = loadSavedJsonOnStartup;
+    window.restoreWorkspaceFromJson = restoreWorkspaceFromJson;
+    window.syncStateToServerJson = syncStateToServerJson;
+    window.flashSaveButton = flashSaveButton;
 
   </script>
 </body>
