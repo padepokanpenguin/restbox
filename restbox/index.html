@@ -382,6 +382,73 @@
       font-size: 12px;
     }
 
+    /* Saved Requests Sidebar */
+    .saved-item {
+      display: flex;
+      flex-direction: column;
+      padding: 7px 9px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      margin-bottom: 4px;
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.12s ease;
+    }
+    .saved-item:hover {
+      background: var(--bg1);
+      border-color: var(--border-color);
+    }
+    .saved-item-title {
+      font-weight: 600;
+      font-size: 11.5px;
+      color: var(--fg0);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .saved-item-actions {
+      display: flex;
+      gap: 3px;
+      opacity: 0.5;
+      transition: opacity 0.12s ease;
+    }
+    .saved-item:hover .saved-item-actions {
+      opacity: 1;
+    }
+    .saved-item-action-btn {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+      border: none;
+      background: transparent;
+      color: var(--fg4);
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.1s ease;
+    }
+    .saved-item-action-btn:hover {
+      background: var(--bg2);
+      color: var(--fg1);
+    }
+    .saved-item-action-btn.btn-del:hover {
+      background: rgba(251, 73, 52, 0.25);
+      color: var(--red);
+    }
+    .auth-mini-badge {
+      font-size: 9.5px;
+      padding: 0 5px;
+      border-radius: 3px;
+      background: rgba(142, 192, 124, 0.16);
+      color: var(--aqua);
+      border: 1px solid rgba(142, 192, 124, 0.3);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
     /* Workspace */
     .workspace {
       flex: 1;
@@ -580,6 +647,31 @@
       color: var(--fg4);
       border-color: var(--bg3);
       cursor: not-allowed;
+    }
+
+    .btn-save {
+      height: 36px;
+      padding: 0 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      background: var(--bg-surface-elevated);
+      color: var(--fg1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.12s ease;
+      white-space: nowrap;
+    }
+    .btn-save:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+    .btn-save:active {
+      transform: translateY(1px);
     }
 
     .request-subbar {
@@ -1421,12 +1513,21 @@
     </div>
 
     <div class="nav-actions">
+      <!-- Save & Import JSON Buttons -->
+      <button id="btnNavSaveJson" class="btn" title="Simpan request aktif ke file JSON (.gitignore) (Ctrl+S)">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zM12 18a3 3 0 100-6 3 3 0 000 6zM8 3v4h8V3"></path></svg>
+        <span>Save JSON</span>
+      </button>
+      <button id="btnNavImportJson" class="btn" title="Buka / Import file request JSON">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        <span>Import JSON</span>
+      </button>
+
       <!-- Import cURL Button -->
       <button id="btnOpenCurlModal" class="btn btn-accent" title="Paste any cURL command to import into active tab">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20"></path></svg>
         <span>Import cURL</span>
       </button>
-
       <!-- Copy as cURL Button -->
       <button id="btnCopyCurl" class="btn" title="Copy active request as cURL command">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
@@ -1459,6 +1560,7 @@
     <aside id="sidebar" class="sidebar">
       <div class="sidebar-tabs">
         <button class="sidebar-tab-btn active" data-tab="history">Riwayat</button>
+        <button class="sidebar-tab-btn" data-tab="saved">Tersimpan</button>
         <button class="sidebar-tab-btn" data-tab="presets">Presets</button>
         <button class="sidebar-tab-btn" data-tab="env">Variables</button>
       </div>
@@ -1474,6 +1576,32 @@
           </div>
           <div style="padding: 6px 8px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end;">
             <button id="btnClearHistory" class="btn btn-sm" style="color: var(--fg4);">Hapus Semua</button>
+          </div>
+        </div>
+
+        <!-- Saved Requests Panel -->
+        <div id="sidebar-saved" class="sidebar-panel">
+          <div class="sidebar-search">
+            <input type="text" id="savedSearch" class="search-input" placeholder="Cari request tersimpan...">
+          </div>
+          <div style="padding: 6px 8px; border-bottom: 1px solid var(--border-color); display: flex; gap: 6px; justify-content: space-between; align-items: center; background: var(--bg0-hard);">
+            <button id="btnSidebarSaveActive" class="btn btn-sm" style="flex: 1; font-size: 11px;" title="Simpan tab aktif ke koleksi & file JSON">
+              <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+              <span>Simpan Tab Aktif</span>
+            </button>
+            <button id="btnSidebarExportAll" class="btn btn-sm btn-icon" title="Export Semua ke restbox-saved.json">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            </button>
+            <button id="btnSidebarImport" class="btn btn-sm btn-icon" title="Import File JSON">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            </button>
+          </div>
+          <div class="list-container" id="savedList">
+            <!-- Saved items injected by JS -->
+          </div>
+          <div style="padding: 6px 8px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--fg4);">
+            <span id="savedCountLabel">0 tersimpan</span>
+            <button id="btnClearSaved" class="btn btn-sm" style="color: var(--fg4); font-size: 11px;">Hapus Semua</button>
           </div>
         </div>
 
@@ -1541,9 +1669,13 @@
             <input type="text" id="urlInput" class="url-input" value="https://jsonplaceholder.typicode.com/posts/1" placeholder="https://api.example.com/v1/users atau paste cURL command..." autocomplete="off" spellcheck="false">
           </div>
 
-          <button id="btnSend" class="btn-send">
+          <button id="btnSend" class="btn-send" title="Kirim Request (Ctrl+Enter)">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             <span>Send</span>
+          </button>
+          <button id="btnSaveRequest" class="btn-save" title="Simpan request, token & parameter ke file JSON (Ctrl+S)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zM12 18a3 3 0 100-6 3 3 0 000 6zM8 3v4h8V3"></path></svg>
+            <span>Save</span>
           </button>
         </div>
 
@@ -1556,7 +1688,7 @@
             <span class="badge-cors" id="proxyStatusBadge" style="display: none;">Proxy Active</span>
           </div>
           <div style="font-size: 11px;">
-            Tip: <kbd style="background: var(--bg1); color: var(--fg1); padding: 1px 4px; border-radius: 3px; font-family: monospace;">Ctrl + Enter</kbd> Kirim &bull; <kbd style="background: var(--bg1); color: var(--fg1); padding: 1px 4px; border-radius: 3px; font-family: monospace;">Alt + N</kbd> Tab Baru
+            Tip: <kbd style="background: var(--bg1); color: var(--fg1); padding: 1px 4px; border-radius: 3px; font-family: monospace;">Ctrl + Enter</kbd> Kirim &bull; <kbd style="background: var(--bg1); color: var(--fg1); padding: 1px 4px; border-radius: 3px; font-family: monospace;">Alt + N</kbd> Tab Baru &bull; <kbd style="background: var(--bg1); color: var(--fg1); padding: 1px 4px; border-radius: 3px; font-family: monospace;">Ctrl + S</kbd> Simpan JSON
           </div>
         </div>
       </section>
@@ -2070,6 +2202,123 @@
     </div>
   </div>
 
+  <!-- Save Request Modal -->
+  <div id="saveModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zM12 18a3 3 0 100-6 3 3 0 000 6zM8 3v4h8V3"></path></svg>
+          <span>Simpan Request ke File JSON</span>
+        </div>
+        <button class="btn btn-sm btn-icon" id="btnCloseSaveModal">✕</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+        
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-size: 11.5px; font-weight: 600; color: var(--fg2);">Nama Request / Endpoint:</label>
+          <input type="text" id="saveRequestNameInput" class="search-input" placeholder="e.g. Get User Profile / Login API">
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-size: 11.5px; font-weight: 600; color: var(--fg2);">Nama File JSON Tujuan:</label>
+          <input type="text" id="saveRequestFilenameInput" class="search-input" value="restbox-saved.json" placeholder="restbox-saved.json">
+          <div style="font-size: 11px; color: var(--aqua); margin-top: 5px; display: flex; align-items: center; gap: 6px;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            <span>Tercatat di <code>.gitignore</code> &mdash; token &amp; kredensial aman dari commit Git.</span>
+          </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div style="background: var(--bg0-hard); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; display: flex; flex-direction: column; gap: 7px;">
+          <div style="font-weight: 600; color: var(--fg3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;">
+            Data yang akan disimpan dari Tab Aktif:
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="saveSummaryMethod" class="method-tag method-get">GET</span>
+            <span id="saveSummaryUrl" class="item-url" style="color: var(--fg1); font-weight: 500;">https://...</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 11px; margin-top: 4px;">
+            <span id="saveSummaryAuth" class="brand-badge" style="background: rgba(142, 192, 124, 0.15); border-color: rgba(142, 192, 124, 0.35); color: var(--aqua);">Auth: None</span>
+            <span id="saveSummaryHeaders" class="brand-badge" style="background: rgba(131, 165, 152, 0.15); border-color: rgba(131, 165, 152, 0.35); color: var(--blue);">0 Headers</span>
+            <span id="saveSummaryParams" class="brand-badge" style="background: rgba(250, 189, 47, 0.15); border-color: rgba(250, 189, 47, 0.35); color: var(--yellow);">0 Params</span>
+            <span id="saveSummaryBody" class="brand-badge" style="background: rgba(211, 134, 155, 0.15); border-color: rgba(211, 134, 155, 0.35); color: var(--purple);">Body: none</span>
+          </div>
+        </div>
+
+        <!-- Options Checkboxes -->
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--fg2);">
+          <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
+            <input type="checkbox" id="saveOptionWriteFile" checked style="accent-color: var(--orange);">
+            <span>Tulis &amp; Unduh ke File JSON (<span id="saveLabelFilename">restbox-saved.json</span>)</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
+            <input type="checkbox" id="saveOptionAddToSidebar" checked style="accent-color: var(--orange);">
+            <span>Simpan ke daftar Koleksi Tersimpan di Sidebar (Local Storage)</span>
+          </label>
+        </div>
+
+        <!-- Preview Toggle -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11px; color: var(--fg4); cursor: pointer;" id="btnToggleSaveJsonPreview">▶ Lihat Preview JSON</span>
+          </div>
+          <textarea id="saveJsonPreview" class="editor-textarea" style="height: 120px; display: none; font-size: 11px; background: var(--bg0-hard);" readonly spellcheck="false"></textarea>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="btnCancelSaveModal">Batal</button>
+        <button class="btn btn-primary" id="btnConfirmSave">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+          <span>Simpan &amp; Tulis File JSON</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import JSON Modal -->
+  <div id="importJsonModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          <span>Buka / Import Request dari File JSON</span>
+        </div>
+        <button class="btn btn-sm btn-icon" id="btnCloseImportJsonModal">✕</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="font-size: 12px; color: var(--fg3);">
+          Pilih file JSON yang sebelumnya disimpan (cth: <code>restbox-saved.json</code>) atau paste teks JSON di bawah ini:
+        </div>
+
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="btn btn-accent" id="btnChooseJsonFile">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+            <span>Pilih File JSON (.json)</span>
+          </button>
+          <span id="selectedJsonFileName" style="font-size: 11.5px; color: var(--fg4);">Belum ada file dipilih</span>
+        </div>
+
+        <div style="font-size: 11.5px; color: var(--fg4); margin-top: 4px;">Atau paste format JSON:</div>
+        <textarea id="importJsonTextarea" class="editor-textarea" style="height: 160px; font-size: 11px; background: var(--bg0-hard);" placeholder='{
+  "name": "My API Request",
+  "method": "POST",
+  "url": "https://api.example.com/v1/resource",
+  "auth": { "type": "bearer", "bearer": "..." },
+  ...
+}'></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="btnCancelImportJsonModal">Batal</button>
+        <button class="btn btn-accent" id="btnApplyImportJsonActiveTab">Terapkan ke Tab Aktif</button>
+        <button class="btn btn-primary" id="btnApplyImportJsonNewTab">Buka di Tab Baru</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden File Input for JSON import -->
+  <input type="file" id="jsonFileInput" accept=".json,application/json" style="display: none;">
+
   <!-- Notification Toast -->
   <div id="toast" class="toast">Notifikasi</div>
 
@@ -2081,10 +2330,12 @@
       activeTabId: null,
       useCorsProxy: false,
       corsProxyUrl: 'https://corsproxy.io/?',
+      hasLocalProxy: false,
       variables: [
         { key: 'base_url', value: 'https://jsonplaceholder.typicode.com' }
       ],
       history: [],
+      savedRequests: [],
       currentAbortController: null,
       currentTheme: 'gruvbox-dark'
     };
@@ -2584,7 +2835,10 @@
     const curlModal = document.getElementById('curlModal');
     const snippetsModal = document.getElementById('snippetsModal');
     const themeModal = document.getElementById('themeModal');
-
+    const saveModal = document.getElementById('saveModal');
+    const importJsonModal = document.getElementById('importJsonModal');
+    const btnSaveRequest = document.getElementById('btnSaveRequest');
+    const jsonFileInput = document.getElementById('jsonFileInput');
     let toastTimeout = null;
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -3408,6 +3662,581 @@
       renderHistory();
       showToast('Riwayat dihapus');
     });
+
+    // ==========================================
+    // Saved Requests & JSON File Persistence
+    // ==========================================
+
+    function extractTabSaveData(tab) {
+      if (!tab) return null;
+      return {
+        id: tab.id || ('req_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7)),
+        name: tab.name && tab.name !== 'Untitled Request' ? tab.name : deriveTabName(tab.method, tab.url),
+        method: tab.method || 'GET',
+        url: tab.url || '',
+        params: tab.params ? JSON.parse(JSON.stringify(tab.params)) : [],
+        headers: tab.headers ? JSON.parse(JSON.stringify(tab.headers)) : [],
+        auth: tab.auth ? JSON.parse(JSON.stringify(tab.auth)) : {
+          type: 'none',
+          bearer: '',
+          basicUser: '',
+          basicPass: '',
+          apiKeyName: '',
+          apiKeyValue: '',
+          apiKeyLocation: 'header'
+        },
+        bodyType: tab.bodyType || 'none',
+        bodyContent: tab.bodyContent || '',
+        formData: (tab.formData || []).map(f => ({
+          active: f.active !== false,
+          key: f.key || '',
+          type: f.type || 'text',
+          value: f.value || ''
+        })),
+        urlEncoded: tab.urlEncoded ? JSON.parse(JSON.stringify(tab.urlEncoded)) : [],
+        activeSubTab: tab.activeSubTab || 'params',
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    async function writeJsonToFile(data, filename = 'restbox-saved.json') {
+      const jsonStr = JSON.stringify(data, null, 2);
+
+      // 1. Modern File System Access API (supports native file save dialog / direct writing)
+      if (typeof window.showSaveFilePicker === 'function') {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: filename,
+            types: [{
+              description: 'JSON Configuration File',
+              accept: { 'application/json': ['.json'] }
+            }]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(jsonStr);
+          await writable.close();
+          return { success: true, method: 'picker', filename: handle.name || filename };
+        } catch (err) {
+          if (err.name === 'AbortError') {
+            return { success: false, cancelled: true };
+          }
+          console.warn('showSaveFilePicker failed, falling back to download:', err);
+        }
+      }
+
+      // 2. Fallback: Browser Blob download
+      try {
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return { success: true, method: 'download', filename: filename };
+      } catch (err) {
+        return { success: false, error: err.message };
+      }
+    }
+
+    function persistSavedRequests() {
+      try {
+        localStorage.setItem('restbox_saved_requests', JSON.stringify(state.savedRequests));
+      } catch (e) {
+        console.error('Gagal menyimpan ke localStorage:', e);
+      }
+    }
+
+    function saveRequestToCollection(requestData) {
+      if (!requestData) return;
+      const idx = state.savedRequests.findIndex(r => r.id === requestData.id || (r.name === requestData.name && r.url === requestData.url && r.method === requestData.method));
+      if (idx >= 0) {
+        state.savedRequests[idx] = Object.assign({}, state.savedRequests[idx], requestData, {
+          updatedAt: new Date().toISOString()
+        });
+      } else {
+        state.savedRequests.unshift(Object.assign({}, requestData, {
+          id: requestData.id || ('saved_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7)),
+          createdAt: new Date().toISOString()
+        }));
+      }
+      persistSavedRequests();
+      renderSavedRequests();
+    }
+
+    function deleteSavedRequest(id) {
+      const idx = state.savedRequests.findIndex(r => r.id === id);
+      if (idx >= 0) {
+        const item = state.savedRequests[idx];
+        state.savedRequests.splice(idx, 1);
+        persistSavedRequests();
+        renderSavedRequests();
+        showToast(`Request "${item.name}" dihapus`);
+      }
+    }
+
+    function clearAllSavedRequests() {
+      if (state.savedRequests.length === 0) return;
+      if (confirm('Yakin ingin menghapus semua request tersimpan di koleksi?')) {
+        state.savedRequests = [];
+        persistSavedRequests();
+        renderSavedRequests();
+        showToast('Semua request tersimpan telah dihapus');
+      }
+    }
+
+    function renderSavedRequests(filter = '') {
+      const container = document.getElementById('savedList');
+      const countLabel = document.getElementById('savedCountLabel');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (countLabel) {
+        countLabel.textContent = `${state.savedRequests.length} tersimpan`;
+      }
+
+      const filtered = state.savedRequests.filter(r => {
+        if (!filter) return true;
+        const q = filter.toLowerCase();
+        return (r.name || '').toLowerCase().includes(q) ||
+               (r.url || '').toLowerCase().includes(q) ||
+               (r.method || '').toLowerCase().includes(q);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-history" style="padding: 24px 14px; text-align: center;">
+            <div style="font-size: 24px; margin-bottom: 8px;">💾</div>
+            <div style="font-weight: 600; color: var(--fg2); margin-bottom: 4px;">Belum Ada Request Tersimpan</div>
+            <div style="font-size: 11px; color: var(--gray); line-height: 1.5;">
+              Klik tombol <strong style="color: var(--orange);">Save</strong> atau tekan <kbd style="background: var(--bg1); color: var(--fg1); padding: 1px 4px; border-radius: 3px;">Ctrl+S</kbd> untuk menyimpan URL, token &amp; parameter ke file JSON (.gitignore).
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach((r) => {
+        const item = document.createElement('div');
+        item.className = 'saved-item';
+        item.dataset.id = r.id;
+
+        let authLabel = '';
+        if (r.auth && r.auth.type && r.auth.type !== 'none') {
+          if (r.auth.type === 'bearer') authLabel = 'Bearer';
+          else if (r.auth.type === 'apikey') authLabel = 'API Key';
+          else if (r.auth.type === 'basic') authLabel = 'Basic';
+        }
+
+        item.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+            <div style="display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1;">
+              <span class="method-tag method-${(r.method || 'GET').toLowerCase()}">${r.method || 'GET'}</span>
+              <span class="saved-item-title" title="${escapeHtml(r.name || r.url)}">${escapeHtml(r.name || 'Untitled Request')}</span>
+            </div>
+            <div class="saved-item-actions">
+              <button class="saved-item-action-btn btn-open-new" title="Buka di Tab Baru" data-id="${r.id}">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              </button>
+              <button class="saved-item-action-btn btn-export-one" title="Simpan / Download File JSON" data-id="${r.id}">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              </button>
+              <button class="saved-item-action-btn btn-del" title="Hapus Request" data-id="${r.id}">✕</button>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 4px;">
+            <span class="item-url" title="${escapeHtml(r.url)}">${escapeHtml(r.url)}</span>
+            ${authLabel ? `<span class="auth-mini-badge" title="Autentikasi tersimpan: ${authLabel}">🔑 ${authLabel}</span>` : ''}
+          </div>
+        `;
+
+        // Click item to load into active tab
+        item.addEventListener('click', (e) => {
+          if (e.target.closest('.saved-item-actions')) return;
+          loadRequestIntoTab(r);
+        });
+
+        // Open in new tab button
+        const btnNew = item.querySelector('.btn-open-new');
+        btnNew.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openSavedRequestInNewTab(r);
+        });
+
+        // Export single JSON button
+        const btnExp = item.querySelector('.btn-export-one');
+        btnExp.addEventListener('click', (e) => {
+          e.stopPropagation();
+          exportSingleSavedRequest(r.id);
+        });
+
+        // Delete button
+        const btnDel = item.querySelector('.btn-del');
+        btnDel.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteSavedRequest(r.id);
+        });
+
+        container.appendChild(item);
+      });
+    }
+
+    function loadRequestIntoTab(requestData, tabId = null) {
+      let targetTab = tabId ? state.tabs.find(t => t.id === tabId) : getActiveTab();
+      if (!targetTab) return;
+
+      targetTab.name = requestData.name || targetTab.name;
+      targetTab.isCustomName = true;
+      targetTab.method = requestData.method || 'GET';
+      targetTab.url = requestData.url || '';
+      targetTab.params = requestData.params ? JSON.parse(JSON.stringify(requestData.params)) : [];
+      targetTab.headers = requestData.headers ? JSON.parse(JSON.stringify(requestData.headers)) : [];
+      targetTab.auth = requestData.auth ? JSON.parse(JSON.stringify(requestData.auth)) : {
+        type: 'none',
+        bearer: '',
+        basicUser: '',
+        basicPass: '',
+        apiKeyName: '',
+        apiKeyValue: '',
+        apiKeyLocation: 'header'
+      };
+      targetTab.bodyType = requestData.bodyType || 'none';
+      targetTab.bodyContent = requestData.bodyContent || '';
+      targetTab.formData = requestData.formData ? JSON.parse(JSON.stringify(requestData.formData)) : [];
+      targetTab.urlEncoded = requestData.urlEncoded ? JSON.parse(JSON.stringify(requestData.urlEncoded)) : [];
+      targetTab.activeSubTab = requestData.activeSubTab || 'params';
+
+      loadActiveTabState();
+      renderTabsBar();
+      showToast(`Request "${targetTab.name}" dimuat ke tab aktif`);
+    }
+
+    function openSavedRequestInNewTab(requestData) {
+      addNewTab({
+        name: requestData.name,
+        isCustomName: true,
+        method: requestData.method,
+        url: requestData.url,
+        params: requestData.params,
+        headers: requestData.headers,
+        auth: requestData.auth,
+        bodyType: requestData.bodyType,
+        bodyContent: requestData.bodyContent,
+        formData: requestData.formData,
+        urlEncoded: requestData.urlEncoded,
+        activeSubTab: requestData.activeSubTab || 'params'
+      });
+      showToast(`Request "${requestData.name}" dibuka di tab baru`);
+    }
+
+    async function exportSingleSavedRequest(id) {
+      const item = state.savedRequests.find(r => r.id === id);
+      if (!item) return;
+      const cleanName = (item.name || 'request').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+      const filename = `${cleanName}.saved.json`;
+      const payload = {
+        app: 'RestBox',
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        description: 'RestBox Single Request Configuration. Protected by .gitignore.',
+        request: item
+      };
+      const res = await writeJsonToFile(payload, filename);
+      if (res.success) {
+        showToast(`File ${res.filename} berhasil disimpan!`);
+      }
+    }
+
+    async function exportAllSavedRequests() {
+      if (state.savedRequests.length === 0) {
+        showToast('Tidak ada request tersimpan untuk diexport');
+        return;
+      }
+      const activeTab = getActiveTab();
+      saveActiveTabState();
+      const activeData = extractTabSaveData(activeTab);
+
+      const payload = {
+        app: 'RestBox',
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        description: 'RestBox API Requests configuration. Protected by .gitignore to secure tokens and credentials.',
+        activeRequest: activeData,
+        savedRequests: state.savedRequests
+      };
+      const res = await writeJsonToFile(payload, 'restbox-saved.json');
+      if (res.success) {
+        showToast(`Koleksi request berhasil disimpan ke ${res.filename}!`);
+      }
+    }
+
+    let currentSaveTabRef = null;
+
+    function openSaveModal() {
+      saveActiveTabState();
+      const tab = getActiveTab();
+      if (!tab) return;
+      currentSaveTabRef = tab;
+
+      const extracted = extractTabSaveData(tab);
+      const nameInput = document.getElementById('saveRequestNameInput');
+      const filenameInput = document.getElementById('saveRequestFilenameInput');
+      const labelFilename = document.getElementById('saveLabelFilename');
+      const previewTextarea = document.getElementById('saveJsonPreview');
+
+      nameInput.value = tab.name && tab.name !== 'Untitled Request' ? tab.name : deriveTabName(tab.method, tab.url);
+      filenameInput.value = 'restbox-saved.json';
+      if (labelFilename) labelFilename.textContent = filenameInput.value;
+
+      // Update Summary Cards
+      const methodEl = document.getElementById('saveSummaryMethod');
+      methodEl.textContent = tab.method;
+      methodEl.className = `method-tag method-${tab.method.toLowerCase()}`;
+
+      document.getElementById('saveSummaryUrl').textContent = tab.url || '(empty URL)';
+
+      const authBadge = document.getElementById('saveSummaryAuth');
+      if (tab.auth && tab.auth.type && tab.auth.type !== 'none') {
+        let authDesc = tab.auth.type;
+        if (tab.auth.type === 'bearer') {
+          authDesc = tab.auth.bearer ? 'Bearer Token' : 'Bearer (Kosong)';
+        } else if (tab.auth.type === 'apikey') {
+          authDesc = `API Key: ${tab.auth.apiKeyName || 'Key'}`;
+        } else if (tab.auth.type === 'basic') {
+          authDesc = `Basic: ${tab.auth.basicUser || 'User'}`;
+        }
+        authBadge.textContent = `Auth: ${authDesc}`;
+        authBadge.style.display = 'inline-block';
+      } else {
+        authBadge.textContent = 'Auth: None';
+      }
+
+      const activeHeadersCount = (tab.headers || []).filter(h => h.active && h.key).length;
+      document.getElementById('saveSummaryHeaders').textContent = `${activeHeadersCount} Headers`;
+
+      const activeParamsCount = (tab.params || []).filter(p => p.active && p.key).length;
+      document.getElementById('saveSummaryParams').textContent = `${activeParamsCount} Params`;
+
+      document.getElementById('saveSummaryBody').textContent = `Body: ${tab.bodyType || 'none'}`;
+
+      // Prepare Preview Payload
+      const previewPayload = {
+        app: 'RestBox',
+        version: '1.0',
+        savedAt: new Date().toISOString(),
+        request: extracted
+      };
+      previewTextarea.value = JSON.stringify(previewPayload, null, 2);
+
+      saveModal.classList.add('active');
+      nameInput.focus();
+      nameInput.select();
+    }
+
+    function closeSaveModal() {
+      saveModal.classList.remove('active');
+      currentSaveTabRef = null;
+    }
+
+    async function handleConfirmSave() {
+      if (!currentSaveTabRef) return;
+      saveActiveTabState();
+
+      const nameVal = document.getElementById('saveRequestNameInput').value.trim();
+      let filenameVal = document.getElementById('saveRequestFilenameInput').value.trim() || 'restbox-saved.json';
+      if (!filenameVal.endsWith('.json')) filenameVal += '.json';
+
+      const writeToFile = document.getElementById('saveOptionWriteFile').checked;
+      const addToSidebar = document.getElementById('saveOptionAddToSidebar').checked;
+
+      if (nameVal) {
+        currentSaveTabRef.name = nameVal;
+        currentSaveTabRef.isCustomName = true;
+        renderTabsBar();
+      }
+
+      const extracted = extractTabSaveData(currentSaveTabRef);
+      if (nameVal) extracted.name = nameVal;
+
+      if (addToSidebar) {
+        saveRequestToCollection(extracted);
+      }
+
+      closeSaveModal();
+
+      if (writeToFile) {
+        const payload = {
+          app: 'RestBox',
+          version: '1.0',
+          savedAt: new Date().toISOString(),
+          description: 'RestBox API Requests configuration. Protected by .gitignore to secure tokens and credentials.',
+          request: extracted,
+          savedRequests: state.savedRequests
+        };
+        const res = await writeJsonToFile(payload, filenameVal);
+        if (res.success) {
+          showToast(`Request & Token berhasil disimpan ke ${res.filename}!`);
+        } else if (res.cancelled) {
+          showToast('Penyimpanan file dibatalkan');
+        } else {
+          showToast(`Gagal menulis file: ${res.error || 'Unknown error'}`);
+        }
+      } else {
+        showToast(`Request "${extracted.name}" disimpan ke koleksi!`);
+      }
+    }
+
+    function openImportJsonModal() {
+      document.getElementById('importJsonTextarea').value = '';
+      document.getElementById('selectedJsonFileName').textContent = 'Belum ada file dipilih';
+      document.getElementById('jsonFileInput').value = '';
+      importJsonModal.classList.add('active');
+      document.getElementById('importJsonTextarea').focus();
+    }
+
+    function closeImportJsonModal() {
+      importJsonModal.classList.remove('active');
+    }
+
+    function importJsonContent(jsonText, openInNewTab = false) {
+      if (!jsonText || !jsonText.trim()) {
+        showToast('Teks JSON kosong');
+        return false;
+      }
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonText);
+      } catch (err) {
+        showToast('Format JSON tidak valid: ' + err.message);
+        return false;
+      }
+
+      let requestToLoad = null;
+
+      if (parsed.request && (parsed.request.url !== undefined || parsed.request.method)) {
+        requestToLoad = parsed.request;
+        if (Array.isArray(parsed.savedRequests)) {
+          parsed.savedRequests.forEach(r => saveRequestToCollection(r));
+        }
+      } else if (parsed.activeRequest && (parsed.activeRequest.url !== undefined || parsed.activeRequest.method)) {
+        requestToLoad = parsed.activeRequest;
+        if (Array.isArray(parsed.savedRequests)) {
+          parsed.savedRequests.forEach(r => saveRequestToCollection(r));
+        }
+      } else if (parsed.url !== undefined || parsed.method) {
+        requestToLoad = parsed;
+      } else if (Array.isArray(parsed) && parsed.length > 0) {
+        parsed.forEach(r => saveRequestToCollection(r));
+        requestToLoad = parsed[0];
+      } else if (Array.isArray(parsed.savedRequests) && parsed.savedRequests.length > 0) {
+        parsed.savedRequests.forEach(r => saveRequestToCollection(r));
+        requestToLoad = parsed.savedRequests[0];
+      } else if (Array.isArray(parsed.requests) && parsed.requests.length > 0) {
+        parsed.requests.forEach(r => saveRequestToCollection(r));
+        requestToLoad = parsed.requests[0];
+      }
+
+      if (!requestToLoad) {
+        showToast('Tidak ditemukan data request yang valid dalam JSON');
+        return false;
+      }
+
+      saveRequestToCollection(requestToLoad);
+
+      if (openInNewTab) {
+        openSavedRequestInNewTab(requestToLoad);
+      } else {
+        loadRequestIntoTab(requestToLoad);
+      }
+
+      return true;
+    }
+
+    function initSaveAndImportEvents() {
+      // Save buttons
+      if (btnSaveRequest) btnSaveRequest.addEventListener('click', openSaveModal);
+      const btnNavSave = document.getElementById('btnNavSaveJson');
+      if (btnNavSave) btnNavSave.addEventListener('click', openSaveModal);
+      const btnNavImport = document.getElementById('btnNavImportJson');
+      if (btnNavImport) btnNavImport.addEventListener('click', openImportJsonModal);
+
+      // Sidebar Saved panel buttons
+      const btnSidebarSave = document.getElementById('btnSidebarSaveActive');
+      if (btnSidebarSave) btnSidebarSave.addEventListener('click', openSaveModal);
+      const btnSidebarExport = document.getElementById('btnSidebarExportAll');
+      if (btnSidebarExport) btnSidebarExport.addEventListener('click', exportAllSavedRequests);
+      const btnSidebarImp = document.getElementById('btnSidebarImport');
+      if (btnSidebarImp) btnSidebarImp.addEventListener('click', openImportJsonModal);
+      const savedSearchInput = document.getElementById('savedSearch');
+      if (savedSearchInput) {
+        savedSearchInput.addEventListener('input', (e) => renderSavedRequests(e.target.value));
+      }
+      const btnClearSav = document.getElementById('btnClearSaved');
+      if (btnClearSav) btnClearSav.addEventListener('click', clearAllSavedRequests);
+
+      // Save Modal controls
+      document.getElementById('btnCloseSaveModal').addEventListener('click', closeSaveModal);
+      document.getElementById('btnCancelSaveModal').addEventListener('click', closeSaveModal);
+      document.getElementById('btnConfirmSave').addEventListener('click', handleConfirmSave);
+      document.getElementById('saveRequestNameInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleConfirmSave();
+        }
+      });
+      document.getElementById('saveRequestFilenameInput').addEventListener('input', (e) => {
+        const lbl = document.getElementById('saveLabelFilename');
+        if (lbl) lbl.textContent = e.target.value || 'restbox-saved.json';
+      });
+      document.getElementById('saveRequestFilenameInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleConfirmSave();
+        }
+      });
+
+      const btnTogglePreview = document.getElementById('btnToggleSaveJsonPreview');
+      if (btnTogglePreview) {
+        btnTogglePreview.addEventListener('click', () => {
+          const ta = document.getElementById('saveJsonPreview');
+          if (!ta) return;
+          const isHidden = ta.style.display === 'none';
+          ta.style.display = isHidden ? 'block' : 'none';
+          btnTogglePreview.textContent = isHidden ? '▼ Sembunyikan Preview JSON' : '▶ Lihat Preview JSON';
+        });
+      }
+
+      // Import Modal controls
+      document.getElementById('btnCloseImportJsonModal').addEventListener('click', closeImportJsonModal);
+      document.getElementById('btnCancelImportJsonModal').addEventListener('click', closeImportJsonModal);
+      document.getElementById('btnChooseJsonFile').addEventListener('click', () => {
+        jsonFileInput.click();
+      });
+      jsonFileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        document.getElementById('selectedJsonFileName').textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          document.getElementById('importJsonTextarea').value = ev.target.result;
+        };
+        reader.readAsText(file);
+      });
+      document.getElementById('btnApplyImportJsonActiveTab').addEventListener('click', () => {
+        const txt = document.getElementById('importJsonTextarea').value;
+        if (importJsonContent(txt, false)) {
+          closeImportJsonModal();
+        }
+      });
+      document.getElementById('btnApplyImportJsonNewTab').addEventListener('click', () => {
+        const txt = document.getElementById('importJsonTextarea').value;
+        if (importJsonContent(txt, true)) {
+          closeImportJsonModal();
+        }
+      });
+    }
 
     function syncUrlToParamsForTab(tab) {
       if (!tab) return;
@@ -4839,7 +5668,13 @@
       state.useCorsProxy = e.target.checked;
       proxyStatusBadge.style.display = state.useCorsProxy ? 'inline-block' : 'none';
       if (state.useCorsProxy) {
-        showToast('CORS Proxy aktif: request akan diteruskan via proxy');
+        if (state.hasLocalProxy) {
+          proxyStatusBadge.textContent = 'Local Proxy Active';
+          showToast('Local CORS Proxy aktif: request diteruskan via server.py (bebas CORS)');
+        } else {
+          proxyStatusBadge.textContent = 'Proxy Active';
+          showToast('CORS Proxy aktif: request akan diteruskan via proxy');
+        }
       } else {
         showToast('CORS Proxy non-aktif: request langsung dari browser');
       }
@@ -5132,9 +5967,19 @@
 
       } catch (err) {
         const duration = Math.round(performance.now() - startTime);
+        const isFileProtocol = window.location.protocol === 'file:';
+        const isTargetLocalhost = /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:\d+)?/i.test(tab.url.trim());
         let errorHelp = '';
-        if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
-          errorHelp = `\n\n---------------------------------------------------\n💡 TIPS PEMECAHAN MASALAH (CORS / NETWORK ERROR):\n1. Kemungkinan besar server target memblokir CORS (Cross-Origin Resource Sharing) dari browser.\n2. Solusi cepat: Coba centang checkbox "Enable CORS Proxy" di atas, lalu klik Send lagi.\n3. Jika endpoint adalah localhost (cth: http://localhost:3000), pastikan server backend Anda mengizinkan CORS:\n   - Express.js: app.use(require('cors')());\n   - Laravel / Django / Spring: aktifkan middleware CORS.\n---------------------------------------------------`;
+
+        if (isFileProtocol && isTargetLocalhost) {
+          errorHelp = `\n\n===================================================\n🚨 TERDETEKSI MASALAH: 'file:' URLs are treated as unique security origins\n===================================================\n🔍 PENYEBAB:\nAnda membuka file HTML RestBox langsung dari File Explorer (file:///.../restbox/index.html).\nFitur keamanan browser (Private Network Access & CORS) memblokir request HTTP dari origin 'file://' (Origin: null) ke 'localhost' untuk alasan keamanan.\n\n🛠️ CARA MENGATASI (PILIH SALAH SATU):\n\n1. [SANGAT DISARANKAN] Jalankan via Python Local Server & CORS Proxy:\n   > python server.py 8000\n   (atau klik ganda file 'serve.bat' di folder project)\n   Lalu buka URL: http://localhost:8000\n\n2. Melalui Node.js / npx:\n   > npx serve restbox\n\n3. Melalui Python http.server bawaan:\n   > python -m http.server 8000 -d restbox\n===================================================`;
+        } else if (state.useCorsProxy && isTargetLocalhost && !state.hasLocalProxy) {
+          errorHelp = `\n\n---------------------------------------------------\n⚠️ PERINGATAN CORS PROXY & LOCALHOST:\nCheckbox "Enable CORS Proxy" sedang aktif saat mengakses ${tab.url}.\nServer CORS Proxy publik (internet) TIDAK BISA mengakses 'localhost' pada komputer Anda.\n👉 Solusi:\n- Jalankan RestBox via "python server.py 8000" (Local CORS Proxy bawaan) untuk bypass CORS ke localhost.\n- Atau hilangkan centang "Enable CORS Proxy" dan aktifkan CORS di backend lokal Anda.\n---------------------------------------------------`;
+        } else if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+          const proxyTip = state.hasLocalProxy
+            ? `Centang checkbox "Enable CORS Proxy" di atas untuk mem-bypass CORS secara instan via Local Proxy (server.py).`
+            : `Jalankan "python server.py 8000" (atau klik ganda serve.bat) dan centang "Enable CORS Proxy" untuk mem-bypass CORS 100%.`;
+          errorHelp = `\n\n---------------------------------------------------\n💡 TIPS PEMECAHAN MASALAH (CORS / NETWORK ERROR):\n1. Server target memblokir CORS (Cross-Origin Resource Sharing) dari browser.\n2. Solusi instan: ${proxyTip}\n3. Jika endpoint adalah localhost (cth: http://localhost:3000), pastikan server backend Anda mengizinkan CORS:\n   - Express.js: app.use(require('cors')());\n   - FastAPI: app.add_middleware(CORSMiddleware, allow_origins=["*"])\n   - Laravel / Django / Spring: aktifkan middleware CORS.\n---------------------------------------------------`;
         }
 
         tab.response = {
@@ -5168,7 +6013,10 @@
     });
 
     window.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        openSaveModal();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         executeRequest();
       } else if (e.altKey && (e.key === 'n' || e.key === 'N')) {
@@ -5227,6 +6075,18 @@
       loadActiveTabState();
       renderTabsBar();
 
+
+      // Load Saved Requests from localStorage
+      try {
+        const rawSaved = localStorage.getItem('restbox_saved_requests');
+        if (rawSaved) {
+          state.savedRequests = JSON.parse(rawSaved);
+        }
+      } catch (e) {
+        state.savedRequests = [];
+      }
+      renderSavedRequests();
+      initSaveAndImportEvents();
       // Initialize Theme System
       renderThemePresets();
       renderAccentChips();
@@ -5245,6 +6105,27 @@
       applyTheme(savedTheme, savedCustom, false);
       setupBodyEditor();
       updateBodyEditor();
+
+      // Deteksi otomatis Local CORS Proxy (tersedia jika dijalankan via server.py)
+      if (window.location.protocol.startsWith('http')) {
+        fetch('/proxy?ping=1')
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.proxy) {
+              state.hasLocalProxy = true;
+              state.corsProxyUrl = '/proxy?url=';
+              corsProxyToggle.parentElement.setAttribute('title', 'Local CORS Proxy aktif (server.py) - bypass CORS untuk API lokal & publik');
+              if (proxyStatusBadge) {
+                proxyStatusBadge.title = 'Local CORS Proxy (server.py) siap digunakan';
+                if (state.useCorsProxy) {
+                  proxyStatusBadge.textContent = 'Local Proxy Active';
+                  proxyStatusBadge.style.display = 'inline-block';
+                }
+              }
+            }
+          })
+          .catch(() => {});
+      }
     }
 
     initApp();
@@ -5265,6 +6146,22 @@
     window.onCustomColorChange = onCustomColorChange;
     window.updateBodyEditor = updateBodyEditor;
     window.highlightEditorCode = highlightEditorCode;
+    window.extractTabSaveData = extractTabSaveData;
+    window.writeJsonToFile = writeJsonToFile;
+    window.saveRequestToCollection = saveRequestToCollection;
+    window.deleteSavedRequest = deleteSavedRequest;
+    window.clearAllSavedRequests = clearAllSavedRequests;
+    window.renderSavedRequests = renderSavedRequests;
+    window.loadRequestIntoTab = loadRequestIntoTab;
+    window.openSavedRequestInNewTab = openSavedRequestInNewTab;
+    window.exportSingleSavedRequest = exportSingleSavedRequest;
+    window.exportAllSavedRequests = exportAllSavedRequests;
+    window.openSaveModal = openSaveModal;
+    window.closeSaveModal = closeSaveModal;
+    window.handleConfirmSave = handleConfirmSave;
+    window.openImportJsonModal = openImportJsonModal;
+    window.closeImportJsonModal = closeImportJsonModal;
+    window.importJsonContent = importJsonContent;
 
   </script>
 </body>

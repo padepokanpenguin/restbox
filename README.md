@@ -125,12 +125,27 @@ Export any configured request to production-ready code:
 - **Python**: Python 3 `requests` library with typed dictionaries, boolean conversions, and file uploads.
 - **PHP**: Native `curl_init` and `curl_setopt_array` with `CURLOPT_POSTFIELDS`.
 
+
+### 💾 Save & Export Request ke File JSON (.gitignore Protected)
+- **Full Tab State Preservation**: Simpan seluruh konfigurasi API dari tab yang digunakan secara lengkap:
+  - URL & HTTP Method
+  - Authentication & Token (Bearer Token, API Key, Basic Auth)
+  - Headers & Query Parameters
+  - Request Body (JSON, Form-Data, URL-Encoded, Raw)
+  - Custom tab names & active settings
+- **Keamanan Token via `.gitignore`**: File penyimpanan JSON (default: `restbox-saved.json`, `*.saved.json`) secara otomatis terdaftar di `.gitignore` untuk mencegah kebocoran token dan kredensial rahasia ke repositori Git.
+- **Write & Download Langsung**:
+  - Mendukung modern **File System Access API** (`showSaveFilePicker`) untuk menulis langsung ke disk dengan dialog penyimpanan bawaan.
+  - Fallback otomatis ke Blob Download yang berjalan di semua browser.
+- **Sidebar Koleksi Tersimpan**: Panel "Tersimpan" di sidebar untuk mengelola koleksi request, membuka kembali di tab aktif atau tab baru, serta export/import massal.
+- **Smart JSON Importer**: Buka kembali file JSON request yang tersimpan kapan saja untuk melanjutkan proses consume API.
 ---
 
 ## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
 | :--- | :--- |
+| `Ctrl + S` / `Cmd + S` | Simpan request & token tab aktif ke file JSON |
 | `Ctrl + Enter` / `Cmd + Enter` | Send current request |
 | `Enter` *(inside URL bar)* | Send current request |
 | `Alt + N` | Open new request tab |
@@ -154,35 +169,43 @@ RestBox requires no installation, dependencies, or build step.
    ```
 2. Double-click or open `restbox/index.html` in any modern browser (Chrome, Firefox, Edge, Safari, Brave, Arc).
 
-### Local Server (Optional)
-If you prefer running RestBox from a local web server:
+### Local Server (Disarankan untuk testing ke Localhost)
+> **Catatan Keamanan Browser (`file:` vs `localhost`)**:  
+> Jika Anda membuka `index.html` langsung dari file explorer (`file:///...`), browser (Chrome/Edge) akan memblokir request ke endpoint `http://localhost:...` dengan error `'file:' URLs are treated as unique security origins`.  
+> Untuk mengetes API lokal (`localhost:3000`, dll.), **jalankan RestBox menggunakan local server**:
 
-**Using Node.js:**
+**Windows (Paling Mudah):**
+Klik ganda file **`serve.bat`** di folder project.
+
+**Menggunakan npm / Node.js:**
 ```bash
+npm start
+# atau
 npx serve restbox
 ```
 
-**Using Python:**
+**Menggunakan Python (Disarankan - Built-in CORS Proxy):**
 ```bash
-python -m http.server 8000 -d restbox
+python server.py 8000
+# atau menggunakan http.server bawaan (tanpa proxy):
+# python -m http.server 8000 -d restbox
 ```
-
-**Using Bun:**
+**Menggunakan Bun:**
 ```bash
 bun x serve restbox
 ```
 
-Then visit `http://localhost:8000` (or the port specified).
-
+Kemudian buka `http://localhost:3000` (atau port yang tertera) di browser Anda.
 ---
 
 ## 🌐 Handling CORS (Cross-Origin Resource Sharing)
 
 Browser security prevents web pages from making HTTP requests to different domains unless the destination server includes permissive CORS headers (`Access-Control-Allow-Origin`).
 
-If an API returns a CORS error:
-1. **Enable CORS Proxy**: Check the **Enable CORS Proxy** toggle beneath the URL bar. Requests will be routed through a public CORS proxy.
-2. **Backend Development**: For local development (`localhost:3000`, etc.), ensure your backend server enables CORS middleware:
+1. **Enable CORS Proxy via `server.py` (Paling Praktis & 100% Bebas CORS)**:
+   Jalankan RestBox dengan `python server.py 8000` (atau klik ganda `serve.bat`).
+   RestBox akan otomatis mendeteksi local proxy. Cukup centang toggle **Enable CORS Proxy** di bawah kolom URL, dan seluruh request (baik ke `localhost:port` maupun remote API) akan di-forward oleh server Python lokal tanpa terhalang CORS browser.
+2. **Backend Development**: Untuk testing langsung tanpa proxy, pastikan server backend Anda mengizinkan CORS:
    - **Express.js**: `app.use(require('cors')());`
    - **FastAPI / Python**: `app.add_middleware(CORSMiddleware, allow_origins=["*"])`
    - **Laravel / Django / Spring**: Enable standard CORS middleware.
@@ -196,10 +219,12 @@ restbox/
 ├── img/                # Application screenshots & assets
 ├── restbox/
 │   └── index.html      # Complete standalone web application (HTML, CSS, JS)
+├── .gitignore          # Excludes restbox-saved.json, tokens & private credentials
+├── package.json        # Project metadata & npm start script
+├── serve.bat           # One-click Windows local server launcher
+├── server.py           # Zero-dependency Python static server & local CORS reverse proxy
 └── README.md           # Project documentation
 ```
-
----
 
 ## 🛠️ Built With
 

@@ -1,0 +1,19 @@
+# RestBox Saved API Requests (contains sensitive URLs, tokens, keys, and credentials)
+restbox-saved.json
+restbox-requests.json
+restbox-data.json
+saved-requests.json
+*.saved.json
+*.restbox.json
+**/restbox-saved.json
+**/restbox-requests.json
+**/saved-requests.json
+**/*.saved.json
+saved/
+data/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
