@@ -126,6 +126,31 @@ Export any configured request to production-ready code:
 - **PHP**: Native `curl_init` and `curl_setopt_array` with `CURLOPT_POSTFIELDS`.
 
 
+### ⚡ Postman Run Mode (Collection & Data Runner dengan Dataset JSON Array of Objects)
+Fitur **Collection & Data Runner** seperti Postman untuk melakukan *data-driven testing* atau batch API execution menggunakan file JSON dengan format **Array of Objects**:
+- **Dataset JSON (Array of Objects)**:
+  - Input data JSON berformat array of object: `[ {"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"} ]`.
+  - Otomatis mendeteksi jumlah iterasi dan variabel keys (`{{id}}`, `{{name}}`, dll.).
+  - Interpolasi variabel fleksibel di **URL**, **Query Parameters**, **Headers**, **Authentication**, dan **Request Body** (JSON, Form-Data, URL-Encoded, Raw).
+  - Dilengkapi fitur **Preview Tabel Data** interaktif sebelum dieksekusi.
+  - Dukungan variabel dinamis Postman: `{{$iteration}}`, `{{$iterationNumber}}`, `{{$timestamp}}`, `{{$isoTimestamp}}`, `{{$randomUUID}}`, `{{$randomInt}}`.
+- **Target Eksekusi**:
+  - **Tab Aktif**: Menjalankan request di tab aktif secara berulang untuk setiap baris data.
+  - **Koleksi Tersimpan (Collection)**: Menjalankan satu atau beberapa request dari koleksi tersimpan secara terurut per iterasi data.
+- **Pengaturan Lengkap**:
+  - Kustomisasi jumlah iterasi & delay antar request (ms) untuk mencegah rate-limit.
+  - Opsi *Stop on Error* (menghentikan runner otomatis jika mendeteksi status 4xx/5xx).
+  - Dukungan bypass CORS via built-in Reverse Proxy.
+- **Monitoring & Kontrol Interaktif**:
+  - Real-time progress bar & live performance metrics (Total Runs, Passed, Failed, Total Time, Average Time).
+  - Kontrol *Stop / Batal*, *Pause / Resume*, dan *Run Ulang*.
+- **Detail Inspector & Export Laporan**:
+  - Klik **Detail** pada setiap baris hasil untuk menginspeksi seluruh payload request yang dikirim (URL ter-interpolasi, headers, body, dataset baris) serta response yang diterima (status, latency, response headers, response body formatted).
+  - Export laporan hasil run lengkap ke file JSON (`restbox-runner-results.json`).
+- **Kompatibilitas Postman Collection**:
+  - Mendukung import langsung file ekspor Postman Collection v2.0 / v2.1 ke dalam koleksi request RestBox.
+
+
 ### 💾 Direct Save & Auto Read Workspace ke JSON (.gitignore Protected)
 - **Direct Write ke JSON saat Save**:
   - Cukup klik tombol **Save** atau tekan **`Ctrl + S` / `Cmd + S`**: data langsung ditulis (write) seketika ke file `restbox-saved.json` tanpa dialog download atau modal konfirmasi yang bertele-tele.

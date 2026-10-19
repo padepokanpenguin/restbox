@@ -1495,6 +1495,154 @@
     .file-badge-preview .btn-clear-file:hover {
       color: var(--red);
     }
+
+    /* Postman Run Mode (Collection & Data Runner) Styles */
+    .runner-nav-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg0-hard);
+      padding: 0 12px;
+      gap: 4px;
+    }
+    .runner-nav-tab {
+      padding: 9px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--fg4);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .runner-nav-tab.active {
+      color: var(--orange);
+      border-bottom-color: var(--orange);
+      background: var(--bg0-s);
+    }
+    .runner-nav-tab:hover:not(.active) {
+      color: var(--fg1);
+    }
+    .runner-section {
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .runner-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg2);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .runner-var-chip {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(250, 189, 47, 0.15);
+      color: var(--yellow);
+      border: 1px solid rgba(250, 189, 47, 0.35);
+      margin-right: 5px;
+      margin-bottom: 4px;
+    }
+    .runner-data-status {
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 11.5px;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--bg0);
+      border: 1px solid var(--border-color);
+    }
+    .runner-data-status.valid {
+      border-color: rgba(184, 187, 38, 0.4);
+      background: rgba(184, 187, 38, 0.08);
+    }
+    .runner-data-status.invalid {
+      border-color: rgba(251, 73, 52, 0.4);
+      background: rgba(251, 73, 52, 0.08);
+    }
+    .runner-progress-container {
+      width: 100%;
+      height: 7px;
+      background: var(--bg0-hard);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+    .runner-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--yellow), var(--orange));
+      transition: width 0.18s ease;
+      width: 0%;
+    }
+    .runner-stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .runner-stat-card {
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .runner-stat-card .stat-num {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--fg1);
+    }
+    .runner-stat-card .stat-lbl {
+      font-size: 10px;
+      color: var(--fg4);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .runner-preview-table-wrap {
+      max-height: 180px;
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background: var(--bg0-hard);
+      margin-top: 8px;
+    }
+    .runner-results-table-wrap {
+      max-height: 380px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background: var(--bg0-hard);
+    }
+    .runner-results-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .runner-results-table th, .runner-results-table td {
+      padding: 7px 9px;
+      font-size: 11px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+    }
+    .runner-results-table tbody tr:hover {
+      background: var(--bg0);
+    }
   </style>
 </head>
 <body>
@@ -1521,6 +1669,11 @@
       <button id="btnNavImportJson" class="btn" title="Buka / Import file request JSON">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
         <span>Import JSON</span>
+      </button>
+      <!-- Postman Run Mode (Data Runner) Button -->
+      <button id="btnOpenRunner" class="btn btn-accent" title="Postman Run Mode (Data Runner dengan JSON Array of Objects)">
+        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <span>Runner</span>
       </button>
 
       <!-- Import cURL Button -->
@@ -1594,6 +1747,9 @@
             </button>
             <button id="btnSidebarImport" class="btn btn-sm btn-icon" title="Import File JSON">
               <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            </button>
+            <button id="btnSidebarRunner" class="btn btn-sm btn-icon" title="Jalankan Koleksi di Postman Run Mode (Runner)">
+              <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
             </button>
           </div>
           <div class="list-container" id="savedList">
@@ -1676,6 +1832,10 @@
           <button id="btnSaveRequest" class="btn-save" title="Simpan langsung ke restbox-saved.json (Ctrl+S)">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zM12 18a3 3 0 100-6 3 3 0 000 6zM8 3v4h8V3"></path></svg>
             <span>Save</span>
+          </button>
+          <button id="btnQuickRunner" class="btn" title="Jalankan request ini di Postman Run Mode (Dataset JSON)" style="background: var(--bg0-hard); border-color: var(--border-color); color: var(--fg2); display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 10px; font-size: 11.5px;">
+            <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>Run Mode</span>
           </button>
         </div>
 
@@ -2315,6 +2475,336 @@
       </div>
     </div>
   </div>
+
+  <!-- Postman Run Mode (Collection & Data Runner) Modal -->
+  <div id="runnerModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 940px; width: 95%; max-height: 90vh;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <div style="width: 26px; height: 26px; border-radius: 6px; background: rgba(254, 128, 25, 0.18); border: 1px solid rgba(254, 128, 25, 0.4); display: flex; align-items: center; justify-content: center; color: var(--orange);">
+            <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          </div>
+          <div>
+            <div class="modal-title">Postman Run Mode &bull; Collection &amp; Data Runner</div>
+            <div style="font-size: 11px; color: var(--fg4); font-weight: normal;">Eksekusi request berulang secara data-driven menggunakan file JSON (Array of Objects)</div>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-icon" id="btnCloseRunnerModal">✕</button>
+      </div>
+
+      <!-- Runner Navigation Tabs -->
+      <div class="runner-nav-tabs">
+        <button type="button" class="runner-nav-tab active" id="tabRunnerNavSetup">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          <span>Konfigurasi Runner</span>
+        </button>
+        <button type="button" class="runner-nav-tab" id="tabRunnerNavResults">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          <span>Hasil Eksekusi</span>
+          <span class="tab-count-badge" id="runnerNavResultsCount" style="display: none;">0</span>
+        </button>
+      </div>
+
+      <!-- VIEW 1: SETUP -->
+      <div id="runnerViewSetup" class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+
+        <!-- Target Request Section -->
+        <div class="runner-section">
+          <div class="runner-section-title">
+            <span>1. Pilih Target Request yang Akan Dijalankan:</span>
+          </div>
+          <div style="display: flex; gap: 18px; margin-bottom: 8px;">
+            <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; font-weight: 500;">
+              <input type="radio" name="runnerTargetType" value="active" checked style="accent-color: var(--orange);">
+              <span>Tab Aktif Saat Ini</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; font-weight: 500;">
+              <input type="radio" name="runnerTargetType" value="collection" style="accent-color: var(--orange);">
+              <span>Koleksi Tersimpan (Collection)</span>
+            </label>
+          </div>
+
+          <!-- Active Tab Preview -->
+          <div id="runnerActiveTabPreview" style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg0); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 11.5px;">
+            <span id="runnerActiveMethodBadge" class="method-tag method-get">GET</span>
+            <span id="runnerActiveName" style="font-weight: 600; color: var(--fg1);">Get Single Post</span>
+            <span id="runnerActiveUrl" class="item-url" style="color: var(--fg3);">https://jsonplaceholder.typicode.com/posts/1</span>
+          </div>
+
+          <!-- Collection Selection List (Hidden by default) -->
+          <div id="runnerCollectionContainer" style="display: none; flex-direction: column; gap: 6px; margin-top: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 11px; color: var(--fg4);">Centang request yang ingin dimasukkan ke dalam rangkaian eksekusi:</div>
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn btn-sm" id="btnRunnerSelectAllCollection" style="font-size: 10.5px;">Pilih Semua</button>
+                <button type="button" class="btn btn-sm" id="btnRunnerDeselectAllCollection" style="font-size: 10.5px;">Batal Pilih</button>
+              </div>
+            </div>
+            <div id="runnerCollectionList" style="max-height: 140px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg0); padding: 4px;">
+              <!-- Saved requests injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Data JSON (Array of Objects) Section -->
+        <div class="runner-section">
+          <div class="runner-section-title">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span>2. Dataset JSON (Array of Objects):</span>
+              <span class="brand-badge" style="background: rgba(142, 192, 124, 0.15); color: var(--green); border-color: rgba(142, 192, 124, 0.35);">JSON Data Mode</span>
+            </div>
+            <span id="runnerFileStatusLabel" style="font-size: 11px; color: var(--fg4); font-weight: normal;"></span>
+          </div>
+          <div style="font-size: 11.5px; color: var(--fg4); margin-bottom: 8px;">
+            Setiap baris object di dalam array <code>[ {...}, {...} ]</code> merepresentasikan 1 iterasi. Key object dapat dipakai sebagai variabel <code>{{key}}</code> pada URL, Query, Headers, Auth, dan Body.
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px;">
+            <button type="button" id="btnRunnerChooseFile" class="btn btn-sm btn-accent">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              <span>Pilih File JSON (.json)</span>
+            </button>
+            <button type="button" id="btnRunnerLoadSample" class="btn btn-sm">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+              <span>Load Contoh Data JSON</span>
+            </button>
+            <button type="button" id="btnRunnerFormatJson" class="btn btn-sm">Format JSON</button>
+            <button type="button" id="btnRunnerClearJson" class="btn btn-sm">Clear</button>
+          </div>
+
+          <textarea id="runnerJsonTextarea" class="editor-textarea" style="height: 140px; font-size: 11.5px; font-family: var(--font-mono); background: var(--bg0);" placeholder='[
+  {
+    "id": 1,
+    "title": "Halo Postman Runner 1",
+    "body": "Deskripsi postingan 1",
+    "userId": 1
+  },
+  {
+    "id": 2,
+    "title": "Halo Postman Runner 2",
+    "body": "Deskripsi postingan 2",
+    "userId": 1
+  }
+]' spellcheck="false"></textarea>
+
+          <!-- Live Data Validation & Variables Badge Card -->
+          <div id="runnerDataStatus" class="runner-data-status">
+            <!-- Injected by validateRunnerJson() -->
+          </div>
+
+          <!-- Data Preview Table (Collapsible) -->
+          <div id="runnerDataPreviewContainer" style="display: none; flex-direction: column; margin-top: 6px;">
+            <div style="font-size: 11px; font-weight: 600; color: var(--fg3); margin-bottom: 4px;">Tabel Preview Dataset:</div>
+            <div class="runner-preview-table-wrap" id="runnerDataPreviewTableWrap"></div>
+          </div>
+        </div>
+
+        <!-- Run Settings Section -->
+        <div class="runner-section" style="margin-bottom: 0;">
+          <div class="runner-section-title">
+            <span>3. Pengaturan Eksekusi:</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--fg2); margin-bottom: 4px;">Jumlah Iterasi (Iterations):</label>
+              <input type="number" id="runnerIterationsInput" class="search-input" min="1" value="1" style="width: 100%;">
+              <div style="font-size: 10.5px; color: var(--fg4); margin-top: 3px;">Otomatis mengikuti panjang dataset array</div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--fg2); margin-bottom: 4px;">Delay antar Request (ms):</label>
+              <input type="number" id="runnerDelayInput" class="search-input" min="0" step="50" value="0" placeholder="0" style="width: 100%;">
+              <div style="font-size: 10.5px; color: var(--fg4); margin-top: 3px;">Jeda waktu untuk mencegah rate-limit</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 11.5px;">
+                <input type="checkbox" id="runnerStopOnError" style="accent-color: var(--orange);">
+                <span>Hentikan jika ada error (4xx / 5xx)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 11.5px;">
+                <input type="checkbox" id="runnerUseProxy" style="accent-color: var(--orange);">
+                <span>Gunakan CORS Proxy</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VIEW 2: RESULTS -->
+      <div id="runnerViewResults" class="modal-body" style="display: none; flex-direction: column; gap: 10px;">
+
+        <!-- Header Stats & Progress -->
+        <div class="runner-section" style="margin-bottom: 0;">
+          <div class="runner-progress-container">
+            <div class="runner-progress-fill" id="runnerProgressFill"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; margin-top: 6px; margin-bottom: 10px;">
+            <span id="runnerProgressLabel" style="color: var(--fg2); font-weight: 500;">Menyiapkan eksekusi...</span>
+            <span id="runnerProgressPercent" style="font-family: var(--font-mono); color: var(--orange); font-weight: 700;">0%</span>
+          </div>
+
+          <!-- Stats Grid -->
+          <div class="runner-stats-row">
+            <div class="runner-stat-card">
+              <div class="stat-num" id="statRunTotal">0</div>
+              <div class="stat-lbl">Total Runs</div>
+            </div>
+            <div class="runner-stat-card">
+              <div class="stat-num" id="statRunPassed" style="color: var(--green);">0</div>
+              <div class="stat-lbl">Passed (2xx/3xx)</div>
+            </div>
+            <div class="runner-stat-card">
+              <div class="stat-num" id="statRunFailed" style="color: var(--red);">0</div>
+              <div class="stat-lbl">Failed (4xx/5xx/ERR)</div>
+            </div>
+            <div class="runner-stat-card">
+              <div class="stat-num" id="statRunTime">0 ms</div>
+              <div class="stat-lbl">Total Time</div>
+            </div>
+            <div class="runner-stat-card">
+              <div class="stat-num" id="statRunAvg">0 ms</div>
+              <div class="stat-lbl">Avg Time</div>
+            </div>
+          </div>
+
+          <!-- Runner Controls -->
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;">
+            <div style="display: flex; gap: 6px;">
+              <button type="button" id="btnRunnerStop" class="btn btn-sm" style="background: rgba(251, 73, 52, 0.18); color: var(--red); border-color: rgba(251, 73, 52, 0.4); display: none;">
+                ⏹ Stop Run
+              </button>
+              <button type="button" id="btnRunnerPause" class="btn btn-sm" style="display: none;">
+                ⏸ Pause
+              </button>
+              <button type="button" id="btnRunnerRerun" class="btn btn-sm btn-primary">
+                🔄 Run Ulang
+              </button>
+              <button type="button" id="btnRunnerBackToSetup" class="btn btn-sm">
+                ⚙ Ubah Pengaturan
+              </button>
+            </div>
+            <div>
+              <button type="button" id="btnRunnerExportResults" class="btn btn-sm" title="Download laporan hasil run lengkap ke file JSON">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <span>Export Hasil (JSON)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="runner-results-table-wrap">
+          <table class="runner-results-table" id="runnerResultsTable">
+            <thead>
+              <tr style="background: var(--bg0-s);">
+                <th style="width: 45px; text-align: center;">#</th>
+                <th style="width: 140px;">Request</th>
+                <th>URL Ter-interpolasi</th>
+                <th style="width: 160px;">Data Row Input</th>
+                <th style="width: 90px; text-align: center;">Status</th>
+                <th style="width: 70px; text-align: right;">Time</th>
+                <th style="width: 70px; text-align: right;">Size</th>
+                <th style="width: 65px; text-align: center;">Detail</th>
+              </tr>
+            </thead>
+            <tbody id="runnerResultsTableBody">
+              <!-- Result rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Runner Modal Footer -->
+      <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+        <div id="runnerSummaryFooterText" style="font-size: 11.5px; color: var(--fg3);">
+          Siap menjalankan 1 request × 1 iterasi = 1 request
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn" id="btnCancelRunnerModal">Tutup</button>
+          <button type="button" class="btn btn-primary" id="btnStartRunner" style="background: var(--orange); border-color: var(--orange); color: var(--bg0-hard); font-weight: 600;">
+            <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>Mulai Run</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Runner Detail Inspector Modal -->
+  <div id="runnerDetailModal" class="modal-overlay" style="z-index: 1100;">
+    <div class="modal-card" style="max-width: 780px; width: 92%; max-height: 85vh;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span id="runnerDetailMethodTag" class="method-tag method-get">GET</span>
+          <span class="modal-title" id="runnerDetailTitle">Detail Hasil Iterasi</span>
+        </div>
+        <button class="btn btn-sm btn-icon" id="btnCloseRunnerDetailModal">✕</button>
+      </div>
+
+      <!-- Detail Sub-Tabs -->
+      <div class="runner-nav-tabs">
+        <button type="button" class="runner-nav-tab active" id="tabDetailRequest">Request Sent</button>
+        <button type="button" class="runner-nav-tab" id="tabDetailResponse">Response Received</button>
+        <button type="button" class="runner-nav-tab" id="tabDetailData">Iteration Data</button>
+      </div>
+
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Metadata Overview -->
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 6px 10px; background: var(--bg0-hard); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 11.5px;">
+          <span id="runnerDetailStatusBadge" class="status-badge s-2xx">200 OK</span>
+          <span style="color: var(--fg3);">Time: <strong id="runnerDetailTime">0 ms</strong></span>
+          <span style="color: var(--fg3);">Size: <strong id="runnerDetailSize">0 B</strong></span>
+          <span style="color: var(--fg4); margin-left: auto;" id="runnerDetailTimestamp"></span>
+        </div>
+
+        <!-- Panel: Request Sent -->
+        <div id="panelDetailRequest" style="display: flex; flex-direction: column; gap: 8px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 600; color: var(--fg3); margin-bottom: 3px;">Resolved URL:</div>
+            <div id="runnerDetailUrl" style="padding: 6px 10px; background: var(--bg0-hard); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 11.5px; color: var(--aqua); word-break: break-all;"></div>
+          </div>
+          <div>
+            <div style="font-size: 11px; font-weight: 600; color: var(--fg3); margin-bottom: 3px;">Request Headers:</div>
+            <pre id="runnerDetailReqHeaders" class="response-pretty-view" style="max-height: 120px; font-size: 11px;"></pre>
+          </div>
+          <div id="runnerDetailReqBodyWrap">
+            <div style="font-size: 11px; font-weight: 600; color: var(--fg3); margin-bottom: 3px;">Request Body:</div>
+            <pre id="runnerDetailReqBody" class="response-pretty-view" style="max-height: 140px; font-size: 11px;"></pre>
+          </div>
+        </div>
+
+        <!-- Panel: Response Received -->
+        <div id="panelDetailResponse" style="display: none; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 11px; font-weight: 600; color: var(--fg3);">Response Body:</div>
+            <button type="button" class="btn btn-sm" id="btnCopyRunnerDetailBody">Copy Response Body</button>
+          </div>
+          <pre id="runnerDetailResBody" class="response-pretty-view" style="max-height: 240px; font-size: 11px; overflow: auto;"></pre>
+          <div>
+            <div style="font-size: 11px; font-weight: 600; color: var(--fg3); margin-bottom: 3px;">Response Headers:</div>
+            <pre id="runnerDetailResHeaders" class="response-pretty-view" style="max-height: 120px; font-size: 11px;"></pre>
+          </div>
+        </div>
+
+        <!-- Panel: Iteration Data -->
+        <div id="panelDetailData" style="display: none; flex-direction: column; gap: 8px;">
+          <div style="font-size: 11px; font-weight: 600; color: var(--fg3);">Data Row Object (Key-Value):</div>
+          <pre id="runnerDetailDataJson" class="response-pretty-view" style="max-height: 240px; font-size: 11px;"></pre>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btnCloseRunnerDetailBtn">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden File Input for Runner JSON dataset -->
+  <input type="file" id="runnerFileInput" accept=".json,application/json" style="display: none;">
 
   <!-- Hidden File Input for JSON import -->
   <input type="file" id="jsonFileInput" accept=".json,application/json" style="display: none;">
@@ -3527,9 +4017,39 @@
 
     methodSelect.addEventListener('change', () => updateMethodColor(true));
 
-    function interpolate(str) {
+    function interpolate(str, extraScope = null) {
       if (!str || typeof str !== 'string') return '';
       let res = str;
+
+      // 1. Extra scope (Iteration data row from JSON array of objects)
+      if (extraScope && typeof extraScope === 'object') {
+        Object.entries(extraScope).forEach(([k, v]) => {
+          if (k && String(k).trim()) {
+            const escaped = String(k).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const pattern = new RegExp(`{{\\s*${escaped}\\s*}}`, 'g');
+            let valStr = '';
+            if (v !== null && v !== undefined) {
+              valStr = typeof v === 'object' ? JSON.stringify(v) : String(v);
+            }
+            res = res.replace(pattern, valStr);
+          }
+        });
+      }
+
+      // 2. Dynamic Postman-style Runner variables
+      if (res.includes('{{$')) {
+        res = res.replace(/{{\s*\$iteration\s*}}/g, (extraScope && extraScope._iterationIndex !== undefined) ? String(extraScope._iterationIndex) : '0');
+        res = res.replace(/{{\s*\$iterationNumber\s*}}/g, (extraScope && extraScope._iterationIndex !== undefined) ? String(extraScope._iterationIndex + 1) : '1');
+        res = res.replace(/{{\s*\$timestamp\s*}}/g, String(Date.now()));
+        res = res.replace(/{{\s*\$isoTimestamp\s*}}/g, new Date().toISOString());
+        res = res.replace(/{{\s*(\$randomUUID|\$guid)\s*}}/g, () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          const r = Math.random() * 16 | 0;
+          return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        }));
+        res = res.replace(/{{\s*\$randomInt\s*}}/g, () => String(Math.floor(Math.random() * 1000) + 1));
+      }
+
+      // 3. Workspace / Environment Variables
       state.variables.forEach(v => {
         if (v.key && v.key.trim()) {
           const escaped = v.key.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -4391,7 +4911,15 @@
 
       let requestToLoad = null;
 
-      if (parsed.request && (parsed.request.url !== undefined || parsed.request.method)) {
+      // 1. Deteksi format Postman Collection (v2.0 / v2.1)
+      if (Array.isArray(parsed.item) || (parsed.info && Array.isArray(parsed.item))) {
+        const pmItems = parsePostmanItem(parsed.item, parsed.info?.name || '');
+        if (pmItems.length > 0) {
+          pmItems.forEach(r => saveRequestToCollection(r));
+          requestToLoad = pmItems[0];
+          showToast(`✓ Berhasil mengimpor ${pmItems.length} request dari Postman Collection`);
+        }
+      } else if (parsed.request && (parsed.request.url !== undefined || parsed.request.method)) {
         requestToLoad = parsed.request;
         if (Array.isArray(parsed.savedRequests)) {
           parsed.savedRequests.forEach(r => saveRequestToCollection(r));
@@ -4404,8 +4932,23 @@
       } else if (parsed.url !== undefined || parsed.method) {
         requestToLoad = parsed;
       } else if (Array.isArray(parsed) && parsed.length > 0) {
-        parsed.forEach(r => saveRequestToCollection(r));
-        requestToLoad = parsed[0];
+        // Cek apakah ini array of requests atau dataset JSON (Array of Objects) untuk Runner
+        const isRequestArray = parsed.some(r => r && (r.url !== undefined || r.method !== undefined));
+        if (isRequestArray) {
+          parsed.forEach(r => saveRequestToCollection(r));
+          requestToLoad = parsed[0];
+        } else if (typeof parsed[0] === 'object') {
+          // Ini adalah dataset JSON (Array of Objects) untuk Postman Runner!
+          closeImportJsonModal();
+          openRunnerModal('active');
+          const textarea = document.getElementById('runnerJsonTextarea');
+          if (textarea) {
+            textarea.value = JSON.stringify(parsed, null, 2);
+            validateRunnerJson();
+          }
+          showToast(`✓ Terdeteksi dataset JSON (${parsed.length} baris). Membuka Postman Run Mode...`);
+          return true;
+        }
       } else if (Array.isArray(parsed.savedRequests) && parsed.savedRequests.length > 0) {
         parsed.savedRequests.forEach(r => saveRequestToCollection(r));
         requestToLoad = parsed.savedRequests[0];
@@ -6337,6 +6880,1216 @@
       document.getElementById('sidebar').classList.toggle('collapsed');
     });
 
+    // ==========================================
+    // Postman Collection & Runner Engine Functions
+    // ==========================================
+
+    function parsePostmanItem(item, folderName = '') {
+      if (!item) return [];
+      if (Array.isArray(item)) {
+        let list = [];
+        item.forEach(sub => {
+          list = list.concat(parsePostmanItem(sub, folderName));
+        });
+        return list;
+      }
+      if (Array.isArray(item.item)) {
+        const subFolder = folderName ? `${folderName} / ${item.name || ''}` : (item.name || '');
+        let list = [];
+        item.item.forEach(sub => {
+          list = list.concat(parsePostmanItem(sub, subFolder));
+        });
+        return list;
+      }
+      if (!item.request) return [];
+
+      const req = item.request;
+      const name = folderName ? `${folderName} - ${item.name || 'Request'}` : (item.name || 'Postman Request');
+      const method = (typeof req === 'string' ? 'GET' : (req.method || 'GET')).toUpperCase();
+
+      let url = '';
+      if (typeof req === 'string') {
+        url = req;
+      } else if (typeof req.url === 'string') {
+        url = req.url;
+      } else if (req.url && req.url.raw) {
+        url = req.url.raw;
+      }
+
+      const headers = [];
+      if (Array.isArray(req.header)) {
+        req.header.forEach(h => {
+          if (h && h.key) {
+            headers.push({ active: !h.disabled, key: h.key, value: h.value || '' });
+          }
+        });
+      }
+
+      const auth = {
+        type: 'none',
+        bearer: '',
+        basicUser: '',
+        basicPass: '',
+        apiKeyName: '',
+        apiKeyValue: '',
+        apiKeyLocation: 'header'
+      };
+      if (req.auth) {
+        if (req.auth.type === 'bearer' && Array.isArray(req.auth.bearer)) {
+          auth.type = 'bearer';
+          const tokenObj = req.auth.bearer.find(b => b.key === 'token');
+          auth.bearer = tokenObj ? tokenObj.value : '';
+        } else if (req.auth.type === 'basic' && Array.isArray(req.auth.basic)) {
+          auth.type = 'basic';
+          const u = req.auth.basic.find(b => b.key === 'username');
+          const p = req.auth.basic.find(b => b.key === 'password');
+          auth.basicUser = u ? u.value : '';
+          auth.basicPass = p ? p.value : '';
+        } else if (req.auth.type === 'apikey' && Array.isArray(req.auth.apikey)) {
+          auth.type = 'apikey';
+          const k = req.auth.apikey.find(b => b.key === 'key');
+          const v = req.auth.apikey.find(b => b.key === 'value');
+          const w = req.auth.apikey.find(b => b.key === 'where');
+          auth.apiKeyName = k ? k.value : '';
+          auth.apiKeyValue = v ? v.value : '';
+          auth.apiKeyLocation = w && w.value === 'query' ? 'query' : 'header';
+        }
+      }
+
+      let bodyType = 'none';
+      let bodyContent = '';
+      let urlEncoded = [];
+      let formData = [];
+
+      if (req.body) {
+        const mode = req.body.mode;
+        if (mode === 'raw') {
+          bodyType = 'json';
+          bodyContent = req.body.raw || '';
+        } else if (mode === 'urlencoded' && Array.isArray(req.body.urlencoded)) {
+          bodyType = 'urlencoded';
+          urlEncoded = req.body.urlencoded.map(u => ({
+            active: !u.disabled,
+            key: u.key || '',
+            value: u.value || ''
+          }));
+        } else if (mode === 'formdata' && Array.isArray(req.body.formdata)) {
+          bodyType = 'form-data';
+          formData = req.body.formdata.map(f => ({
+            active: !f.disabled,
+            key: f.key || '',
+            type: f.type || 'text',
+            value: f.value || ''
+          }));
+        }
+      }
+
+      return [{
+        id: 'pm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+        name,
+        method,
+        url,
+        headers,
+        auth,
+        bodyType,
+        bodyContent,
+        urlEncoded,
+        formData,
+        params: []
+      }];
+    }
+
+    const runnerState = {
+      isRunning: false,
+      isPaused: false,
+      abortController: null,
+      targetType: 'active',
+      dataRows: [],
+      detectedKeys: [],
+      iterations: 1,
+      delay: 0,
+      stopOnError: false,
+      useProxy: false,
+      results: [],
+      startTime: null,
+      resolvePause: null
+    };
+
+    function parseRunnerJson(text) {
+      if (!text || !text.trim()) {
+        return { valid: false, empty: true, data: [], keys: [], iterations: 0, error: 'Data JSON belum diisi.' };
+      }
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (err) {
+        return { valid: false, empty: false, data: [], keys: [], iterations: 0, error: 'Format JSON tidak valid: ' + err.message };
+      }
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        parsed = [parsed];
+      }
+      if (!Array.isArray(parsed)) {
+        return { valid: false, empty: false, data: [], keys: [], iterations: 0, error: 'Data JSON harus berupa Array: [ {...}, {...} ]' };
+      }
+      if (parsed.length === 0) {
+        return { valid: false, empty: false, data: [], keys: [], iterations: 0, error: 'Array JSON kosong (0 items).' };
+      }
+      const nonObject = parsed.some(item => !item || typeof item !== 'object' || Array.isArray(item));
+      if (nonObject) {
+        return { valid: false, empty: false, data: [], keys: [], iterations: 0, error: 'Setiap item dalam array harus berupa Object: [ {"key": "val"}, ... ]' };
+      }
+      const keySet = new Set();
+      parsed.forEach(row => {
+        Object.keys(row).forEach(k => keySet.add(k));
+      });
+      return {
+        valid: true,
+        empty: false,
+        data: parsed,
+        keys: Array.from(keySet),
+        iterations: parsed.length
+      };
+    }
+
+    function renderRunnerDataPreview(keys, data) {
+      const wrap = document.getElementById('runnerDataPreviewTableWrap');
+      if (!wrap) return;
+      if (!keys || keys.length === 0 || !data || data.length === 0) {
+        wrap.innerHTML = '<div style="padding: 10px; color: var(--fg4); font-size: 11px;">Tidak ada data untuk ditampilkan</div>';
+        return;
+      }
+
+      const displayRows = data.slice(0, 10);
+      let html = '<table class="runner-results-table" style="font-size: 10.5px;"><thead><tr style="background: var(--bg0-s);">';
+      html += '<th style="width: 40px; text-align: center;">#</th>';
+      keys.forEach(k => {
+        html += `<th>{{${escapeHtml(k)}}}</th>`;
+      });
+      html += '</tr></thead><tbody>';
+
+      displayRows.forEach((row, idx) => {
+        html += `<tr><td style="text-align: center; color: var(--fg4); font-family: var(--font-mono);">${idx + 1}</td>`;
+        keys.forEach(k => {
+          const val = row[k];
+          const displayVal = val !== undefined && val !== null ? (typeof val === 'object' ? JSON.stringify(val) : String(val)) : '';
+          html += `<td style="font-family: var(--font-mono); color: var(--fg1);">${escapeHtml(displayVal)}</td>`;
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+      if (data.length > 10) {
+        html += `<div style="padding: 5px 8px; font-size: 10.5px; color: var(--fg4); text-align: right; background: var(--bg0-s); border-top: 1px solid var(--border-color);">Menampilkan 10 dari total ${data.length} baris dataset</div>`;
+      }
+      wrap.innerHTML = html;
+    }
+
+    function validateRunnerJson() {
+      const textarea = document.getElementById('runnerJsonTextarea');
+      const statusEl = document.getElementById('runnerDataStatus');
+      const iterInput = document.getElementById('runnerIterationsInput');
+      const previewContainer = document.getElementById('runnerDataPreviewContainer');
+      const fileStatusLabel = document.getElementById('runnerFileStatusLabel');
+      if (!textarea || !statusEl) return;
+
+      const raw = textarea.value.trim();
+      const res = parseRunnerJson(raw);
+
+      if (res.empty) {
+        statusEl.className = 'runner-data-status';
+        statusEl.innerHTML = '<div style="color: var(--fg4);">Belum ada data JSON. Masukkan Array of Object atau klik <strong>Load Contoh Data JSON</strong>.</div>';
+        if (previewContainer) previewContainer.style.display = 'none';
+        if (fileStatusLabel) fileStatusLabel.textContent = '';
+        updateRunnerSummaryText(0);
+        return;
+      }
+
+      if (!res.valid) {
+        statusEl.className = 'runner-data-status invalid';
+        statusEl.innerHTML = `
+          <div style="color: var(--red); font-weight: 600;">⚠️ ${escapeHtml(res.error)}</div>
+          <div style="font-size: 11px; color: var(--fg3);">Format harus berupa Array of Object JSON, contoh:<br><code>[\n  { "id": 1, "title": "Judul 1" },\n  { "id": 2, "title": "Judul 2" }\n]</code></div>
+        `;
+        if (previewContainer) previewContainer.style.display = 'none';
+        updateRunnerSummaryText(0);
+        return;
+      }
+
+      // Valid JSON Array of Objects
+      runnerState.dataRows = res.data;
+      runnerState.detectedKeys = res.keys;
+
+      runnerState.iterations = res.iterations;
+      if (iterInput) {
+        iterInput.value = res.iterations;
+      }
+
+      statusEl.className = 'runner-data-status valid';
+      const chipsHtml = res.keys.map(k => `<span class="runner-var-chip">{{${escapeHtml(k)}}}</span>`).join('');
+      statusEl.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+          <span style="color: var(--green); font-weight: 600;">✓ Valid JSON: ${res.iterations} Iterasi (Baris Data) terdeteksi</span>
+          <button type="button" class="btn btn-sm" id="btnToggleRunnerPreview" style="font-size: 10.5px;">Lihat Preview Tabel (${res.iterations} baris)</button>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 2px;">
+          <span style="font-size: 11px; color: var(--fg3);">Variabel terdeteksi:</span>
+          ${chipsHtml || '<span style="color: var(--fg4); font-size: 11px;">(Tidak ada key objek)</span>'}
+        </div>
+      `;
+
+      renderRunnerDataPreview(res.keys, res.data);
+
+      const toggleBtn = document.getElementById('btnToggleRunnerPreview');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          if (!previewContainer) return;
+          const isHidden = previewContainer.style.display === 'none';
+          previewContainer.style.display = isHidden ? 'flex' : 'none';
+          toggleBtn.textContent = isHidden ? `Tutup Preview Tabel (${res.iterations} baris)` : `Lihat Preview Tabel (${res.iterations} baris)`;
+        });
+      }
+
+      updateRunnerSummaryText(res.iterations);
+    }
+
+    function updateRunnerSummaryText(iterationsCount = null) {
+      const iterInput = document.getElementById('runnerIterationsInput');
+      const iters = iterationsCount !== null ? iterationsCount : (parseInt(iterInput?.value) || 0);
+
+      const targetType = document.querySelector('input[name="runnerTargetType"]:checked')?.value || 'active';
+      let reqCount = 1;
+      if (targetType === 'collection') {
+        const checkedList = document.querySelectorAll('.runner-req-check:checked');
+        reqCount = checkedList.length;
+      }
+
+      const totalRuns = reqCount * iters;
+      const text = `Siap menjalankan ${reqCount} request × ${iters} iterasi = <strong>${totalRuns} total request</strong>`;
+      const footerEl = document.getElementById('runnerSummaryFooterText');
+      if (footerEl) footerEl.innerHTML = text;
+    }
+
+    function openRunnerModal(preferredTarget = 'active') {
+      saveActiveTabState();
+      const activeTab = getActiveTab();
+      if (!activeTab) return;
+
+      const methodBadge = document.getElementById('runnerActiveMethodBadge');
+      if (methodBadge) {
+        methodBadge.textContent = activeTab.method;
+        methodBadge.className = `method-tag method-${activeTab.method.toLowerCase()}`;
+      }
+      const activeName = document.getElementById('runnerActiveName');
+      if (activeName) activeName.textContent = activeTab.name || deriveTabName(activeTab.method, activeTab.url);
+      const activeUrl = document.getElementById('runnerActiveUrl');
+      if (activeUrl) activeUrl.textContent = activeTab.url || 'https://api.example.com';
+
+      // Set target radio
+      const activeRadio = document.querySelector('input[name="runnerTargetType"][value="active"]');
+      const collectionRadio = document.querySelector('input[name="runnerTargetType"][value="collection"]');
+      const activePreview = document.getElementById('runnerActiveTabPreview');
+      const collectionCont = document.getElementById('runnerCollectionContainer');
+
+      if (preferredTarget === 'collection' && state.savedRequests.length > 0) {
+        if (collectionRadio) collectionRadio.checked = true;
+        if (activePreview) activePreview.style.display = 'none';
+        if (collectionCont) collectionCont.style.display = 'flex';
+      } else {
+        if (activeRadio) activeRadio.checked = true;
+        if (activePreview) activePreview.style.display = 'flex';
+        if (collectionCont) collectionCont.style.display = 'none';
+      }
+
+      // Populate collection list
+      renderRunnerCollectionList();
+
+      // Check textarea content
+      const textarea = document.getElementById('runnerJsonTextarea');
+      if (textarea && !textarea.value.trim()) {
+        loadRunnerSampleData();
+      } else {
+        validateRunnerJson();
+      }
+
+      // CORS proxy toggle sync
+      const proxyCheckbox = document.getElementById('runnerUseProxy');
+      if (proxyCheckbox) proxyCheckbox.checked = Boolean(state.useCorsProxy);
+
+      switchRunnerView('setup');
+      const modal = document.getElementById('runnerModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeRunnerModal() {
+      if (runnerState.isRunning) {
+        if (!confirm('Proses Run Mode sedang berjalan. Yakin ingin membatalkan dan menutup?')) {
+          return;
+        }
+        stopRunner();
+      }
+      const modal = document.getElementById('runnerModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function switchRunnerView(viewName) {
+      const setupTabBtn = document.getElementById('tabRunnerNavSetup');
+      const resultsTabBtn = document.getElementById('tabRunnerNavResults');
+      const setupView = document.getElementById('runnerViewSetup');
+      const resultsView = document.getElementById('runnerViewResults');
+      const btnStart = document.getElementById('btnStartRunner');
+      const footerText = document.getElementById('runnerSummaryFooterText');
+
+      if (viewName === 'setup') {
+        if (setupTabBtn) setupTabBtn.classList.add('active');
+        if (resultsTabBtn) resultsTabBtn.classList.remove('active');
+        if (setupView) setupView.style.display = 'flex';
+        if (resultsView) resultsView.style.display = 'none';
+        if (btnStart) btnStart.innerHTML = '<svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Mulai Run</span>';
+        updateRunnerSummaryText();
+      } else {
+        if (setupTabBtn) setupTabBtn.classList.remove('active');
+        if (resultsTabBtn) resultsTabBtn.classList.add('active');
+        if (setupView) setupView.style.display = 'none';
+        if (resultsView) resultsView.style.display = 'flex';
+        if (btnStart) btnStart.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg><span>Run Ulang</span>';
+        if (footerText) footerText.textContent = `Menampilkan hasil eksekusi runner (${runnerState.results.length} request dieksekusi)`;
+      }
+    }
+
+    function renderRunnerCollectionList() {
+      const container = document.getElementById('runnerCollectionList');
+      if (!container) return;
+      if (!state.savedRequests || state.savedRequests.length === 0) {
+        container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--fg4); font-size: 11.5px;">Belum ada request tersimpan di koleksi.<br>Simpan request di tab aktif ke koleksi terlebih dahulu atau gunakan Tab Aktif.</div>';
+        return;
+      }
+
+      let html = '';
+      state.savedRequests.forEach(req => {
+        const method = (req.method || 'GET').toUpperCase();
+        html += `
+          <label style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-bottom: 1px solid var(--border-color); cursor: pointer; font-size: 11.5px;">
+            <input type="checkbox" class="runner-req-check" value="${escapeHtml(req.id)}" checked style="accent-color: var(--orange);">
+            <span class="method-tag method-${method.toLowerCase()}">${method}</span>
+            <span style="font-weight: 600; color: var(--fg1);">${escapeHtml(req.name || 'Untitled')}</span>
+            <span class="item-url" style="color: var(--fg4); margin-left: auto;">${escapeHtml(req.url || '')}</span>
+          </label>
+        `;
+      });
+      container.innerHTML = html;
+
+      container.querySelectorAll('.runner-req-check').forEach(cb => {
+        cb.addEventListener('change', () => updateRunnerSummaryText());
+      });
+    }
+
+    function loadRunnerSampleData() {
+      const sample = [
+        {
+          "id": 1,
+          "title": "Postman Runner Dataset 1",
+          "body": "Pengujian data array of object baris 1",
+          "userId": 1
+        },
+        {
+          "id": 2,
+          "title": "Postman Runner Dataset 2",
+          "body": "Pengujian data array of object baris 2",
+          "userId": 1
+        },
+        {
+          "id": 3,
+          "title": "Postman Runner Dataset 3",
+          "body": "Pengujian data array of object baris 3",
+          "userId": 2
+        }
+      ];
+      const textarea = document.getElementById('runnerJsonTextarea');
+      if (textarea) {
+        textarea.value = JSON.stringify(sample, null, 2);
+        const fileStatusLabel = document.getElementById('runnerFileStatusLabel');
+        if (fileStatusLabel) fileStatusLabel.textContent = 'Contoh dataset dimuat (3 iterasi)';
+        validateRunnerJson();
+      }
+    }
+
+    async function executeRunnerRequest(requestData, iterationData, signal, useProxy) {
+      let rawUrl = interpolate(requestData.url ? requestData.url.trim() : '', iterationData);
+      if (!rawUrl) {
+        throw new Error('URL request kosong.');
+      }
+      if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+        rawUrl = 'https://' + rawUrl;
+      }
+
+      if (requestData.auth && requestData.auth.type === 'apikey' && requestData.auth.apiKeyLocation === 'query' && requestData.auth.apiKeyName) {
+        const separator = rawUrl.includes('?') ? '&' : '?';
+        rawUrl += `${separator}${encodeURIComponent(requestData.auth.apiKeyName)}=${encodeURIComponent(interpolate(requestData.auth.apiKeyValue || '', iterationData))}`;
+      }
+
+      let finalUrl = rawUrl;
+      if (useProxy && state.corsProxyUrl) {
+        finalUrl = state.corsProxyUrl + encodeURIComponent(rawUrl);
+      }
+
+      const headersObj = {};
+      if (Array.isArray(requestData.headers)) {
+        requestData.headers.filter(h => h && h.active !== false && h.key && h.key.trim()).forEach(h => {
+          if (requestData.auth && requestData.auth.type !== 'none' && h.key.trim().toLowerCase() === 'authorization') return;
+          headersObj[h.key.trim()] = interpolate(h.value || '', iterationData);
+        });
+      }
+
+      if (requestData.auth) {
+        if (requestData.auth.type === 'bearer' && requestData.auth.bearer) {
+          headersObj['Authorization'] = `Bearer ${interpolate(requestData.auth.bearer, iterationData)}`;
+        } else if (requestData.auth.type === 'basic' && (requestData.auth.basicUser || requestData.auth.basicPass)) {
+          headersObj['Authorization'] = `Basic ${safeBtoa(`${interpolate(requestData.auth.basicUser || '', iterationData)}:${interpolate(requestData.auth.basicPass || '', iterationData)}`)}`;
+        } else if (requestData.auth.type === 'apikey' && requestData.auth.apiKeyLocation === 'header' && requestData.auth.apiKeyName) {
+          headersObj[requestData.auth.apiKeyName] = interpolate(requestData.auth.apiKeyValue || '', iterationData);
+        }
+      }
+
+      const method = (requestData.method || 'GET').toUpperCase();
+      const options = {
+        method: method,
+        headers: headersObj,
+        mode: 'cors',
+        signal: signal
+      };
+
+      let bodySentPreview = '';
+
+      if (method !== 'GET' && method !== 'HEAD') {
+        const bodyType = requestData.bodyType || 'none';
+        if (bodyType === 'json' || bodyType === 'raw') {
+          const bodyVal = requestData.bodyContent || '';
+          if (bodyVal) {
+            options.body = interpolate(bodyVal, iterationData);
+            bodySentPreview = options.body;
+            if (bodyType === 'json' && !headersObj['Content-Type'] && !headersObj['content-type']) {
+              headersObj['Content-Type'] = 'application/json';
+            }
+          }
+        } else if (bodyType === 'urlencoded') {
+          const params = new URLSearchParams();
+          if (Array.isArray(requestData.urlEncoded)) {
+            requestData.urlEncoded.filter(u => u && u.active !== false && u.key).forEach(item => {
+              params.append(item.key, interpolate(item.value || '', iterationData));
+            });
+          }
+          options.body = params.toString();
+          bodySentPreview = options.body;
+          headersObj['Content-Type'] = 'application/x-www-form-urlencoded';
+        } else if (bodyType === 'form-data') {
+          const formData = new FormData();
+          if (Array.isArray(requestData.formData)) {
+            requestData.formData.filter(f => f && f.active !== false && f.key).forEach(item => {
+              formData.append(item.key, interpolate(item.value || '', iterationData));
+            });
+          }
+          options.body = formData;
+          bodySentPreview = '[FormData with fields]';
+          delete headersObj['Content-Type'];
+          delete headersObj['content-type'];
+        }
+      }
+
+      const startTime = performance.now();
+      try {
+        const response = await fetch(finalUrl, options);
+        const duration = Math.round(performance.now() - startTime);
+
+        const resHeaders = [];
+        response.headers.forEach((val, key) => resHeaders.push({ key, value: val }));
+
+        const contentType = (response.headers.get('content-type') || '').toLowerCase();
+        let rawText = '';
+        let byteSize = 0;
+
+        if (contentType.includes('image/')) {
+          const blob = await response.blob();
+          byteSize = blob.size;
+          rawText = `[Binary Image: ${contentType}, ${byteSize} bytes]`;
+        } else {
+          const blob = await response.blob();
+          byteSize = blob.size;
+          rawText = await blob.text();
+        }
+
+        const formattedSize = byteSize > 1024 ? (byteSize / 1024).toFixed(1) + ' KB' : byteSize + ' B';
+        const statusDesc = response.statusText || STATUS_MAP[response.status] || '';
+
+        return {
+          success: response.status >= 200 && response.status < 400,
+          status: response.status,
+          statusText: statusDesc,
+          duration: duration,
+          byteSize: byteSize,
+          size: formattedSize,
+          rawUrl: rawUrl,
+          finalUrl: finalUrl,
+          method: method,
+          requestHeaders: headersObj,
+          requestBody: bodySentPreview,
+          responseHeaders: resHeaders,
+          responseBody: rawText,
+          iterationData: iterationData,
+          contentType: contentType,
+          timestamp: new Date().toLocaleTimeString()
+        };
+      } catch (err) {
+        const duration = Math.round(performance.now() - startTime);
+        const isAbort = signal && signal.aborted;
+        return {
+          success: false,
+          status: isAbort ? 'ABORT' : 'ERR',
+          statusText: isAbort ? 'Aborted by user' : (err.message || 'Network Error'),
+          duration: duration,
+          byteSize: 0,
+          size: '0 B',
+          rawUrl: rawUrl,
+          finalUrl: finalUrl,
+          method: method,
+          requestHeaders: headersObj,
+          requestBody: bodySentPreview,
+          responseHeaders: [],
+          responseBody: `Request Gagal: ${err.message}`,
+          iterationData: iterationData,
+          contentType: 'text/plain',
+          timestamp: new Date().toLocaleTimeString(),
+          error: err
+        };
+      }
+    }
+
+    function addRunnerResultRow(result, displayIndex) {
+      const tbody = document.getElementById('runnerResultsTableBody');
+      if (!tbody) return;
+
+      const tr = document.createElement('tr');
+      let statusClass = 's-err';
+      if (result.status >= 200 && result.status < 300) statusClass = 's-2xx';
+      else if (result.status >= 300 && result.status < 400) statusClass = 's-3xx';
+      else if (result.status >= 400 && result.status < 500) statusClass = 's-4xx';
+      else if (result.status >= 500) statusClass = 's-5xx';
+
+      // Iteration Data row summary
+      const cleanData = Object.assign({}, result.iterationData);
+      delete cleanData._iterationIndex;
+      const dataKeys = Object.keys(cleanData);
+      let dataSummary = '';
+      if (dataKeys.length > 0) {
+        dataSummary = dataKeys.slice(0, 2).map(k => `${k}: ${String(cleanData[k])}`).join(', ');
+        if (dataKeys.length > 2) dataSummary += `, +${dataKeys.length - 2} more`;
+      } else {
+        dataSummary = '-';
+      }
+
+      tr.innerHTML = `
+        <td style="text-align: center; font-family: var(--font-mono); color: var(--fg4);">${displayIndex}</td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="method-tag method-${result.method.toLowerCase()}">${result.method}</span>
+            <span style="font-weight: 500; color: var(--fg1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;">${escapeHtml(result.requestName || 'Request')}</span>
+          </div>
+        </td>
+        <td>
+          <div class="item-url" style="color: var(--fg2); max-width: 250px;" title="${escapeHtml(result.finalUrl || result.rawUrl)}">${escapeHtml(result.finalUrl || result.rawUrl)}</div>
+        </td>
+        <td>
+          <div style="font-family: var(--font-mono); font-size: 10.5px; color: var(--fg3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;" title="${escapeHtml(JSON.stringify(cleanData))}">
+            ${escapeHtml(dataSummary)}
+          </div>
+        </td>
+        <td style="text-align: center;">
+          <span class="status-badge ${statusClass}">${result.status} ${escapeHtml(result.statusText)}</span>
+        </td>
+        <td style="text-align: right; font-family: var(--font-mono); color: var(--fg2);">${result.duration} ms</td>
+        <td style="text-align: right; font-family: var(--font-mono); color: var(--fg3);">${result.size}</td>
+        <td style="text-align: center;">
+          <button type="button" class="btn btn-sm" data-result-idx="${displayIndex - 1}" style="font-size: 10.5px; padding: 2px 7px;">Detail</button>
+        </td>
+      `;
+
+      tr.querySelector('button').addEventListener('click', () => {
+        openRunnerDetail(displayIndex - 1);
+      });
+
+      tbody.appendChild(tr);
+      const wrap = document.querySelector('.runner-results-table-wrap');
+      if (wrap) wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function updateRunnerStats(totalExpectedRuns) {
+      const results = runnerState.results;
+      const count = results.length;
+      let passed = 0;
+      let failed = 0;
+      let totalDuration = 0;
+
+      results.forEach(r => {
+        if (r.success) passed++;
+        else failed++;
+        totalDuration += (r.duration || 0);
+      });
+
+      const avg = count > 0 ? Math.round(totalDuration / count) : 0;
+      const totalElapsed = runnerState.startTime ? Math.round(performance.now() - runnerState.startTime) : totalDuration;
+
+      const statTotal = document.getElementById('statRunTotal');
+      const statPassed = document.getElementById('statRunPassed');
+      const statFailed = document.getElementById('statRunFailed');
+      const statTime = document.getElementById('statRunTime');
+      const statAvg = document.getElementById('statRunAvg');
+      const navBadge = document.getElementById('runnerNavResultsCount');
+
+      if (statTotal) statTotal.textContent = String(count);
+      if (statPassed) statPassed.textContent = String(passed);
+      if (statFailed) statFailed.textContent = String(failed);
+      if (statTime) statTime.textContent = `${totalElapsed} ms`;
+      if (statAvg) statAvg.textContent = `${avg} ms`;
+      if (navBadge) {
+        navBadge.style.display = 'inline-block';
+        navBadge.textContent = String(count);
+      }
+
+      if (totalExpectedRuns > 0) {
+        const percent = Math.min(100, Math.round((count / totalExpectedRuns) * 100));
+        const fill = document.getElementById('runnerProgressFill');
+        const pctLabel = document.getElementById('runnerProgressPercent');
+        if (fill) fill.style.width = `${percent}%`;
+        if (pctLabel) pctLabel.textContent = `${percent}%`;
+      }
+    }
+
+    async function startRunner() {
+      if (runnerState.isRunning) return;
+
+      const textarea = document.getElementById('runnerJsonTextarea');
+      const parseRes = parseRunnerJson(textarea ? textarea.value : '');
+      if (!parseRes.valid) {
+        showToast('Dataset JSON tidak valid: ' + parseRes.error);
+        return;
+      }
+
+      const targetType = document.querySelector('input[name="runnerTargetType"]:checked')?.value || 'active';
+      let requestsToRun = [];
+
+      if (targetType === 'active') {
+        saveActiveTabState();
+        const activeTab = getActiveTab();
+        if (!activeTab) {
+          showToast('Tidak ada tab aktif');
+          return;
+        }
+        requestsToRun = [extractTabSaveData(activeTab)];
+      } else {
+        const checkedBoxes = Array.from(document.querySelectorAll('.runner-req-check:checked'));
+        if (checkedBoxes.length === 0) {
+          showToast('Pilih minimal satu request dari koleksi tersimpan');
+          return;
+        }
+        const checkedIds = checkedBoxes.map(cb => cb.value);
+        requestsToRun = checkedIds.map(id => state.savedRequests.find(r => r.id === id)).filter(Boolean);
+      }
+
+      const iterInput = document.getElementById('runnerIterationsInput');
+      const iterations = Math.max(1, parseInt(iterInput?.value) || parseRes.iterations);
+      const delayInput = document.getElementById('runnerDelayInput');
+      const delay = Math.max(0, parseInt(delayInput?.value) || 0);
+      const stopOnError = Boolean(document.getElementById('runnerStopOnError')?.checked);
+      const useProxy = Boolean(document.getElementById('runnerUseProxy')?.checked);
+
+      // Initialize state
+      runnerState.isRunning = true;
+      runnerState.isPaused = false;
+      runnerState.abortController = new AbortController();
+      runnerState.dataRows = parseRes.data;
+      runnerState.iterations = iterations;
+      runnerState.delay = delay;
+      runnerState.stopOnError = stopOnError;
+      runnerState.useProxy = useProxy;
+      runnerState.results = [];
+      runnerState.startTime = performance.now();
+
+      // UI Transition to Results view
+      switchRunnerView('results');
+
+      const tbody = document.getElementById('runnerResultsTableBody');
+      if (tbody) tbody.innerHTML = '';
+
+      const progressLabel = document.getElementById('runnerProgressLabel');
+      if (progressLabel) progressLabel.textContent = 'Memulai eksekusi runner...';
+      const progressFill = document.getElementById('runnerProgressFill');
+      if (progressFill) progressFill.style.width = '0%';
+      const progressPercent = document.getElementById('runnerProgressPercent');
+      if (progressPercent) progressPercent.textContent = '0%';
+
+      const btnStop = document.getElementById('btnRunnerStop');
+      const btnPause = document.getElementById('btnRunnerPause');
+      const btnRerun = document.getElementById('btnRunnerRerun');
+      const btnBack = document.getElementById('btnRunnerBackToSetup');
+
+      if (btnStop) btnStop.style.display = 'inline-block';
+      if (btnPause) {
+        btnPause.style.display = 'inline-block';
+        btnPause.textContent = '⏸ Pause';
+      }
+      if (btnRerun) btnRerun.style.display = 'none';
+      if (btnBack) btnBack.style.display = 'none';
+
+      const totalExpectedRuns = iterations * requestsToRun.length;
+      updateRunnerStats(totalExpectedRuns);
+
+      let abortedOrStopped = false;
+
+      try {
+        for (let i = 0; i < iterations; i++) {
+          if (!runnerState.isRunning) {
+            abortedOrStopped = true;
+            break;
+          }
+
+          const dataRow = parseRes.data[i % parseRes.data.length];
+          const iterationScope = Object.assign({}, dataRow, {
+            _iterationIndex: i
+          });
+
+          for (let rIdx = 0; rIdx < requestsToRun.length; rIdx++) {
+            if (!runnerState.isRunning) {
+              abortedOrStopped = true;
+              break;
+            }
+
+            // Pause handler
+            while (runnerState.isPaused && runnerState.isRunning) {
+              if (progressLabel) progressLabel.textContent = `⏸ Dijeda pada Iterasi #${i + 1}...`;
+              await new Promise(res => { runnerState.resolvePause = res; });
+            }
+            if (!runnerState.isRunning) {
+              abortedOrStopped = true;
+              break;
+            }
+
+            const req = requestsToRun[rIdx];
+            if (progressLabel) {
+              progressLabel.textContent = `Menjalankan: Iterasi #${i + 1} / ${iterations} &bull; ${req.name || req.method} (${req.url})...`;
+            }
+
+            const result = await executeRunnerRequest(req, iterationScope, runnerState.abortController.signal, useProxy);
+            result.iterationIndex = i + 1;
+            result.requestName = req.name || deriveTabName(req.method, req.url);
+            runnerState.results.push(result);
+
+            addRunnerResultRow(result, runnerState.results.length);
+            updateRunnerStats(totalExpectedRuns);
+
+            if (stopOnError && !result.success) {
+              abortedOrStopped = true;
+              runnerState.isRunning = false;
+              if (progressLabel) progressLabel.textContent = `⏹ Dihentikan: Error pada Iterasi #${i + 1} (${result.status} ${result.statusText})`;
+              showToast(`Runner dihentikan karena request gagal (Status: ${result.status})`);
+              break;
+            }
+
+            // Delay between requests
+            if (delay > 0 && runnerState.isRunning && (i < iterations - 1 || rIdx < requestsToRun.length - 1)) {
+              await new Promise(r => setTimeout(r, delay));
+            }
+          }
+
+          if (abortedOrStopped) break;
+        }
+      } catch (err) {
+        console.error('Runner loop error:', err);
+      } finally {
+        runnerState.isRunning = false;
+        runnerState.isPaused = false;
+        if (btnStop) btnStop.style.display = 'none';
+        if (btnPause) btnPause.style.display = 'none';
+        if (btnRerun) btnRerun.style.display = 'inline-block';
+        if (btnBack) btnBack.style.display = 'inline-block';
+
+        const totalElapsed = runnerState.startTime ? Math.round(performance.now() - runnerState.startTime) : 0;
+        if (!abortedOrStopped) {
+          if (progressFill) progressFill.style.width = '100%';
+          if (progressPercent) progressPercent.textContent = '100%';
+          if (progressLabel) progressLabel.textContent = `✓ Selesai: Seluruh ${runnerState.results.length} request berhasil dijalankan (${totalElapsed} ms)`;
+          showToast(`✓ Runner selesai: ${runnerState.results.length} request dieksekusi`);
+        }
+      }
+    }
+
+    function stopRunner() {
+      if (!runnerState.isRunning) return;
+      runnerState.isRunning = false;
+      if (runnerState.abortController) {
+        runnerState.abortController.abort();
+      }
+      if (runnerState.resolvePause) {
+        runnerState.resolvePause();
+      }
+      const progressLabel = document.getElementById('runnerProgressLabel');
+      if (progressLabel) progressLabel.textContent = '⏹ Eksekusi dihentikan oleh pengguna';
+      showToast('Run Mode dihentikan');
+    }
+
+    function pauseRunner() {
+      if (!runnerState.isRunning) return;
+      const btn = document.getElementById('btnRunnerPause');
+      if (runnerState.isPaused) {
+        runnerState.isPaused = false;
+        if (btn) btn.textContent = '⏸ Pause';
+        if (runnerState.resolvePause) {
+          runnerState.resolvePause();
+          runnerState.resolvePause = null;
+        }
+        showToast('Runner dilanjutkan');
+      } else {
+        runnerState.isPaused = true;
+        if (btn) btn.textContent = '▶ Lanjut';
+        showToast('Runner dijeda');
+      }
+    }
+
+    function openRunnerDetail(index) {
+      const result = runnerState.results[index];
+      if (!result) return;
+
+      const modal = document.getElementById('runnerDetailModal');
+      const methodTag = document.getElementById('runnerDetailMethodTag');
+      const titleEl = document.getElementById('runnerDetailTitle');
+      const statusBadge = document.getElementById('runnerDetailStatusBadge');
+      const timeEl = document.getElementById('runnerDetailTime');
+      const sizeEl = document.getElementById('runnerDetailSize');
+      const timestampEl = document.getElementById('runnerDetailTimestamp');
+      const urlEl = document.getElementById('runnerDetailUrl');
+      const reqHeadersEl = document.getElementById('runnerDetailReqHeaders');
+      const reqBodyEl = document.getElementById('runnerDetailReqBody');
+      const reqBodyWrap = document.getElementById('runnerDetailReqBodyWrap');
+      const resHeadersEl = document.getElementById('runnerDetailResHeaders');
+      const resBodyEl = document.getElementById('runnerDetailResBody');
+      const dataJsonEl = document.getElementById('runnerDetailDataJson');
+
+      if (methodTag) {
+        methodTag.textContent = result.method;
+        methodTag.className = `method-tag method-${result.method.toLowerCase()}`;
+      }
+      if (titleEl) titleEl.textContent = `Iterasi #${result.iterationIndex} &bull; ${escapeHtml(result.requestName || 'Request')}`;
+
+      let statusClass = 's-err';
+      if (result.status >= 200 && result.status < 300) statusClass = 's-2xx';
+      else if (result.status >= 300 && result.status < 400) statusClass = 's-3xx';
+      else if (result.status >= 400 && result.status < 500) statusClass = 's-4xx';
+      else if (result.status >= 500) statusClass = 's-5xx';
+
+      if (statusBadge) {
+        statusBadge.className = `status-badge ${statusClass}`;
+        statusBadge.textContent = `${result.status} ${result.statusText}`;
+      }
+      if (timeEl) timeEl.textContent = `${result.duration} ms`;
+      if (sizeEl) sizeEl.textContent = result.size;
+      if (timestampEl) timestampEl.textContent = result.timestamp || '';
+      if (urlEl) urlEl.textContent = result.finalUrl || result.rawUrl;
+
+      // Headers formatted
+      if (reqHeadersEl) {
+        reqHeadersEl.textContent = Object.entries(result.requestHeaders || {})
+          .map(([k, v]) => `${k}: ${v}`).join('\n') || '(Tidak ada header tambahan)';
+      }
+
+      if (reqBodyWrap) {
+        if (result.requestBody) {
+          reqBodyWrap.style.display = 'block';
+          if (reqBodyEl) {
+            try {
+              const parsed = JSON.parse(result.requestBody);
+              reqBodyEl.textContent = JSON.stringify(parsed, null, 2);
+            } catch (e) {
+              reqBodyEl.textContent = result.requestBody;
+            }
+          }
+        } else {
+          reqBodyWrap.style.display = 'none';
+        }
+      }
+
+      // Response headers
+      if (resHeadersEl) {
+        resHeadersEl.textContent = (result.responseHeaders || [])
+          .map(h => `${h.key}: ${h.value}`).join('\n') || '(Tidak ada response header)';
+      }
+
+      // Response body formatted
+      if (resBodyEl) {
+        let bodyText = result.responseBody || '';
+        try {
+          const parsed = JSON.parse(bodyText);
+          bodyText = JSON.stringify(parsed, null, 2);
+        } catch (e) {}
+        resBodyEl.textContent = bodyText || '(Response body kosong)';
+      }
+
+      // Iteration Data JSON
+      if (dataJsonEl) {
+        const cleanScope = Object.assign({}, result.iterationData);
+        delete cleanScope._iterationIndex;
+        dataJsonEl.textContent = JSON.stringify(cleanScope, null, 2);
+      }
+
+      // Switch to Request tab by default
+      switchDetailSubTab('request');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeRunnerDetailModal() {
+      const modal = document.getElementById('runnerDetailModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function switchDetailSubTab(tabName) {
+      const tabReq = document.getElementById('tabDetailRequest');
+      const tabRes = document.getElementById('tabDetailResponse');
+      const tabData = document.getElementById('tabDetailData');
+      const panelReq = document.getElementById('panelDetailRequest');
+      const panelRes = document.getElementById('panelDetailResponse');
+      const panelData = document.getElementById('panelDetailData');
+
+      [tabReq, tabRes, tabData].forEach(t => t?.classList.remove('active'));
+      [panelReq, panelRes, panelData].forEach(p => { if (p) p.style.display = 'none'; });
+
+      if (tabName === 'request') {
+        if (tabReq) tabReq.classList.add('active');
+        if (panelReq) panelReq.style.display = 'flex';
+      } else if (tabName === 'response') {
+        if (tabRes) tabRes.classList.add('active');
+        if (panelRes) panelRes.style.display = 'flex';
+      } else if (tabName === 'data') {
+        if (tabData) tabData.classList.add('active');
+        if (panelData) panelData.style.display = 'flex';
+      }
+    }
+
+    function exportRunnerResults() {
+      if (!runnerState.results || runnerState.results.length === 0) {
+        showToast('Belum ada hasil eksekusi runner untuk diexport');
+        return;
+      }
+
+      let passedCount = 0;
+      let failedCount = 0;
+      let totalDuration = 0;
+
+      runnerState.results.forEach(r => {
+        if (r.success) passedCount++;
+        else failedCount++;
+        totalDuration += (r.duration || 0);
+      });
+
+      const payload = {
+        app: 'RestBox',
+        version: '1.0',
+        exportType: 'postman_runner_results',
+        exportedAt: new Date().toISOString(),
+        summary: {
+          totalRuns: runnerState.results.length,
+          passed: passedCount,
+          failed: failedCount,
+          totalDurationMs: totalDuration,
+          avgDurationMs: Math.round(totalDuration / runnerState.results.length)
+        },
+        settings: {
+          iterations: runnerState.iterations,
+          delayMs: runnerState.delay,
+          stopOnError: runnerState.stopOnError,
+          useCorsProxy: runnerState.useProxy
+        },
+        results: runnerState.results.map(r => ({
+          iteration: r.iterationIndex,
+          requestName: r.requestName,
+          method: r.method,
+          url: r.finalUrl || r.rawUrl,
+          status: r.status,
+          statusText: r.statusText,
+          durationMs: r.duration,
+          size: r.size,
+          iterationData: r.iterationData,
+          requestHeaders: r.requestHeaders,
+          requestBody: r.requestBody,
+          responseHeaders: r.responseHeaders,
+          responseBody: r.responseBody
+        }))
+      };
+
+      const filename = `restbox-runner-results-${Date.now()}.json`;
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+      showToast(`✓ Hasil eksekusi berhasil diexport ke ${filename}`);
+    }
+
+    function initRunnerEvents() {
+      // Open Runner Modal buttons
+      const btnOpenRunner = document.getElementById('btnOpenRunner');
+      if (btnOpenRunner) btnOpenRunner.addEventListener('click', () => openRunnerModal('active'));
+
+      const btnQuickRunner = document.getElementById('btnQuickRunner');
+      if (btnQuickRunner) btnQuickRunner.addEventListener('click', () => openRunnerModal('active'));
+
+      const btnSidebarRunner = document.getElementById('btnSidebarRunner');
+      if (btnSidebarRunner) btnSidebarRunner.addEventListener('click', () => openRunnerModal('collection'));
+
+      // Close Runner Modal
+      const btnCloseRunner = document.getElementById('btnCloseRunnerModal');
+      if (btnCloseRunner) btnCloseRunner.addEventListener('click', closeRunnerModal);
+      const btnCancelRunner = document.getElementById('btnCancelRunnerModal');
+      if (btnCancelRunner) btnCancelRunner.addEventListener('click', closeRunnerModal);
+
+      // Tabs: Setup vs Results
+      const tabSetup = document.getElementById('tabRunnerNavSetup');
+      if (tabSetup) tabSetup.addEventListener('click', () => switchRunnerView('setup'));
+      const tabResults = document.getElementById('tabRunnerNavResults');
+      if (tabResults) tabResults.addEventListener('click', () => switchRunnerView('results'));
+
+      // Target selection radio
+      document.querySelectorAll('input[name="runnerTargetType"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          const isCollection = e.target.value === 'collection';
+          const activePreview = document.getElementById('runnerActiveTabPreview');
+          const collectionCont = document.getElementById('runnerCollectionContainer');
+          if (activePreview) activePreview.style.display = isCollection ? 'none' : 'flex';
+          if (collectionCont) collectionCont.style.display = isCollection ? 'flex' : 'none';
+          updateRunnerSummaryText();
+        });
+      });
+
+      // Collection Select / Deselect All
+      const btnSelectAll = document.getElementById('btnRunnerSelectAllCollection');
+      if (btnSelectAll) {
+        btnSelectAll.addEventListener('click', () => {
+          document.querySelectorAll('.runner-req-check').forEach(cb => cb.checked = true);
+          updateRunnerSummaryText();
+        });
+      }
+      const btnDeselectAll = document.getElementById('btnRunnerDeselectAllCollection');
+      if (btnDeselectAll) {
+        btnDeselectAll.addEventListener('click', () => {
+          document.querySelectorAll('.runner-req-check').forEach(cb => cb.checked = false);
+          updateRunnerSummaryText();
+        });
+      }
+
+      // JSON input and file picker
+      const jsonTextarea = document.getElementById('runnerJsonTextarea');
+      if (jsonTextarea) {
+        jsonTextarea.addEventListener('input', validateRunnerJson);
+      }
+
+      const fileInput = document.getElementById('runnerFileInput');
+      const btnChooseFile = document.getElementById('btnRunnerChooseFile');
+      if (btnChooseFile && fileInput) {
+        btnChooseFile.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            if (jsonTextarea) {
+              jsonTextarea.value = evt.target.result;
+              const fileStatusLabel = document.getElementById('runnerFileStatusLabel');
+              if (fileStatusLabel) fileStatusLabel.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+              validateRunnerJson();
+              showToast(`✓ File ${file.name} berhasil dimuat`);
+            }
+          };
+          reader.readAsText(file);
+          fileInput.value = '';
+        });
+      }
+
+      const btnLoadSample = document.getElementById('btnRunnerLoadSample');
+      if (btnLoadSample) btnLoadSample.addEventListener('click', loadRunnerSampleData);
+
+      const btnFormatJson = document.getElementById('btnRunnerFormatJson');
+      if (btnFormatJson) {
+        btnFormatJson.addEventListener('click', () => {
+          if (!jsonTextarea) return;
+          try {
+            const parsed = JSON.parse(jsonTextarea.value);
+            jsonTextarea.value = JSON.stringify(parsed, null, 2);
+            validateRunnerJson();
+            showToast('✓ JSON berhasil diformat');
+          } catch (e) {
+            showToast('Format JSON tidak valid: ' + e.message);
+          }
+        });
+      }
+
+      const btnClearJson = document.getElementById('btnRunnerClearJson');
+      if (btnClearJson) {
+        btnClearJson.addEventListener('click', () => {
+          if (jsonTextarea) {
+            jsonTextarea.value = '';
+            validateRunnerJson();
+          }
+        });
+      }
+
+      // Settings inputs
+      const iterInput = document.getElementById('runnerIterationsInput');
+      if (iterInput) iterInput.addEventListener('input', () => updateRunnerSummaryText());
+
+      // Execution controls
+      const btnStart = document.getElementById('btnStartRunner');
+      if (btnStart) btnStart.addEventListener('click', startRunner);
+
+      const btnStop = document.getElementById('btnRunnerStop');
+      if (btnStop) btnStop.addEventListener('click', stopRunner);
+
+      const btnPause = document.getElementById('btnRunnerPause');
+      if (btnPause) btnPause.addEventListener('click', pauseRunner);
+
+      const btnRerun = document.getElementById('btnRunnerRerun');
+      if (btnRerun) btnRerun.addEventListener('click', startRunner);
+
+      const btnBackToSetup = document.getElementById('btnRunnerBackToSetup');
+      if (btnBackToSetup) btnBackToSetup.addEventListener('click', () => switchRunnerView('setup'));
+
+      const btnExport = document.getElementById('btnRunnerExportResults');
+      if (btnExport) btnExport.addEventListener('click', exportRunnerResults);
+
+      // Detail Modal controls
+      const btnCloseDetail = document.getElementById('btnCloseRunnerDetailModal');
+      if (btnCloseDetail) btnCloseDetail.addEventListener('click', closeRunnerDetailModal);
+      const btnCloseDetailBtn = document.getElementById('btnCloseRunnerDetailBtn');
+      if (btnCloseDetailBtn) btnCloseDetailBtn.addEventListener('click', closeRunnerDetailModal);
+
+      const tabDetReq = document.getElementById('tabDetailRequest');
+      if (tabDetReq) tabDetReq.addEventListener('click', () => switchDetailSubTab('request'));
+      const tabDetRes = document.getElementById('tabDetailResponse');
+      if (tabDetRes) tabDetRes.addEventListener('click', () => switchDetailSubTab('response'));
+      const tabDetData = document.getElementById('tabDetailData');
+      if (tabDetData) tabDetData.addEventListener('click', () => switchDetailSubTab('data'));
+
+      const btnCopyDetailRes = document.getElementById('btnCopyRunnerDetailBody');
+      if (btnCopyDetailRes) {
+        btnCopyDetailRes.addEventListener('click', () => {
+          const bodyEl = document.getElementById('runnerDetailResBody');
+          if (bodyEl && bodyEl.textContent) {
+            navigator.clipboard.writeText(bodyEl.textContent)
+              .then(() => showToast('Response body disalin ke clipboard!'))
+              .catch(() => showToast('Gagal menyalin'));
+          }
+        });
+      }
+    }
+
     function initApp() {
       const initialTab = createTabObject({
         name: 'Get Single Post',
@@ -6389,6 +8142,7 @@
       setupBodyEditor();
       updateBodyEditor();
 
+      initRunnerEvents();
       // Muat data langsung dari file restbox-saved.json (server.py / disk)
       loadSavedJsonOnStartup();
 
@@ -6461,6 +8215,16 @@
     window.restoreWorkspaceFromJson = restoreWorkspaceFromJson;
     window.syncStateToServerJson = syncStateToServerJson;
     window.flashSaveButton = flashSaveButton;
+    window.openRunnerModal = openRunnerModal;
+    window.closeRunnerModal = closeRunnerModal;
+    window.startRunner = startRunner;
+    window.stopRunner = stopRunner;
+    window.pauseRunner = pauseRunner;
+    window.runnerState = runnerState;
+    window.parseRunnerJson = parseRunnerJson;
+    window.validateRunnerJson = validateRunnerJson;
+    window.exportRunnerResults = exportRunnerResults;
+    window.parsePostmanItem = parsePostmanItem;
 
   </script>
 </body>
