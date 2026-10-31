@@ -17,7 +17,13 @@ import urllib.request
 import urllib.error
 import urllib.parse
 from datetime import datetime, timezone
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+try:
+    from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+except ImportError:
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
+    from socketserver import ThreadingMixIn
+    class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
+        daemon_threads = True
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8000
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.join(ROOT_DIR, 'restbox')
@@ -292,7 +298,7 @@ class RestBoxHandler(SimpleHTTPRequestHandler):
 
 def main():
     server_address = ('', PORT)
-    httpd = HTTPServer(server_address, RestBoxHandler)
+    httpd = ThreadingHTTPServer(server_address, RestBoxHandler)
     print("========================================================")
     print("  RestBox - Local Web Server & Built-in CORS Proxy")
     print("========================================================")

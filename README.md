@@ -151,6 +151,41 @@ Fitur **Collection & Data Runner** seperti Postman untuk melakukan *data-driven 
   - Mendukung import langsung file ekspor Postman Collection v2.0 / v2.1 ke dalam koleksi request RestBox.
 
 
+### 🔥 API Stress Test & Load Benchmark (Virtual Users, Concurrent Load & Analisis Latensi)
+Fitur **Stress Testing & Load Benchmark** browser-native untuk menguji ketahanan, konkurensi, dan batas performa endpoint API di bawah beban tinggi:
+- **Setup Virtual Users (VU) & Concurrent Workers**:
+  - **Virtual Users (VU)**: Konfigurasi jumlah virtual user independen (1 hingga 500 VU) dengan preset instan (`5 VU`, `10 VU`, `25 VU`, `50 VU`, `100 VU`, `200 VU`).
+  - **Concurrent VU (Max In-Flight)**: Batas request paralel yang ditembakkan secara bersamaan/simultan ke server.
+  - **Ramp-Up Time**: Opsi penambahan virtual users secara bertahap (misal: 0s instan, 3s, 5s, 10s) untuk mensimulasikan kenaikan traffic nyata.
+  - **Pacing & Delay (ms)**: Jeda per virtual user antar request (0 ms untuk *stress test agresif / maximum throughput*).
+  - **Request Timeout**: Batas waktu tunggu per request (default: 10.000 ms).
+- **2 Mode Pengujian Beban**:
+  - **Berdasarkan Jumlah Request (Total Requests)**: Menyelesaikan target kuota request (misal: 100, 500, 1.000, 5.000 request) secara paralel.
+  - **Berdasarkan Durasi Waktu (Duration)**: Menjalankan beban konstan/sustained selama periode detik yang ditentukan (misal: 10s, 30s, 60s, 120s).
+- **Hasil & Analisis Statistik Lengkap**:
+  - **Average Response Time (ms)**: Rata-rata waktu respons server.
+  - **90th Percentile (p90 in ms)**: 90% request selesai lebih cepat dari nilai ini.
+  - **95th Percentile (p95 in ms)**: 95% request selesai lebih cepat dari nilai ini (standar SLA industri).
+  - **99th Percentile (p99 in ms)**: Worst 1% tail latency untuk mendeteksi outlier ekstrem.
+  - **Median (p50 in ms)** & **Min / Max Latency (ms)**.
+  - **Throughput (Requests Per Second / RPS)**: Live moving average RPS dan overall average RPS.
+  - **Success / Fail Rate**: Rasio persentase dan jumlah request sukses (2xx/3xx) vs gagal (4xx/5xx/ERR).
+  - **Distribusi Status Code**: Rincian jumlah per kode status HTTP (`200 OK`, `429 Too Many Requests`, `500 Server Error`, dll.).
+  - **Penyebab Error**: Identifikasi otomatis pesan kegagalan (Rate limit, connection timeout, network error).
+- **Visualisasi & Real-Time Monitoring**:
+  - **Real-Time Performance Chart (SVG)**: Grafik dinamis yang menggambarkan kurva Throughput (RPS) dan Latensi (Response Time) secara real-time.
+  - **Live VU Gauge**: Menampilkan jumlah concurrent virtual users yang sedang aktif in-flight (`⚡ 10 / 10 Concurrent VU Aktif`).
+  - **Live Rolling Log**: Tabel daftar request terbaru dengan status badge, latency berwarna, dan tombol **Detail** inspector.
+- **Per-Request Dynamic Parameterization**:
+  - Setiap request dalam stress test secara dinamis menghasilkan data unik menggunakan variabel: `{{$iteration}}`, `{{$iterationNumber}}`, `{{$timestamp}}`, `{{$isoTimestamp}}`, `{{$randomUUID}}`, `{{$randomInt}}`, dan `{{vu}}`.
+- **Auto-Stop Safety Protection**:
+  - Opsi auto-stop otomatis menghentikan pengujian jika tingkat kegagalan (error rate) melebihi 50%, mencegah overload fatal jika backend server tumbang.
+- **Export Laporan Komprehensif**:
+  - **Export JSON**: Laporan lengkap performa benchmark (`restbox-stresstest-report.json`) mencakup konfigurasi uji, metrik statistik (Avg, p90, p95, p99, Min, Max, RPS), distribusi status code, dan log rinci.
+  - **Export CSV**: Ekspor seluruh baris respons ke file spreadsheet (`restbox-stresstest-results.csv`).
+- **Multi-Threaded CORS Proxy (`server.py`)**:
+  - Server Python lokal RestBox telah ditingkatkan menggunakan `ThreadingHTTPServer` agar reverse proxy mampu melayani ratusan request concurrent secara simultan tanpa antrean serial.
+
 ### 💾 Direct Save & Auto Read Workspace ke JSON (.gitignore Protected)
 - **Direct Write ke JSON saat Save**:
   - Cukup klik tombol **Save** atau tekan **`Ctrl + S` / `Cmd + S`**: data langsung ditulis (write) seketika ke file `restbox-saved.json` tanpa dialog download atau modal konfirmasi yang bertele-tele.

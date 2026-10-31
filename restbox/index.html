@@ -1643,6 +1643,142 @@
     .runner-results-table tbody tr:hover {
       background: var(--bg0);
     }
+
+    /* Stress Test & Load Benchmark Styles */
+    .stress-chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .stress-chip {
+      background: var(--bg0);
+      border: 1px solid var(--border-color);
+      color: var(--fg3);
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: all 0.15s ease;
+    }
+    .stress-chip:hover {
+      background: var(--bg1);
+      color: var(--fg1);
+      border-color: var(--red);
+    }
+    .stress-chip.active {
+      background: rgba(251, 73, 52, 0.18);
+      color: var(--red);
+      border-color: var(--red);
+      font-weight: 600;
+    }
+    .stress-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .stress-kpi-card {
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stress-kpi-card.highlight-avg {
+      border-color: rgba(250, 189, 47, 0.5);
+      background: linear-gradient(180deg, rgba(250, 189, 47, 0.12) 0%, var(--bg0-hard) 100%);
+    }
+    .stress-kpi-card.highlight-p90 {
+      border-color: rgba(142, 192, 124, 0.5);
+      background: linear-gradient(180deg, rgba(142, 192, 124, 0.12) 0%, var(--bg0-hard) 100%);
+    }
+    .stress-kpi-card.highlight-p95 {
+      border-color: rgba(211, 134, 155, 0.5);
+      background: linear-gradient(180deg, rgba(211, 134, 155, 0.12) 0%, var(--bg0-hard) 100%);
+    }
+    .stress-kpi-card.highlight-p99 {
+      border-color: rgba(131, 165, 152, 0.5);
+      background: linear-gradient(180deg, rgba(131, 165, 152, 0.12) 0%, var(--bg0-hard) 100%);
+    }
+    .stress-kpi-card .kpi-num {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--fg1);
+      line-height: 1.2;
+    }
+    .stress-kpi-card .kpi-lbl {
+      font-size: 10px;
+      color: var(--fg4);
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+    .stress-kpi-card .kpi-sub {
+      font-size: 9.5px;
+      color: var(--fg4);
+      margin-top: 2px;
+      font-family: var(--font-mono);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .stress-chart-wrap {
+      background: var(--bg0-hard);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .stress-chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--fg3);
+    }
+    .stress-status-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .stress-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      border: 1px solid var(--border-color);
+      background: var(--bg0);
+    }
+    .stress-live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(251, 73, 52, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(251, 73, 52, 0.35);
+    }
+    .stress-live-pill.running {
+      animation: pulseStress 1.5s infinite;
+    }
+    @keyframes pulseStress {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
   </style>
 </head>
 <body>
@@ -1674,6 +1810,11 @@
       <button id="btnOpenRunner" class="btn btn-accent" title="Postman Run Mode (Data Runner dengan JSON Array of Objects)">
         <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
         <span>Runner</span>
+      </button>
+      <!-- Stress Test Button -->
+      <button id="btnOpenStressTest" class="btn btn-accent" title="Stress Test API (Virtual Users & Concurrent Load)" style="background: rgba(251, 73, 52, 0.16); border-color: rgba(251, 73, 52, 0.4); color: var(--red);">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <span>Stress Test</span>
       </button>
 
       <!-- Import cURL Button -->
@@ -1750,6 +1891,9 @@
             </button>
             <button id="btnSidebarRunner" class="btn btn-sm btn-icon" title="Jalankan Koleksi di Postman Run Mode (Runner)">
               <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </button>
+            <button id="btnSidebarStressTest" class="btn btn-sm btn-icon" title="Jalankan Koleksi di Stress Test Mode" style="color: var(--red);">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             </button>
           </div>
           <div class="list-container" id="savedList">
@@ -1836,6 +1980,10 @@
           <button id="btnQuickRunner" class="btn" title="Jalankan request ini di Postman Run Mode (Dataset JSON)" style="background: var(--bg0-hard); border-color: var(--border-color); color: var(--fg2); display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 10px; font-size: 11.5px;">
             <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
             <span>Run Mode</span>
+          </button>
+          <button id="btnQuickStressTest" class="btn" title="Stress test request tab ini dengan Virtual Users (VU)" style="background: var(--bg0-hard); border-color: var(--border-color); color: var(--red); display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 10px; font-size: 11.5px;">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span>Stress Test</span>
           </button>
         </div>
 
@@ -2800,6 +2948,427 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="btnCloseRunnerDetailBtn">Tutup</button>
       </div>
+    </div>
+  </div>
+
+  <!-- API Stress Test & Load Benchmark Modal -->
+  <div id="stressModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 980px; width: 96%; max-height: 92vh;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <div style="width: 28px; height: 28px; border-radius: var(--radius-sm); background: rgba(251, 73, 52, 0.18); border: 1px solid rgba(251, 73, 52, 0.4); display: flex; align-items: center; justify-content: center; color: var(--red);">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          </div>
+          <div>
+            <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+              <span>API Stress Test &amp; Benchmark</span>
+              <span class="brand-badge" style="background: rgba(251, 73, 52, 0.15); color: var(--red); border-color: rgba(251, 73, 52, 0.35);">Virtual Users &bull; Concurrency</span>
+            </div>
+            <div style="font-size: 11px; color: var(--fg4); font-weight: normal;">Pengujian beban dengan Virtual Users (VU), Concurrent Workers, RPS &amp; Analisis Latensi Lengkap (Average, 90th, 95th, 99th, Min, Max)</div>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-icon" id="btnCloseStressModal">✕</button>
+      </div>
+
+      <!-- Stress Nav Tabs -->
+      <div class="runner-nav-tabs">
+        <button type="button" class="runner-nav-tab active" id="tabStressNavSetup">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 001.065-2.572c-.426-1.756-2.924-1.756-3.35 0a1.724 1.724 0 00-2.573 1.066c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          <span>Konfigurasi Test (VU &amp; Concurrency)</span>
+        </button>
+        <button type="button" class="runner-nav-tab" id="tabStressNavResults">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          <span>Hasil &amp; Live Monitoring</span>
+          <span class="tab-count-badge" id="stressNavResultsCount" style="display: none;">0</span>
+        </button>
+      </div>
+
+      <!-- VIEW 1: SETUP -->
+      <div id="stressViewSetup" class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        
+        <!-- Target Request Section -->
+        <div class="runner-section">
+          <div class="runner-section-title">
+            <span>1. Target Request yang Diuji:</span>
+          </div>
+          <div style="display: flex; gap: 18px; margin-bottom: 8px;">
+            <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; font-weight: 500;">
+              <input type="radio" name="stressTargetType" value="active" checked style="accent-color: var(--red);">
+              <span>Tab Aktif Saat Ini</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; font-weight: 500;">
+              <input type="radio" name="stressTargetType" value="collection" style="accent-color: var(--red);">
+              <span>Koleksi Tersimpan (Collection)</span>
+            </label>
+          </div>
+
+          <!-- Active Tab Preview -->
+          <div id="stressActiveTabPreview" style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg0); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 11.5px;">
+            <span id="stressActiveMethodBadge" class="method-tag method-get">GET</span>
+            <span id="stressActiveName" style="font-weight: 600; color: var(--fg1);">Request Title</span>
+            <span id="stressActiveUrl" class="item-url" style="color: var(--fg3);">https://api.example.com</span>
+          </div>
+
+          <!-- Collection Selection List (Hidden by default) -->
+          <div id="stressCollectionContainer" style="display: none; flex-direction: column; gap: 6px; margin-top: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 11px; color: var(--fg4);">Centang request yang ingin di-stress test (dieksekusi paralel/bergantian per worker):</div>
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn btn-sm" id="btnStressSelectAllCollection" style="font-size: 10.5px;">Pilih Semua</button>
+                <button type="button" class="btn btn-sm" id="btnStressDeselectAllCollection" style="font-size: 10.5px;">Batal Pilih</button>
+              </div>
+            </div>
+            <div id="stressCollectionList" style="max-height: 140px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg0); padding: 4px;"></div>
+          </div>
+        </div>
+
+        <!-- Virtual Users & Concurrency Setup Section -->
+        <div class="runner-section">
+          <div class="runner-section-title">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span>2. Setup Virtual User (VU) &amp; Concurrent Workers:</span>
+              <span class="brand-badge" style="background: rgba(254, 128, 25, 0.15); color: var(--orange); border-color: rgba(254, 128, 25, 0.35);">Load Engine</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px;">
+            <!-- Virtual Users Count -->
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--fg2); margin-bottom: 4px;">
+                Virtual Users (VU):
+              </label>
+              <input type="number" id="stressVuInput" class="search-input" min="1" max="500" value="10" style="width: 100%; font-family: var(--font-mono);">
+              <div class="stress-chip-group">
+                <button type="button" class="stress-chip" data-vu="5">5 VU</button>
+                <button type="button" class="stress-chip active" data-vu="10">10 VU</button>
+                <button type="button" class="stress-chip" data-vu="25">25 VU</button>
+                <button type="button" class="stress-chip" data-vu="50">50 VU</button>
+                <button type="button" class="stress-chip" data-vu="100">100 VU</button>
+                <button type="button" class="stress-chip" data-vu="200">200 VU</button>
+              </div>
+              <div style="font-size: 10.5px; color: var(--fg4); margin-top: 4px;">Jumlah virtual user independen yang menjalankan siklus request</div>
+            </div>
+
+            <!-- Concurrent VU / Max In-Flight -->
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--fg2); margin-bottom: 4px;">
+                Concurrent VU (Max Parallel In-Flight):
+              </label>
+              <input type="number" id="stressConcurrencyInput" class="search-input" min="1" max="200" value="10" style="width: 100%; font-family: var(--font-mono);">
+              <div class="stress-chip-group">
+                <button type="button" class="stress-chip" data-conc="5">5</button>
+                <button type="button" class="stress-chip active" data-conc="10">10</button>
+                <button type="button" class="stress-chip" data-conc="25">25</button>
+                <button type="button" class="stress-chip" data-conc="50">50</button>
+                <button type="button" class="stress-chip" data-conc="100">100</button>
+              </div>
+              <div style="font-size: 10.5px; color: var(--fg4); margin-top: 4px;">Maksimum request yang ditembakkan secara bersamaan/simultan</div>
+            </div>
+
+            <!-- Ramp-up -->
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--fg2); margin-bottom: 4px;">
+                Ramp-Up Time (Detik):
+              </label>
+              <input type="number" id="stressRampUpInput" class="search-input" min="0" max="120" value="0" style="width: 100%; font-family: var(--font-mono);">
+              <div class="stress-chip-group">
+                <button type="button" class="stress-chip active" data-ramp="0">0s (Instan)</button>
+                <button type="button" class="stress-chip" data-ramp="3">3s</button>
+                <button type="button" class="stress-chip" data-ramp="5">5s</button>
+                <button type="button" class="stress-chip" data-ramp="10">10s</button>
+              </div>
+              <div style="font-size: 10.5px; color: var(--fg4); margin-top: 4px;">Waktu bertahap penambahan VU hingga mencapai batas concurrency</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stopping Condition Section -->
+        <div class="runner-section">
+          <div class="runner-section-title">
+            <span>3. Batasan Uji &amp; Kondisi Berhenti (Stopping Condition):</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+            <!-- Mode 1: Total Requests -->
+            <div style="background: var(--bg0); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px;">
+              <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--fg1); margin-bottom: 6px;">
+                <input type="radio" name="stressMode" value="requests" checked style="accent-color: var(--red);">
+                <span>Berdasarkan Jumlah Total Request</span>
+              </label>
+              <div style="padding-left: 22px;">
+                <input type="number" id="stressTotalRequestsInput" class="search-input" min="1" value="200" style="width: 100%; font-family: var(--font-mono);">
+                <div class="stress-chip-group">
+                  <button type="button" class="stress-chip" data-reqs="50">50</button>
+                  <button type="button" class="stress-chip" data-reqs="100">100</button>
+                  <button type="button" class="stress-chip active" data-reqs="200">200</button>
+                  <button type="button" class="stress-chip" data-reqs="500">500</button>
+                  <button type="button" class="stress-chip" data-reqs="1000">1,000</button>
+                  <button type="button" class="stress-chip" data-reqs="5000">5,000</button>
+                </div>
+                <div style="font-size: 10.5px; color: var(--fg4); margin-top: 4px;">Uji selesai saat seluruh request selesai dieksekusi</div>
+              </div>
+            </div>
+
+            <!-- Mode 2: Duration -->
+            <div style="background: var(--bg0); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px;">
+              <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--fg1); margin-bottom: 6px;">
+                <input type="radio" name="stressMode" value="duration" style="accent-color: var(--red);">
+                <span>Berdasarkan Durasi Waktu (Duration)</span>
+              </label>
+              <div style="padding-left: 22px;">
+                <input type="number" id="stressDurationInput" class="search-input" min="1" value="10" style="width: 100%; font-family: var(--font-mono);" disabled>
+                <div class="stress-chip-group">
+                  <button type="button" class="stress-chip" data-dur="5">5s</button>
+                  <button type="button" class="stress-chip active" data-dur="10">10s</button>
+                  <button type="button" class="stress-chip" data-dur="30">30s</button>
+                  <button type="button" class="stress-chip" data-dur="60">60s</button>
+                  <button type="button" class="stress-chip" data-dur="120">120s</button>
+                </div>
+                <div style="font-size: 10.5px; color: var(--fg4); margin-top: 4px;">Menjalankan beban terus-menerus selama durasi detik yang ditentukan</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Tuning Section -->
+        <div class="runner-section" style="margin-bottom: 0;">
+          <div class="runner-section-title">
+            <span>4. Pengaturan Lanjutan (Pacing, Timeout &amp; Toleransi Error):</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--fg2); margin-bottom: 4px;">Pacing / Delay per VU (ms):</label>
+              <input type="number" id="stressDelayInput" class="search-input" min="0" step="10" value="0" style="width: 100%; font-family: var(--font-mono);">
+              <div class="stress-chip-group">
+                <button type="button" class="stress-chip active" data-delay="0">0 ms (Maksimum)</button>
+                <button type="button" class="stress-chip" data-delay="10">10 ms</button>
+                <button type="button" class="stress-chip" data-delay="50">50 ms</button>
+                <button type="button" class="stress-chip" data-delay="100">100 ms</button>
+              </div>
+              <div style="font-size: 10.5px; color: var(--fg4); margin-top: 4px;">Jeda istirahat per virtual user (0 = stress maksimum)</div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 600; color: var(--fg2); margin-bottom: 4px;">Request Timeout (ms):</label>
+              <input type="number" id="stressTimeoutInput" class="search-input" min="500" step="500" value="10000" style="width: 100%; font-family: var(--font-mono);">
+              <div style="font-size: 10.5px; color: var(--fg4); margin-top: 4px;">Batas maksimal waktu tunggu per request sebelum dianggap ERR/Timeout</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 11.5px;">
+                <input type="checkbox" id="stressUseProxy" style="accent-color: var(--red);">
+                <span>Gunakan CORS Proxy (server.py)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 11.5px;">
+                <input type="checkbox" id="stressAutoStop" checked style="accent-color: var(--red);">
+                <span>Hentikan otomatis jika Error Rate &gt; 50%</span>
+              </label>
+              <div style="font-size: 10.5px; color: var(--fg4);">
+                Variabel dinamis: <code>{{$randomInt}}</code>, <code>{{$timestamp}}</code>, <code>{{$randomUUID}}</code>, <code>{{$iteration}}</code>, <code>{{vu}}</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VIEW 2: RESULTS & DASHBOARD -->
+      <div id="stressViewResults" class="modal-body" style="display: none; flex-direction: column; gap: 10px;">
+        
+        <!-- Live Status Bar & Progress -->
+        <div class="runner-section" style="margin-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="stressLiveStatusPill" class="stress-live-pill">● MENUNGGU</span>
+              <span id="stressLiveVuBadge" style="font-size: 11px; font-family: var(--font-mono); color: var(--fg3);">0 Concurrent VU</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 11.5px;">
+              <span style="color: var(--fg4);">Waktu Uji: <strong id="stressStatElapsed" style="color: var(--fg1); font-family: var(--font-mono);">0.0s</strong></span>
+              <span id="stressProgressPercent" style="font-family: var(--font-mono); color: var(--red); font-weight: 700;">0%</span>
+            </div>
+          </div>
+
+          <div class="runner-progress-container" style="height: 8px;">
+            <div class="runner-progress-fill" id="stressProgressFill" style="background: linear-gradient(90deg, var(--orange), var(--red));"></div>
+          </div>
+          <div id="stressProgressMessage" style="font-size: 11px; color: var(--fg3); margin-top: 5px;">Siap memulai stress test...</div>
+        </div>
+
+        <!-- Prominent Statistical KPI Grid (Average, p90, p95, p99, RPS, etc.) -->
+        <div class="stress-kpi-grid">
+          
+          <!-- AVERAGE RESPONSE TIME -->
+          <div class="stress-kpi-card highlight-avg">
+            <div class="kpi-num" id="statStressAvg" style="color: var(--yellow);">0 ms</div>
+            <div class="kpi-lbl">Average Response</div>
+            <div class="kpi-sub">Rata-rata waktu respons</div>
+          </div>
+
+          <!-- 90TH PERCENTILE -->
+          <div class="stress-kpi-card highlight-p90">
+            <div class="kpi-num" id="statStressP90" style="color: var(--green);">0 ms</div>
+            <div class="kpi-lbl">90th (ms) &bull; p90</div>
+            <div class="kpi-sub">90% request lebih cepat</div>
+          </div>
+
+          <!-- 95TH PERCENTILE -->
+          <div class="stress-kpi-card highlight-p95">
+            <div class="kpi-num" id="statStressP95" style="color: var(--purple);">0 ms</div>
+            <div class="kpi-lbl">95th (ms) &bull; p95</div>
+            <div class="kpi-sub">95% request lebih cepat</div>
+          </div>
+
+          <!-- 99TH PERCENTILE -->
+          <div class="stress-kpi-card highlight-p99">
+            <div class="kpi-num" id="statStressP99" style="color: var(--blue);">0 ms</div>
+            <div class="kpi-lbl">99th (ms) &bull; p99</div>
+            <div class="kpi-sub">Worst 1% tail latency</div>
+          </div>
+
+          <!-- THROUGHPUT / RPS -->
+          <div class="stress-kpi-card">
+            <div class="kpi-num" id="statStressRps" style="color: var(--orange);">0.0 req/s</div>
+            <div class="kpi-lbl">Throughput (RPS)</div>
+            <div class="kpi-sub" id="statStressAvgRps">Avg: 0.0 req/s</div>
+          </div>
+
+          <!-- TOTAL REQUESTS -->
+          <div class="stress-kpi-card">
+            <div class="kpi-num" id="statStressTotal">0</div>
+            <div class="kpi-lbl">Total Requests</div>
+            <div class="kpi-sub" id="statStressTargetReqs">Target: 200</div>
+          </div>
+
+          <!-- PASSED / SUCCESS -->
+          <div class="stress-kpi-card">
+            <div class="kpi-num" id="statStressPassed" style="color: var(--green);">0 (0%)</div>
+            <div class="kpi-lbl">Success (2xx/3xx)</div>
+            <div class="kpi-sub">Tingkat keberhasilan</div>
+          </div>
+
+          <!-- FAILED / ERRORS -->
+          <div class="stress-kpi-card">
+            <div class="kpi-num" id="statStressFailed" style="color: var(--red);">0 (0%)</div>
+            <div class="kpi-lbl">Failed (4xx/5xx/ERR)</div>
+            <div class="kpi-sub">Tingkat kegagalan</div>
+          </div>
+
+          <!-- MIN / MAX LATENCY -->
+          <div class="stress-kpi-card">
+            <div class="kpi-num" id="statStressMinMax" style="font-size: 14px;">0 / 0 ms</div>
+            <div class="kpi-lbl">Min / Max Latency</div>
+            <div class="kpi-sub" id="statStressP50">p50 (Median): 0 ms</div>
+          </div>
+
+          <!-- DATA TRANSFERRED -->
+          <div class="stress-kpi-card">
+            <div class="kpi-num" id="statStressBytes" style="font-size: 14px;">0 KB</div>
+            <div class="kpi-lbl">Data Transferred</div>
+            <div class="kpi-sub">Total payload bytes</div>
+          </div>
+
+        </div>
+
+        <!-- Real-Time SVG Performance Chart -->
+        <div class="stress-chart-wrap">
+          <div class="stress-chart-header">
+            <div style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+              <span>Grafik Performa Real-Time (Throughput vs Latensi):</span>
+            </div>
+            <div style="display: flex; gap: 14px; font-size: 10.5px;">
+              <span style="display: flex; align-items: center; gap: 4px;">
+                <span style="display: inline-block; width: 10px; height: 3px; background: var(--orange); border-radius: 2px;"></span>
+                <span>Throughput (RPS)</span>
+              </span>
+              <span style="display: flex; align-items: center; gap: 4px;">
+                <span style="display: inline-block; width: 10px; height: 3px; background: var(--aqua); border-radius: 2px;"></span>
+                <span>Response Time (ms)</span>
+              </span>
+            </div>
+          </div>
+          <div id="stressChartContainer" style="width: 100%; height: 110px; position: relative;">
+            <svg id="stressSvgChart" width="100%" height="110" viewBox="0 0 500 100" preserveAspectRatio="none" style="display: block; overflow: visible;">
+              <line x1="0" y1="25" x2="500" y2="25" stroke="var(--bg1)" stroke-width="1" stroke-dasharray="3,3" />
+              <line x1="0" y1="50" x2="500" y2="50" stroke="var(--bg1)" stroke-width="1" stroke-dasharray="3,3" />
+              <line x1="0" y1="75" x2="500" y2="75" stroke="var(--bg1)" stroke-width="1" stroke-dasharray="3,3" />
+              <polyline id="stressRpsPolyline" fill="none" stroke="var(--orange)" stroke-width="2" points="" />
+              <polyline id="stressLatencyPolyline" fill="none" stroke="var(--aqua)" stroke-width="2" points="" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Status Codes & Error Breakdown -->
+        <div class="runner-section" style="padding: 8px 12px; margin-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+            <span style="font-size: 11px; font-weight: 600; color: var(--fg3);">Distribusi Status Code:</span>
+            <div class="stress-status-list" id="stressStatusContainer">
+              <span style="font-size: 11px; color: var(--fg4);">-</span>
+            </div>
+          </div>
+          <div id="stressErrorBreakdownContainer" style="display: none; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color); font-size: 11px; color: var(--red);"></div>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;">
+          <div style="display: flex; gap: 6px;">
+            <button type="button" id="btnStressStop" class="btn btn-sm" style="background: rgba(251, 73, 52, 0.22); color: var(--red); border-color: rgba(251, 73, 52, 0.5); font-weight: 600; display: none;">
+              ⏹ Hentikan Test
+            </button>
+            <button type="button" id="btnStressRerun" class="btn btn-sm btn-primary" style="background: var(--red); border-color: var(--red); color: var(--bg0-hard); font-weight: 600;">
+              ⚡ Uji Ulang
+            </button>
+            <button type="button" id="btnStressBackToSetup" class="btn btn-sm">
+              ⚙ Ubah Setup
+            </button>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" id="btnStressExportJson" class="btn btn-sm" title="Download laporan hasil stress test lengkap ke JSON">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              <span>Export Laporan (JSON)</span>
+            </button>
+            <button type="button" id="btnStressExportCsv" class="btn btn-sm" title="Download log response time ke CSV">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Recent Requests Log Table -->
+        <div class="runner-results-table-wrap" style="max-height: 220px;">
+          <table class="runner-results-table" id="stressResultsTable">
+            <thead>
+              <tr style="background: var(--bg0-s);">
+                <th style="width: 45px; text-align: center;">#</th>
+                <th style="width: 65px;">VU</th>
+                <th style="width: 70px;">Method</th>
+                <th>URL</th>
+                <th style="width: 100px; text-align: center;">Status</th>
+                <th style="width: 95px; text-align: right;">Response Time</th>
+                <th style="width: 70px; text-align: right;">Size</th>
+                <th style="width: 60px; text-align: center;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="stressResultsTableBody"></tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Stress Modal Footer -->
+      <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+        <div id="stressSummaryFooterText" style="font-size: 11.5px; color: var(--fg3);">
+          Setup: 10 Virtual Users &bull; 10 Concurrent &bull; 200 Requests
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn" id="btnCancelStressModal">Tutup</button>
+          <button type="button" class="btn btn-primary" id="btnStartStressModal" style="background: var(--red); border-color: var(--red); color: var(--bg0-hard); font-weight: 600;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span>Mulai Stress Test</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -8090,6 +8659,1220 @@
       }
     }
 
+    // ==========================================
+    // API Stress Test & Load Benchmark Engine
+    // ==========================================
+
+    const stressState = {
+      isRunning: false,
+      abortController: null,
+      targetType: 'active',
+      requestsToRun: [],
+      vuCount: 10,
+      concurrency: 10,
+      rampUp: 0,
+      mode: 'requests',
+      targetRequests: 200,
+      durationSeconds: 10,
+      pacingDelay: 0,
+      timeout: 10000,
+      useProxy: false,
+      autoStopOnError: true,
+      autoStopped: false,
+      startTime: 0,
+      endTime: 0,
+      startedRequests: 0,
+      completedRequests: 0,
+      inFlight: 0,
+      passedCount: 0,
+      failedCount: 0,
+      totalBytes: 0,
+      statusCounts: {},
+      errorCounts: {},
+      latencies: [],
+      results: [],
+      chartPoints: [],
+      timerInterval: null,
+      lastSnapshotTime: 0,
+      lastSnapshotCompleted: 0
+    };
+
+    function calculatePercentile(sorted, p) {
+      if (!sorted || sorted.length === 0) return 0;
+      const index = Math.max(0, Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1));
+      return sorted[index];
+    }
+
+    function calculateStressMetrics() {
+      const count = stressState.latencies.length;
+      if (count === 0) {
+        return {
+          count: 0,
+          avg: 0,
+          p50: 0,
+          p90: 0,
+          p95: 0,
+          p99: 0,
+          min: 0,
+          max: 0,
+          avgRps: '0.0'
+        };
+      }
+
+      let sum = 0;
+      let min = Infinity;
+      let max = -Infinity;
+      for (let i = 0; i < count; i++) {
+        const val = stressState.latencies[i];
+        sum += val;
+        if (val < min) min = val;
+        if (val > max) max = val;
+      }
+
+      const avg = Math.round((sum / count) * 10) / 10;
+      const sorted = stressState.latencies.slice().sort((a, b) => a - b);
+      const p50 = calculatePercentile(sorted, 50);
+      const p90 = calculatePercentile(sorted, 90);
+      const p95 = calculatePercentile(sorted, 95);
+      const p99 = calculatePercentile(sorted, 99);
+
+      const elapsedSec = (performance.now() - stressState.startTime) / 1000;
+      const avgRps = elapsedSec > 0.05 ? (count / elapsedSec).toFixed(1) : '0.0';
+
+      return {
+        count,
+        avg,
+        p50,
+        p90,
+        p95,
+        p99,
+        min: min === Infinity ? 0 : min,
+        max: max === -Infinity ? 0 : max,
+        avgRps
+      };
+    }
+
+    function openStressModal(preferredTarget = 'active') {
+      saveActiveTabState();
+      const activeTab = getActiveTab();
+      if (!activeTab) return;
+
+      const methodBadge = document.getElementById('stressActiveMethodBadge');
+      if (methodBadge) {
+        methodBadge.textContent = activeTab.method;
+        methodBadge.className = `method-tag method-${activeTab.method.toLowerCase()}`;
+      }
+      const activeName = document.getElementById('stressActiveName');
+      if (activeName) activeName.textContent = activeTab.name || deriveTabName(activeTab.method, activeTab.url);
+      const activeUrl = document.getElementById('stressActiveUrl');
+      if (activeUrl) activeUrl.textContent = activeTab.url || 'https://api.example.com';
+
+      const activeRadio = document.querySelector('input[name="stressTargetType"][value="active"]');
+      const collectionRadio = document.querySelector('input[name="stressTargetType"][value="collection"]');
+      const activePreview = document.getElementById('stressActiveTabPreview');
+      const collectionCont = document.getElementById('stressCollectionContainer');
+
+      if (preferredTarget === 'collection' && state.savedRequests.length > 0) {
+        if (collectionRadio) collectionRadio.checked = true;
+        if (activePreview) activePreview.style.display = 'none';
+        if (collectionCont) collectionCont.style.display = 'flex';
+      } else {
+        if (activeRadio) activeRadio.checked = true;
+        if (activePreview) activePreview.style.display = 'flex';
+        if (collectionCont) collectionCont.style.display = 'none';
+      }
+
+      renderStressCollectionList();
+
+      const proxyCheckbox = document.getElementById('stressUseProxy');
+      if (proxyCheckbox) proxyCheckbox.checked = Boolean(state.useCorsProxy);
+
+      updateStressSummaryText();
+      switchStressView('setup');
+
+      const modal = document.getElementById('stressModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeStressModal() {
+      if (stressState.isRunning) {
+        if (!confirm('Stress test sedang berlangsung. Yakin ingin menghentikan dan menutup?')) {
+          return;
+        }
+        stopStressTest('Dihentikan oleh pengguna');
+      }
+      const modal = document.getElementById('stressModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function switchStressView(viewName) {
+      const tabSetup = document.getElementById('tabStressNavSetup');
+      const tabResults = document.getElementById('tabStressNavResults');
+      const viewSetup = document.getElementById('stressViewSetup');
+      const viewResults = document.getElementById('stressViewResults');
+      const btnStart = document.getElementById('btnStartStressModal');
+      const footerSummary = document.getElementById('stressSummaryFooterText');
+
+      if (viewName === 'setup') {
+        if (tabSetup) tabSetup.classList.add('active');
+        if (tabResults) tabResults.classList.remove('active');
+        if (viewSetup) viewSetup.style.display = 'flex';
+        if (viewResults) viewResults.style.display = 'none';
+        if (btnStart) {
+          btnStart.style.display = 'inline-flex';
+          btnStart.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg><span>Mulai Stress Test</span>';
+        }
+        updateStressSummaryText();
+      } else {
+        if (tabSetup) tabSetup.classList.remove('active');
+        if (tabResults) tabResults.classList.add('active');
+        if (viewSetup) viewSetup.style.display = 'none';
+        if (viewResults) viewResults.style.display = 'flex';
+        if (btnStart) btnStart.style.display = 'none';
+        if (footerSummary) footerSummary.textContent = `Menampilkan hasil stress test (${stressState.completedRequests} request selesai)`;
+      }
+    }
+
+    function renderStressCollectionList() {
+      const container = document.getElementById('stressCollectionList');
+      if (!container) return;
+      if (!state.savedRequests || state.savedRequests.length === 0) {
+        container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--fg4); font-size: 11.5px;">Belum ada request tersimpan di koleksi.<br>Simpan request di tab aktif ke koleksi terlebih dahulu atau gunakan Tab Aktif.</div>';
+        return;
+      }
+
+      container.innerHTML = state.savedRequests.map((req) => {
+        const method = (req.method || 'GET').toUpperCase();
+        return `
+          <label style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-bottom: 1px solid var(--border-color); cursor: pointer; font-size: 11.5px;">
+            <input type="checkbox" class="stress-req-check" value="${escapeHtml(req.id)}" checked style="accent-color: var(--red);">
+            <span class="method-tag method-${method.toLowerCase()}">${method}</span>
+            <span style="font-weight: 600; color: var(--fg1);">${escapeHtml(req.name || 'Untitled')}</span>
+            <span class="item-url" style="color: var(--fg4); margin-left: auto;">${escapeHtml(req.url || '')}</span>
+          </label>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.stress-req-check').forEach(cb => {
+        cb.addEventListener('change', () => updateStressSummaryText());
+      });
+    }
+
+    function updateStressSummaryText() {
+      const vu = parseInt(document.getElementById('stressVuInput')?.value) || 10;
+      const conc = parseInt(document.getElementById('stressConcurrencyInput')?.value) || 10;
+      const mode = document.querySelector('input[name="stressMode"]:checked')?.value || 'requests';
+      const delay = parseInt(document.getElementById('stressDelayInput')?.value) || 0;
+      const targetType = document.querySelector('input[name="stressTargetType"]:checked')?.value || 'active';
+
+      let targetCount = 1;
+      if (targetType === 'collection') {
+        const checked = document.querySelectorAll('.stress-req-check:checked');
+        targetCount = checked.length || 1;
+      }
+
+      let modeText = '';
+      if (mode === 'requests') {
+        const reqs = parseInt(document.getElementById('stressTotalRequestsInput')?.value) || 200;
+        modeText = `Target: ${reqs.toLocaleString()} Requests`;
+      } else {
+        const dur = parseInt(document.getElementById('stressDurationInput')?.value) || 10;
+        modeText = `Target: ${dur}s Durasi Sustained`;
+      }
+
+      const delayText = delay > 0 ? `Pacing: ${delay}ms` : 'Stress Maksimum (0ms)';
+      const summary = `Setup: <strong>${vu} Virtual Users</strong> &bull; <strong>${conc} Concurrent VU</strong> &bull; ${modeText} &bull; ${delayText} &bull; Target: ${targetType === 'active' ? 'Tab Aktif' : `${targetCount} Koleksi`}`;
+      
+      const footerEl = document.getElementById('stressSummaryFooterText');
+      if (footerEl) footerEl.innerHTML = summary;
+    }
+
+    async function executeStressRequest(requestData, iterationScope, signal, useProxy, timeoutMs = 10000) {
+      let rawUrl = interpolate(requestData.url ? requestData.url.trim() : '', iterationScope);
+      if (!rawUrl) throw new Error('URL request kosong.');
+      if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+        rawUrl = 'https://' + rawUrl;
+      }
+
+      if (requestData.auth && requestData.auth.type === 'apikey' && requestData.auth.apiKeyLocation === 'query' && requestData.auth.apiKeyName) {
+        const separator = rawUrl.includes('?') ? '&' : '?';
+        rawUrl += `${separator}${encodeURIComponent(requestData.auth.apiKeyName)}=${encodeURIComponent(interpolate(requestData.auth.apiKeyValue || '', iterationScope))}`;
+      }
+
+      let finalUrl = rawUrl;
+      if (useProxy && state.corsProxyUrl) {
+        finalUrl = state.corsProxyUrl + encodeURIComponent(rawUrl);
+      }
+
+      const headersObj = {};
+      if (Array.isArray(requestData.headers)) {
+        requestData.headers.filter(h => h && h.active !== false && h.key && h.key.trim()).forEach(h => {
+          if (requestData.auth && requestData.auth.type !== 'none' && h.key.trim().toLowerCase() === 'authorization') return;
+          headersObj[h.key.trim()] = interpolate(h.value || '', iterationScope);
+        });
+      }
+
+      if (requestData.auth) {
+        if (requestData.auth.type === 'bearer' && requestData.auth.bearer) {
+          headersObj['Authorization'] = `Bearer ${interpolate(requestData.auth.bearer, iterationScope)}`;
+        } else if (requestData.auth.type === 'basic' && (requestData.auth.basicUser || requestData.auth.basicPass)) {
+          headersObj['Authorization'] = `Basic ${safeBtoa(`${interpolate(requestData.auth.basicUser || '', iterationScope)}:${interpolate(requestData.auth.basicPass || '', iterationScope)}`)}`;
+        } else if (requestData.auth.type === 'apikey' && requestData.auth.apiKeyLocation === 'header' && requestData.auth.apiKeyName) {
+          headersObj[requestData.auth.apiKeyName] = interpolate(requestData.auth.apiKeyValue || '', iterationScope);
+        }
+      }
+
+      const method = (requestData.method || 'GET').toUpperCase();
+      let timeoutId = null;
+      const timeoutController = new AbortController();
+      const combinedSignal = timeoutController.signal;
+
+      if (timeoutMs > 0) {
+        timeoutId = setTimeout(() => {
+          timeoutController.abort(new Error(`Timeout (${timeoutMs}ms)`));
+        }, timeoutMs);
+      }
+
+      const abortHandler = () => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutController.abort();
+      };
+      if (signal) {
+        if (signal.aborted) {
+          abortHandler();
+        } else {
+          signal.addEventListener('abort', abortHandler, { once: true });
+        }
+      }
+
+      const options = {
+        method: method,
+        headers: headersObj,
+        mode: 'cors',
+        signal: combinedSignal
+      };
+
+      let bodySentPreview = '';
+      if (method !== 'GET' && method !== 'HEAD') {
+        const bodyType = requestData.bodyType || 'none';
+        if (bodyType === 'json' || bodyType === 'raw') {
+          const bodyVal = requestData.bodyContent || '';
+          if (bodyVal) {
+            options.body = interpolate(bodyVal, iterationScope);
+            bodySentPreview = options.body;
+            if (bodyType === 'json' && !headersObj['Content-Type'] && !headersObj['content-type']) {
+              headersObj['Content-Type'] = 'application/json';
+            }
+          }
+        } else if (bodyType === 'urlencoded') {
+          const params = new URLSearchParams();
+          if (Array.isArray(requestData.urlEncoded)) {
+            requestData.urlEncoded.filter(u => u && u.active !== false && u.key).forEach(item => {
+              params.append(item.key, interpolate(item.value || '', iterationScope));
+            });
+          }
+          options.body = params.toString();
+          bodySentPreview = options.body;
+          headersObj['Content-Type'] = 'application/x-www-form-urlencoded';
+        }
+      }
+
+      const startTime = performance.now();
+      try {
+        const response = await fetch(finalUrl, options);
+        if (timeoutId) clearTimeout(timeoutId);
+        const duration = Math.round((performance.now() - startTime) * 10) / 10;
+
+        const resHeaders = [];
+        response.headers.forEach((val, key) => resHeaders.push({ key, value: val }));
+
+        let byteSize = 0;
+        let rawText = '';
+        try {
+          const blob = await response.blob();
+          byteSize = blob.size;
+          rawText = byteSize < 100000 ? await blob.text() : `[Response size: ${byteSize} bytes]`;
+        } catch (e) {
+          rawText = '';
+        }
+
+        const formattedSize = byteSize > 1024 ? (byteSize / 1024).toFixed(1) + ' KB' : byteSize + ' B';
+        const statusDesc = response.statusText || STATUS_MAP[response.status] || '';
+
+        return {
+          success: response.status >= 200 && response.status < 400,
+          status: response.status,
+          statusText: statusDesc,
+          duration: duration,
+          byteSize: byteSize,
+          size: formattedSize,
+          rawUrl: rawUrl,
+          finalUrl: finalUrl,
+          method: method,
+          requestHeaders: headersObj,
+          requestBody: bodySentPreview,
+          responseHeaders: resHeaders,
+          responseBody: rawText,
+          iterationScope: iterationScope,
+          timestamp: new Date().toLocaleTimeString()
+        };
+      } catch (err) {
+        if (timeoutId) clearTimeout(timeoutId);
+        const duration = Math.round((performance.now() - startTime) * 10) / 10;
+        const isAbort = (signal && signal.aborted) || combinedSignal.aborted;
+        const isTimeout = err.message && err.message.includes('Timeout');
+        return {
+          success: false,
+          status: isTimeout ? 'TIMEOUT' : (isAbort ? 'ABORT' : 'ERR'),
+          statusText: isTimeout ? `Timeout (${timeoutMs}ms)` : (isAbort ? 'Aborted' : (err.message || 'Network Error')),
+          duration: duration,
+          byteSize: 0,
+          size: '0 B',
+          rawUrl: rawUrl,
+          finalUrl: finalUrl,
+          method: method,
+          requestHeaders: headersObj,
+          requestBody: bodySentPreview,
+          responseHeaders: [],
+          responseBody: `Request Gagal: ${err.message}`,
+          iterationScope: iterationScope,
+          timestamp: new Date().toLocaleTimeString(),
+          error: err
+        };
+      } finally {
+        if (signal) signal.removeEventListener('abort', abortHandler);
+      }
+    }
+
+    async function startStressTest() {
+      if (stressState.isRunning) return;
+
+      const targetType = document.querySelector('input[name="stressTargetType"]:checked')?.value || 'active';
+      let requestsToRun = [];
+
+      if (targetType === 'active') {
+        saveActiveTabState();
+        const activeTab = getActiveTab();
+        if (!activeTab) {
+          showToast('Tidak ada tab aktif');
+          return;
+        }
+        requestsToRun = [extractTabSaveData(activeTab)];
+      } else {
+        const checkedBoxes = Array.from(document.querySelectorAll('.stress-req-check:checked'));
+        if (checkedBoxes.length === 0) {
+          showToast('Pilih minimal satu request dari koleksi tersimpan');
+          return;
+        }
+        const checkedIds = checkedBoxes.map(cb => cb.value);
+        requestsToRun = checkedIds.map(id => state.savedRequests.find(r => r.id === id)).filter(Boolean);
+      }
+
+      if (requestsToRun.length === 0) {
+        showToast('Request yang dipilih tidak valid.');
+        return;
+      }
+
+      const vuCount = Math.max(1, parseInt(document.getElementById('stressVuInput')?.value) || 10);
+      const concurrency = Math.max(1, Math.min(vuCount, parseInt(document.getElementById('stressConcurrencyInput')?.value) || vuCount));
+      const rampUp = Math.max(0, parseInt(document.getElementById('stressRampUpInput')?.value) || 0);
+      const mode = document.querySelector('input[name="stressMode"]:checked')?.value || 'requests';
+      const targetRequests = Math.max(1, parseInt(document.getElementById('stressTotalRequestsInput')?.value) || 200);
+      const durationSeconds = Math.max(1, parseInt(document.getElementById('stressDurationInput')?.value) || 10);
+      const pacingDelay = Math.max(0, parseInt(document.getElementById('stressDelayInput')?.value) || 0);
+      const timeout = Math.max(500, parseInt(document.getElementById('stressTimeoutInput')?.value) || 10000);
+      const useProxy = Boolean(document.getElementById('stressUseProxy')?.checked);
+      const autoStopOnError = Boolean(document.getElementById('stressAutoStop')?.checked);
+
+      // Initialize state
+      stressState.isRunning = true;
+      stressState.abortController = new AbortController();
+      stressState.targetType = targetType;
+      stressState.requestsToRun = requestsToRun;
+      stressState.vuCount = vuCount;
+      stressState.concurrency = concurrency;
+      stressState.rampUp = rampUp;
+      stressState.mode = mode;
+      stressState.targetRequests = targetRequests;
+      stressState.durationSeconds = durationSeconds;
+      stressState.pacingDelay = pacingDelay;
+      stressState.timeout = timeout;
+      stressState.useProxy = useProxy;
+      stressState.autoStopOnError = autoStopOnError;
+      stressState.autoStopped = false;
+      stressState.startTime = performance.now();
+      stressState.endTime = performance.now() + (durationSeconds * 1000);
+      stressState.startedRequests = 0;
+      stressState.completedRequests = 0;
+      stressState.inFlight = 0;
+      stressState.passedCount = 0;
+      stressState.failedCount = 0;
+      stressState.totalBytes = 0;
+      stressState.statusCounts = {};
+      stressState.errorCounts = {};
+      stressState.latencies = [];
+      stressState.results = [];
+      stressState.chartPoints = [];
+      stressState.lastSnapshotTime = performance.now();
+      stressState.lastSnapshotCompleted = 0;
+
+      switchStressView('results');
+
+      const tbody = document.getElementById('stressResultsTableBody');
+      if (tbody) tbody.innerHTML = '';
+      const statusCont = document.getElementById('stressStatusContainer');
+      if (statusCont) statusCont.innerHTML = '<span style="font-size: 11px; color: var(--fg4);">Mengumpulkan status...</span>';
+      const errCont = document.getElementById('stressErrorBreakdownContainer');
+      if (errCont) {
+        errCont.style.display = 'none';
+        errCont.innerHTML = '';
+      }
+
+      const btnStop = document.getElementById('btnStressStop');
+      const btnRerun = document.getElementById('btnStressRerun');
+      const btnBack = document.getElementById('btnStressBackToSetup');
+      if (btnStop) btnStop.style.display = 'inline-block';
+      if (btnRerun) btnRerun.style.display = 'none';
+      if (btnBack) btnBack.style.display = 'none';
+
+      const livePill = document.getElementById('stressLiveStatusPill');
+      if (livePill) {
+        livePill.className = 'stress-live-pill running';
+        livePill.textContent = '● RUNNING';
+        livePill.style.color = 'var(--red)';
+      }
+
+      updateStressUI(false);
+
+      stressState.timerInterval = setInterval(() => {
+        if (!stressState.isRunning) return;
+        updateStressUI(false);
+      }, 100);
+
+      const workerPromises = [];
+      const staggerDelay = (rampUp > 0 && concurrency > 1) ? (rampUp * 1000) / concurrency : 0;
+
+      for (let workerId = 1; workerId <= concurrency; workerId++) {
+        const workerFn = async (wId) => {
+          if (staggerDelay > 0 && wId > 1) {
+            await new Promise(r => setTimeout(r, (wId - 1) * staggerDelay));
+          }
+          await runStressVirtualUser(wId);
+        };
+        workerPromises.push(workerFn(workerId));
+      }
+
+      Promise.all(workerPromises).then(() => {
+        finishStressTest();
+      }).catch(err => {
+        console.error('Stress test worker error:', err);
+        finishStressTest();
+      });
+    }
+
+    async function runStressVirtualUser(workerId) {
+      const vuLabel = `VU-${workerId}`;
+
+      while (stressState.isRunning) {
+        if (stressState.mode === 'duration' && performance.now() >= stressState.endTime) {
+          break;
+        }
+        if (stressState.mode === 'requests' && stressState.startedRequests >= stressState.targetRequests) {
+          break;
+        }
+
+        const requestSeq = ++stressState.startedRequests;
+        stressState.inFlight++;
+
+        const reqIdx = (requestSeq - 1) % stressState.requestsToRun.length;
+        const targetReq = stressState.requestsToRun[reqIdx];
+
+        const iterationScope = {
+          _iterationIndex: requestSeq - 1,
+          vu: vuLabel,
+          worker: workerId
+        };
+
+        let result;
+        try {
+          result = await executeStressRequest(
+            targetReq,
+            iterationScope,
+            stressState.abortController?.signal,
+            stressState.useProxy,
+            stressState.timeout
+          );
+        } catch (e) {
+          result = {
+            success: false,
+            status: 'ERR',
+            statusText: e.message || 'Error',
+            duration: 0,
+            size: '0 B',
+            rawUrl: targetReq.url || '',
+            finalUrl: targetReq.url || '',
+            method: targetReq.method || 'GET',
+            timestamp: new Date().toLocaleTimeString()
+          };
+        } finally {
+          stressState.inFlight--;
+        }
+
+        result.seq = requestSeq;
+        result.vu = vuLabel;
+        result.requestName = targetReq.name || deriveTabName(targetReq.method, targetReq.url);
+
+        recordStressResult(result);
+
+        if (stressState.autoStopOnError && stressState.completedRequests >= 20) {
+          const failRate = stressState.failedCount / stressState.completedRequests;
+          if (failRate > 0.5) {
+            stressState.autoStopped = true;
+            stopStressTest('Auto-stop: Error rate melebihi 50%');
+            break;
+          }
+        }
+
+        if (stressState.pacingDelay > 0 && stressState.isRunning) {
+          await new Promise(r => setTimeout(r, stressState.pacingDelay));
+        }
+      }
+    }
+
+    function recordStressResult(result) {
+      stressState.completedRequests++;
+      stressState.latencies.push(result.duration);
+      stressState.results.push(result);
+      if (result.byteSize) stressState.totalBytes += result.byteSize;
+
+      if (result.success) {
+        stressState.passedCount++;
+      } else {
+        stressState.failedCount++;
+      }
+
+      const statusKey = String(result.status);
+      stressState.statusCounts[statusKey] = (stressState.statusCounts[statusKey] || 0) + 1;
+
+      if (!result.success) {
+        const errKey = `${result.status} ${result.statusText}`;
+        stressState.errorCounts[errKey] = (stressState.errorCounts[errKey] || 0) + 1;
+      }
+
+      addStressResultRow(result);
+    }
+
+    function addStressResultRow(result) {
+      const tbody = document.getElementById('stressResultsTableBody');
+      if (!tbody) return;
+
+      const tr = document.createElement('tr');
+      let statusClass = 's-err';
+      if (result.status >= 200 && result.status < 300) statusClass = 's-2xx';
+      else if (result.status >= 300 && result.status < 400) statusClass = 's-3xx';
+      else if (result.status >= 400 && result.status < 500) statusClass = 's-4xx';
+      else if (result.status >= 500) statusClass = 's-5xx';
+
+      let durationColor = 'var(--green)';
+      if (result.duration > 800) durationColor = 'var(--red)';
+      else if (result.duration > 300) durationColor = 'var(--yellow)';
+
+      tr.innerHTML = `
+        <td style="text-align: center; font-family: var(--font-mono); color: var(--fg4);">${result.seq}</td>
+        <td style="font-family: var(--font-mono); font-size: 10.5px; color: var(--orange);">${escapeHtml(result.vu)}</td>
+        <td>
+          <span class="method-tag method-${(result.method || 'GET').toLowerCase()}">${result.method}</span>
+        </td>
+        <td>
+          <div class="item-url" style="color: var(--fg2); max-width: 280px;" title="${escapeHtml(result.finalUrl || result.rawUrl)}">${escapeHtml(result.finalUrl || result.rawUrl)}</div>
+        </td>
+        <td style="text-align: center;">
+          <span class="status-badge ${statusClass}">${result.status}</span>
+        </td>
+        <td style="text-align: right; font-family: var(--font-mono); font-weight: 600; color: ${durationColor};">${result.duration} ms</td>
+        <td style="text-align: right; font-family: var(--font-mono); color: var(--fg3); font-size: 10.5px;">${result.size}</td>
+        <td style="text-align: center;">
+          <button type="button" class="btn btn-sm" style="font-size: 10.5px; padding: 2px 7px;">Detail</button>
+        </td>
+      `;
+
+      tr.querySelector('button').addEventListener('click', () => {
+        openStressResultDetail(result);
+      });
+
+      tbody.appendChild(tr);
+
+      if (tbody.children.length > 100) {
+        tbody.removeChild(tbody.firstChild);
+      }
+
+      const wrap = tbody.closest('.runner-results-table-wrap');
+      if (wrap) wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function updateStressUI(forceFinal = false) {
+      const now = performance.now();
+      const elapsedMs = Math.max(1, now - stressState.startTime);
+      const elapsedSec = elapsedMs / 1000;
+      const metrics = calculateStressMetrics();
+
+      const deltaMs = now - stressState.lastSnapshotTime;
+      let instantRps = '0.0';
+      if (deltaMs >= 400 || forceFinal) {
+        const deltaCompleted = stressState.completedRequests - stressState.lastSnapshotCompleted;
+        if (deltaMs > 0) {
+          instantRps = ((deltaCompleted / (deltaMs / 1000))).toFixed(1);
+        }
+        stressState.lastSnapshotTime = now;
+        stressState.lastSnapshotCompleted = stressState.completedRequests;
+
+        if (stressState.chartPoints.length > 50) stressState.chartPoints.shift();
+        stressState.chartPoints.push({
+          t: elapsedSec,
+          rps: parseFloat(instantRps) || 0,
+          lat: metrics.avg || 0
+        });
+        renderStressSvgChart();
+      }
+
+      const elapsedEl = document.getElementById('stressStatElapsed');
+      if (elapsedEl) elapsedEl.textContent = `${elapsedSec.toFixed(1)}s`;
+
+      const liveVuBadge = document.getElementById('stressLiveVuBadge');
+      if (liveVuBadge) {
+        liveVuBadge.textContent = stressState.isRunning
+          ? `⚡ ${stressState.inFlight} / ${stressState.concurrency} Concurrent VU Aktif`
+          : `${stressState.vuCount} Virtual Users selesai`;
+      }
+
+      const fillEl = document.getElementById('stressProgressFill');
+      const pctEl = document.getElementById('stressProgressPercent');
+      const msgEl = document.getElementById('stressProgressMessage');
+
+      let percent = 0;
+      if (stressState.mode === 'requests') {
+        percent = Math.min(100, Math.round((stressState.completedRequests / stressState.targetRequests) * 100));
+        if (msgEl) {
+          msgEl.textContent = stressState.isRunning
+            ? `Mengirim request: ${stressState.completedRequests} / ${stressState.targetRequests} (${percent}%) &bull; In-Flight: ${stressState.inFlight}`
+            : (stressState.autoStopped ? '⏹ Test dihentikan otomatis (Error rate > 50%)' : `✓ Selesai mengeksekusi ${stressState.completedRequests} request`);
+        }
+      } else {
+        percent = Math.min(100, Math.round((elapsedSec / stressState.durationSeconds) * 100));
+        const remSec = Math.max(0, Math.ceil(stressState.durationSeconds - elapsedSec));
+        if (msgEl) {
+          msgEl.textContent = stressState.isRunning
+            ? `Durasi: ${elapsedSec.toFixed(1)}s / ${stressState.durationSeconds}s (${remSec}s tersisa) &bull; Selesai: ${stressState.completedRequests} req`
+            : (stressState.autoStopped ? '⏹ Test dihentikan otomatis (Error rate > 50%)' : `✓ Durasi ${stressState.durationSeconds}s selesai (${stressState.completedRequests} request)`);
+        }
+      }
+
+      if (fillEl) fillEl.style.width = `${percent}%`;
+      if (pctEl) pctEl.textContent = `${percent}%`;
+
+      const navBadge = document.getElementById('stressNavResultsCount');
+      if (navBadge) {
+        navBadge.style.display = 'inline-block';
+        navBadge.textContent = String(stressState.completedRequests);
+      }
+
+      // Statistical KPI Cards
+      const statAvg = document.getElementById('statStressAvg');
+      if (statAvg) statAvg.textContent = `${metrics.avg} ms`;
+
+      const statP90 = document.getElementById('statStressP90');
+      if (statP90) statP90.textContent = `${metrics.p90} ms`;
+
+      const statP95 = document.getElementById('statStressP95');
+      if (statP95) statP95.textContent = `${metrics.p95} ms`;
+
+      const statP99 = document.getElementById('statStressP99');
+      if (statP99) statP99.textContent = `${metrics.p99} ms`;
+
+      const statMinMax = document.getElementById('statStressMinMax');
+      if (statMinMax) statMinMax.textContent = `${metrics.min} / ${metrics.max} ms`;
+      const statP50 = document.getElementById('statStressP50');
+      if (statP50) statP50.textContent = `p50 (Median): ${metrics.p50} ms`;
+
+      const statRps = document.getElementById('statStressRps');
+      if (statRps) statRps.textContent = `${instantRps} req/s`;
+      const statAvgRps = document.getElementById('statStressAvgRps');
+      if (statAvgRps) statAvgRps.textContent = `Avg: ${metrics.avgRps} req/s`;
+
+      const statTotal = document.getElementById('statStressTotal');
+      if (statTotal) statTotal.textContent = String(stressState.completedRequests);
+      const statTarget = document.getElementById('statStressTargetReqs');
+      if (statTarget) {
+        statTarget.textContent = stressState.mode === 'requests'
+          ? `Target: ${stressState.targetRequests}`
+          : `Durasi: ${stressState.durationSeconds}s`;
+      }
+
+      const statPassed = document.getElementById('statStressPassed');
+      const passedPct = stressState.completedRequests > 0
+        ? Math.round((stressState.passedCount / stressState.completedRequests) * 1000) / 10
+        : 0;
+      if (statPassed) statPassed.textContent = `${stressState.passedCount} (${passedPct}%)`;
+
+      const statFailed = document.getElementById('statStressFailed');
+      const failedPct = stressState.completedRequests > 0
+        ? Math.round((stressState.failedCount / stressState.completedRequests) * 1000) / 10
+        : 0;
+      if (statFailed) statFailed.textContent = `${stressState.failedCount} (${failedPct}%)`;
+
+      const statBytes = document.getElementById('statStressBytes');
+      if (statBytes) {
+        const kb = stressState.totalBytes / 1024;
+        statBytes.textContent = kb > 1024 ? `${(kb / 1024).toFixed(2)} MB` : `${kb.toFixed(1)} KB`;
+      }
+
+      const statusCont = document.getElementById('stressStatusContainer');
+      if (statusCont && Object.keys(stressState.statusCounts).length > 0) {
+        statusCont.innerHTML = Object.entries(stressState.statusCounts).map(([code, cnt]) => {
+          let badgeClass = 's-err';
+          const numCode = parseInt(code);
+          if (numCode >= 200 && numCode < 300) badgeClass = 's-2xx';
+          else if (numCode >= 300 && numCode < 400) badgeClass = 's-3xx';
+          else if (numCode >= 400 && numCode < 500) badgeClass = 's-4xx';
+          else if (numCode >= 500) badgeClass = 's-5xx';
+          return `<span class="stress-status-chip"><span class="status-badge ${badgeClass}">${code}</span> x <strong>${cnt}</strong></span>`;
+        }).join('');
+      }
+
+      const errCont = document.getElementById('stressErrorBreakdownContainer');
+      if (errCont) {
+        const errorEntries = Object.entries(stressState.errorCounts);
+        if (errorEntries.length > 0) {
+          errCont.style.display = 'block';
+          errCont.innerHTML = `<strong>Penyebab Error Terdeteksi:</strong> ${errorEntries.map(([reason, cnt]) => `<span style="margin-left: 8px;">&bull; ${escapeHtml(reason)}: <strong>${cnt}</strong></span>`).join('')}`;
+        } else {
+          errCont.style.display = 'none';
+        }
+      }
+    }
+
+    function renderStressSvgChart() {
+      const pts = stressState.chartPoints;
+      if (!pts || pts.length < 2) return;
+
+      const rpsPoly = document.getElementById('stressRpsPolyline');
+      const latPoly = document.getElementById('stressLatencyPolyline');
+      if (!rpsPoly || !latPoly) return;
+
+      const maxRps = Math.max(10, ...pts.map(p => p.rps)) * 1.15;
+      const maxLat = Math.max(50, ...pts.map(p => p.lat)) * 1.15;
+      const width = 500;
+      const height = 100;
+
+      let rpsPoints = '';
+      let latPoints = '';
+
+      for (let i = 0; i < pts.length; i++) {
+        const x = Math.round((i / (pts.length - 1)) * width);
+        const yRps = Math.round(height - (pts[i].rps / maxRps) * (height - 15));
+        const yLat = Math.round(height - (pts[i].lat / maxLat) * (height - 15));
+        rpsPoints += `${x},${Math.max(5, Math.min(height, yRps))} `;
+        latPoints += `${x},${Math.max(5, Math.min(height, yLat))} `;
+      }
+
+      rpsPoly.setAttribute('points', rpsPoints.trim());
+      latPoly.setAttribute('points', latPoints.trim());
+    }
+
+    function stopStressTest(reason = 'Dihentikan oleh pengguna') {
+      if (!stressState.isRunning) return;
+      stressState.isRunning = false;
+
+      if (stressState.abortController) {
+        stressState.abortController.abort();
+      }
+      if (stressState.timerInterval) {
+        clearInterval(stressState.timerInterval);
+        stressState.timerInterval = null;
+      }
+
+      finishStressTest(reason);
+      showToast(reason);
+    }
+
+    function finishStressTest(reason = null) {
+      stressState.isRunning = false;
+      if (stressState.timerInterval) {
+        clearInterval(stressState.timerInterval);
+        stressState.timerInterval = null;
+      }
+
+      const btnStop = document.getElementById('btnStressStop');
+      const btnRerun = document.getElementById('btnStressRerun');
+      const btnBack = document.getElementById('btnStressBackToSetup');
+      if (btnStop) btnStop.style.display = 'none';
+      if (btnRerun) btnRerun.style.display = 'inline-block';
+      if (btnBack) btnBack.style.display = 'inline-block';
+
+      const livePill = document.getElementById('stressLiveStatusPill');
+      if (livePill) {
+        livePill.className = 'stress-live-pill';
+        if (reason && reason.includes('Auto-stop')) {
+          livePill.textContent = '⏹ AUTO-STOP (ERROR > 50%)';
+          livePill.style.color = 'var(--red)';
+        } else if (reason) {
+          livePill.textContent = '⏹ DIHENTIKAN';
+          livePill.style.color = 'var(--yellow)';
+        } else {
+          livePill.textContent = '✓ SELESAI';
+          livePill.style.color = 'var(--green)';
+        }
+      }
+
+      updateStressUI(true);
+
+      const metrics = calculateStressMetrics();
+      showToast(`✓ Stress test selesai! Avg: ${metrics.avg}ms | p90: ${metrics.p90}ms | p95: ${metrics.p95}ms | RPS: ${metrics.avgRps}`);
+    }
+
+    function openStressResultDetail(result) {
+      const modal = document.getElementById('runnerDetailModal');
+      const methodTag = document.getElementById('runnerDetailMethodTag');
+      const titleEl = document.getElementById('runnerDetailTitle');
+      const statusBadge = document.getElementById('runnerDetailStatusBadge');
+      const timeEl = document.getElementById('runnerDetailTime');
+      const sizeEl = document.getElementById('runnerDetailSize');
+      const timestampEl = document.getElementById('runnerDetailTimestamp');
+      const urlEl = document.getElementById('runnerDetailUrl');
+      const reqHeadersEl = document.getElementById('runnerDetailReqHeaders');
+      const reqBodyEl = document.getElementById('runnerDetailReqBody');
+      const reqBodyWrap = document.getElementById('runnerDetailReqBodyWrap');
+      const resHeadersEl = document.getElementById('runnerDetailResHeaders');
+      const resBodyEl = document.getElementById('runnerDetailResBody');
+      const dataJsonEl = document.getElementById('runnerDetailDataJson');
+
+      if (methodTag) {
+        methodTag.textContent = result.method || 'GET';
+        methodTag.className = `method-tag method-${(result.method || 'GET').toLowerCase()}`;
+      }
+      if (titleEl) {
+        titleEl.textContent = `Stress Test #${result.seq} &bull; ${result.vu} &bull; ${escapeHtml(result.requestName || 'Request')}`;
+      }
+
+      let statusClass = 's-err';
+      if (result.status >= 200 && result.status < 300) statusClass = 's-2xx';
+      else if (result.status >= 300 && result.status < 400) statusClass = 's-3xx';
+      else if (result.status >= 400 && result.status < 500) statusClass = 's-4xx';
+      else if (result.status >= 500) statusClass = 's-5xx';
+
+      if (statusBadge) {
+        statusBadge.className = `status-badge ${statusClass}`;
+        statusBadge.textContent = `${result.status} ${result.statusText}`;
+      }
+      if (timeEl) timeEl.textContent = `${result.duration} ms`;
+      if (sizeEl) sizeEl.textContent = result.size || '0 B';
+      if (timestampEl) timestampEl.textContent = result.timestamp || '';
+      if (urlEl) urlEl.textContent = result.finalUrl || result.rawUrl;
+
+      if (reqHeadersEl) {
+        reqHeadersEl.textContent = Object.entries(result.requestHeaders || {})
+          .map(([k, v]) => `${k}: ${v}`).join('\n') || '(Tidak ada header tambahan)';
+      }
+
+      if (reqBodyWrap) {
+        if (result.requestBody) {
+          reqBodyWrap.style.display = 'block';
+          if (reqBodyEl) {
+            try {
+              const parsed = JSON.parse(result.requestBody);
+              reqBodyEl.textContent = JSON.stringify(parsed, null, 2);
+            } catch (e) {
+              reqBodyEl.textContent = result.requestBody;
+            }
+          }
+        } else {
+          reqBodyWrap.style.display = 'none';
+        }
+      }
+
+      if (resHeadersEl) {
+        resHeadersEl.textContent = (result.responseHeaders || [])
+          .map(h => `${h.key}: ${h.value}`).join('\n') || '(Tidak ada response header)';
+      }
+
+      if (resBodyEl) {
+        const bodyText = result.responseBody || '';
+        try {
+          const parsed = JSON.parse(bodyText);
+          resBodyEl.textContent = JSON.stringify(parsed, null, 2);
+        } catch (e) {
+          resBodyEl.textContent = bodyText;
+        }
+      }
+
+      if (dataJsonEl) {
+        dataJsonEl.textContent = JSON.stringify(result.iterationScope || {}, null, 2);
+      }
+
+      if (modal) modal.classList.add('active');
+    }
+
+    function exportStressReportJson() {
+      if (stressState.results.length === 0) {
+        showToast('Belum ada data hasil stress test untuk diexport');
+        return;
+      }
+
+      const metrics = calculateStressMetrics();
+      const elapsedSec = ((performance.now() - stressState.startTime) / 1000).toFixed(2);
+      const passedPct = stressState.completedRequests > 0
+        ? Math.round((stressState.passedCount / stressState.completedRequests) * 1000) / 10
+        : 0;
+      const failedPct = stressState.completedRequests > 0
+        ? Math.round((stressState.failedCount / stressState.completedRequests) * 1000) / 10
+        : 0;
+
+      const report = {
+        tool: "RestBox API Stress Test & Load Benchmark",
+        exportedAt: new Date().toISOString(),
+        config: {
+          virtualUsers: stressState.vuCount,
+          concurrency: stressState.concurrency,
+          rampUpSeconds: stressState.rampUp,
+          mode: stressState.mode,
+          targetRequests: stressState.targetRequests,
+          durationSeconds: stressState.durationSeconds,
+          pacingDelayMs: stressState.pacingDelay,
+          timeoutMs: stressState.timeout,
+          usedCorsProxy: stressState.useProxy
+        },
+        summary: {
+          totalRequests: stressState.completedRequests,
+          passed: stressState.passedCount,
+          failed: stressState.failedCount,
+          successRate: `${passedPct}%`,
+          failureRate: `${failedPct}%`,
+          elapsedSeconds: parseFloat(elapsedSec),
+          averageRps: parseFloat(metrics.avgRps),
+          averageResponseMs: metrics.avg,
+          percentile90Ms: metrics.p90,
+          percentile95Ms: metrics.p95,
+          percentile99Ms: metrics.p99,
+          medianP50Ms: metrics.p50,
+          minResponseMs: metrics.min,
+          maxResponseMs: metrics.max,
+          totalDataTransferredBytes: stressState.totalBytes
+        },
+        statusCodes: stressState.statusCounts,
+        errors: stressState.errorCounts,
+        requests: stressState.results.map(r => ({
+          seq: r.seq,
+          vu: r.vu,
+          method: r.method,
+          url: r.finalUrl || r.rawUrl,
+          status: r.status,
+          statusText: r.statusText,
+          durationMs: r.duration,
+          sizeBytes: r.byteSize,
+          timestamp: r.timestamp
+        }))
+      };
+
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `restbox-stresstest-report-${ts}.json`;
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`✓ Laporan JSON diexport ke ${filename}`);
+    }
+
+    function exportStressReportCsv() {
+      if (stressState.results.length === 0) {
+        showToast('Belum ada data hasil stress test untuk diexport');
+        return;
+      }
+
+      let csv = '#,VU,Method,URL,Status,StatusText,Duration_ms,Size_bytes,Timestamp\n';
+      stressState.results.forEach(r => {
+        const cleanUrl = `"${(r.finalUrl || r.rawUrl || '').replace(/"/g, '""')}"`;
+        const cleanStatusText = `"${(r.statusText || '').replace(/"/g, '""')}"`;
+        csv += `${r.seq},${r.vu},${r.method},${cleanUrl},${r.status},${cleanStatusText},${r.duration},${r.byteSize || 0},${r.timestamp}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `restbox-stresstest-${ts}.csv`;
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`✓ Log CSV diexport ke ${filename}`);
+    }
+
+    function initStressTestEvents() {
+      const btnOpenStress = document.getElementById('btnOpenStressTest');
+      if (btnOpenStress) btnOpenStress.addEventListener('click', () => openStressModal('active'));
+
+      const btnQuickStress = document.getElementById('btnQuickStressTest');
+      if (btnQuickStress) btnQuickStress.addEventListener('click', () => openStressModal('active'));
+
+      const btnSidebarStress = document.getElementById('btnSidebarStressTest');
+      if (btnSidebarStress) btnSidebarStress.addEventListener('click', () => openStressModal('collection'));
+
+      const btnClose = document.getElementById('btnCloseStressModal');
+      if (btnClose) btnClose.addEventListener('click', closeStressModal);
+      const btnCancel = document.getElementById('btnCancelStressModal');
+      if (btnCancel) btnCancel.addEventListener('click', closeStressModal);
+
+      const tabSetup = document.getElementById('tabStressNavSetup');
+      if (tabSetup) tabSetup.addEventListener('click', () => switchStressView('setup'));
+      const tabResults = document.getElementById('tabStressNavResults');
+      if (tabResults) tabResults.addEventListener('click', () => switchStressView('results'));
+
+      document.querySelectorAll('input[name="stressTargetType"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          const isCollection = e.target.value === 'collection';
+          const activePreview = document.getElementById('stressActiveTabPreview');
+          const collectionCont = document.getElementById('stressCollectionContainer');
+          if (activePreview) activePreview.style.display = isCollection ? 'none' : 'flex';
+          if (collectionCont) collectionCont.style.display = isCollection ? 'flex' : 'none';
+          updateStressSummaryText();
+        });
+      });
+
+      const btnSelectAll = document.getElementById('btnStressSelectAllCollection');
+      if (btnSelectAll) {
+        btnSelectAll.addEventListener('click', () => {
+          document.querySelectorAll('.stress-req-check').forEach(cb => cb.checked = true);
+          updateStressSummaryText();
+        });
+      }
+      const btnDeselectAll = document.getElementById('btnStressDeselectAllCollection');
+      if (btnDeselectAll) {
+        btnDeselectAll.addEventListener('click', () => {
+          document.querySelectorAll('.stress-req-check').forEach(cb => cb.checked = false);
+          updateStressSummaryText();
+        });
+      }
+
+      document.querySelectorAll('input[name="stressMode"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          const isRequests = e.target.value === 'requests';
+          const reqInput = document.getElementById('stressTotalRequestsInput');
+          const durInput = document.getElementById('stressDurationInput');
+          if (reqInput) reqInput.disabled = !isRequests;
+          if (durInput) durInput.disabled = isRequests;
+          updateStressSummaryText();
+        });
+      });
+
+      document.querySelectorAll('.stress-chip[data-vu]').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          const vu = e.target.getAttribute('data-vu');
+          const input = document.getElementById('stressVuInput');
+          const concInput = document.getElementById('stressConcurrencyInput');
+          if (input) input.value = vu;
+          if (concInput) concInput.value = Math.min(parseInt(concInput.value) || 10, parseInt(vu));
+          document.querySelectorAll('.stress-chip[data-vu]').forEach(c => c.classList.remove('active'));
+          e.target.classList.add('active');
+          updateStressSummaryText();
+        });
+      });
+
+      document.querySelectorAll('.stress-chip[data-conc]').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          const conc = e.target.getAttribute('data-conc');
+          const input = document.getElementById('stressConcurrencyInput');
+          if (input) input.value = conc;
+          document.querySelectorAll('.stress-chip[data-conc]').forEach(c => c.classList.remove('active'));
+          e.target.classList.add('active');
+          updateStressSummaryText();
+        });
+      });
+
+      document.querySelectorAll('.stress-chip[data-ramp]').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          const ramp = e.target.getAttribute('data-ramp');
+          const input = document.getElementById('stressRampUpInput');
+          if (input) input.value = ramp;
+          document.querySelectorAll('.stress-chip[data-ramp]').forEach(c => c.classList.remove('active'));
+          e.target.classList.add('active');
+          updateStressSummaryText();
+        });
+      });
+
+      document.querySelectorAll('.stress-chip[data-reqs]').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          const reqs = e.target.getAttribute('data-reqs');
+          const input = document.getElementById('stressTotalRequestsInput');
+          const reqRadio = document.querySelector('input[name="stressMode"][value="requests"]');
+          if (reqRadio) {
+            reqRadio.checked = true;
+            reqRadio.dispatchEvent(new Event('change'));
+          }
+          if (input) input.value = reqs;
+          document.querySelectorAll('.stress-chip[data-reqs]').forEach(c => c.classList.remove('active'));
+          e.target.classList.add('active');
+          updateStressSummaryText();
+        });
+      });
+
+      document.querySelectorAll('.stress-chip[data-dur]').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          const dur = e.target.getAttribute('data-dur');
+          const input = document.getElementById('stressDurationInput');
+          const durRadio = document.querySelector('input[name="stressMode"][value="duration"]');
+          if (durRadio) {
+            durRadio.checked = true;
+            durRadio.dispatchEvent(new Event('change'));
+          }
+          if (input) input.value = dur;
+          document.querySelectorAll('.stress-chip[data-dur]').forEach(c => c.classList.remove('active'));
+          e.target.classList.add('active');
+          updateStressSummaryText();
+        });
+      });
+
+      document.querySelectorAll('.stress-chip[data-delay]').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          const delay = e.target.getAttribute('data-delay');
+          const input = document.getElementById('stressDelayInput');
+          if (input) input.value = delay;
+          document.querySelectorAll('.stress-chip[data-delay]').forEach(c => c.classList.remove('active'));
+          e.target.classList.add('active');
+          updateStressSummaryText();
+        });
+      });
+
+      ['stressVuInput', 'stressConcurrencyInput', 'stressTotalRequestsInput', 'stressDurationInput', 'stressDelayInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateStressSummaryText);
+      });
+
+      const btnStart = document.getElementById('btnStartStressModal');
+      if (btnStart) btnStart.addEventListener('click', startStressTest);
+
+      const btnRerun = document.getElementById('btnStressRerun');
+      if (btnRerun) btnRerun.addEventListener('click', startStressTest);
+
+      const btnStop = document.getElementById('btnStressStop');
+      if (btnStop) btnStop.addEventListener('click', () => stopStressTest('Test dihentikan oleh pengguna'));
+
+      const btnBack = document.getElementById('btnStressBackToSetup');
+      if (btnBack) btnBack.addEventListener('click', () => switchStressView('setup'));
+
+      const btnExportJson = document.getElementById('btnStressExportJson');
+      if (btnExportJson) btnExportJson.addEventListener('click', exportStressReportJson);
+
+      const btnExportCsv = document.getElementById('btnStressExportCsv');
+      if (btnExportCsv) btnExportCsv.addEventListener('click', exportStressReportCsv);
+    }
+
     function initApp() {
       const initialTab = createTabObject({
         name: 'Get Single Post',
@@ -8143,6 +9926,7 @@
       updateBodyEditor();
 
       initRunnerEvents();
+      initStressTestEvents();
       // Muat data langsung dari file restbox-saved.json (server.py / disk)
       loadSavedJsonOnStartup();
 
