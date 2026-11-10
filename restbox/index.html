@@ -3323,9 +3323,13 @@
             </button>
           </div>
           <div style="display: flex; gap: 6px;">
+            <button type="button" id="btnStressExportPdf" class="btn btn-sm" title="Ekspor laporan stress test ke PDF (gaya Postman & JMeter)">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-6 4h4"></path></svg>
+              <span>Export PDF</span>
+            </button>
             <button type="button" id="btnStressExportJson" class="btn btn-sm" title="Download laporan hasil stress test lengkap ke JSON">
               <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-              <span>Export Laporan (JSON)</span>
+              <span>Export JSON</span>
             </button>
             <button type="button" id="btnStressExportCsv" class="btn btn-sm" title="Download log response time ke CSV">
               <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -8681,6 +8685,7 @@
       autoStopped: false,
       startTime: 0,
       endTime: 0,
+      finishTime: 0,
       startedRequests: 0,
       completedRequests: 0,
       inFlight: 0,
@@ -8736,7 +8741,8 @@
       const p95 = calculatePercentile(sorted, 95);
       const p99 = calculatePercentile(sorted, 99);
 
-      const elapsedSec = (performance.now() - stressState.startTime) / 1000;
+      const endTime = stressState.finishTime || performance.now();
+      const elapsedSec = (endTime - stressState.startTime) / 1000;
       const avgRps = elapsedSec > 0.05 ? (count / elapsedSec).toFixed(1) : '0.0';
 
       return {
@@ -9102,6 +9108,7 @@
       stressState.autoStopped = false;
       stressState.startTime = performance.now();
       stressState.endTime = performance.now() + (durationSeconds * 1000);
+      stressState.finishTime = 0;
       stressState.startedRequests = 0;
       stressState.completedRequests = 0;
       stressState.inFlight = 0;
@@ -9497,6 +9504,7 @@
 
     function finishStressTest(reason = null) {
       stressState.isRunning = false;
+      stressState.finishTime = performance.now();
       if (stressState.timerInterval) {
         clearInterval(stressState.timerInterval);
         stressState.timerInterval = null;
@@ -9619,7 +9627,7 @@
       }
 
       const metrics = calculateStressMetrics();
-      const elapsedSec = ((performance.now() - stressState.startTime) / 1000).toFixed(2);
+      const elapsedSec = (((stressState.finishTime || performance.now()) - stressState.startTime) / 1000).toFixed(2);
       const passedPct = stressState.completedRequests > 0
         ? Math.round((stressState.passedCount / stressState.completedRequests) * 1000) / 10
         : 0;
@@ -9712,6 +9720,709 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       showToast(`✓ Log CSV diexport ke ${filename}`);
+    }
+
+    function generateStressReportPdfHtml() {
+      const metrics = calculateStressMetrics();
+      const endTime = stressState.finishTime || performance.now();
+      const elapsedSec = stressState.startTime > 0
+        ? (((endTime - stressState.startTime) / 1000).toFixed(2))
+        : '0.00';
+      const elapsedNum = parseFloat(elapsedSec) || 0.001;
+
+      const passedPct = stressState.completedRequests > 0
+        ? Math.round((stressState.passedCount / stressState.completedRequests) * 1000) / 10
+        : 0;
+      const failedPct = stressState.completedRequests > 0
+        ? Math.round((stressState.failedCount / stressState.completedRequests) * 1000) / 10
+        : 0;
+
+      const totalKb = (stressState.totalBytes / 1024).toFixed(1);
+      const totalDataDisplay = stressState.totalBytes > 1048576
+        ? (stressState.totalBytes / 1048576).toFixed(2) + ' MB'
+        : totalKb + ' KB';
+
+      // Group results by endpoint (JMeter Aggregate Report format)
+      const endpointGroups = {};
+      stressState.results.forEach(r => {
+        const key = `${r.method || 'GET'} ${r.finalUrl || r.rawUrl || '-'}`;
+        if (!endpointGroups[key]) {
+          endpointGroups[key] = {
+            method: r.method || 'GET',
+            url: r.finalUrl || r.rawUrl || '-',
+            latencies: [],
+            passed: 0,
+            failed: 0,
+            bytes: 0
+          };
+        }
+        endpointGroups[key].latencies.push(r.duration || 0);
+        endpointGroups[key].bytes += (r.byteSize || 0);
+        if (r.status >= 200 && r.status < 400) {
+          endpointGroups[key].passed++;
+        } else {
+          endpointGroups[key].failed++;
+        }
+      });
+
+      const aggregateRowsHtml = Object.entries(endpointGroups).map(([key, group]) => {
+        const samples = group.latencies.length;
+        const sorted = group.latencies.slice().sort((a, b) => a - b);
+        const sum = group.latencies.reduce((acc, v) => acc + v, 0);
+        const avg = samples > 0 ? (sum / samples).toFixed(1) : 0;
+        const min = sorted.length > 0 ? sorted[0] : 0;
+        const max = sorted.length > 0 ? sorted[sorted.length - 1] : 0;
+        const p50 = calculatePercentile(sorted, 50);
+        const p90 = calculatePercentile(sorted, 90);
+        const p95 = calculatePercentile(sorted, 95);
+        const p99 = calculatePercentile(sorted, 99);
+        const errPct = samples > 0 ? ((group.failed / samples) * 100).toFixed(1) : '0.0';
+        const rps = elapsedNum > 0 ? (samples / elapsedNum).toFixed(1) : '0.0';
+        const kb = (group.bytes / 1024).toFixed(1);
+
+        return `
+          <tr>
+            <td style="max-width: 260px; word-break: break-all;">
+              <span class="method-tag method-${group.method.toLowerCase()}">${group.method}</span>
+              <span style="font-family: SFMono-Regular, Consolas, monospace; font-size: 10.5px;">${escapeHtml(group.url)}</span>
+            </td>
+            <td style="text-align: right; font-weight: 600;">${samples}</td>
+            <td style="text-align: right;">${avg}</td>
+            <td style="text-align: right;">${p50}</td>
+            <td style="text-align: right;">${p90}</td>
+            <td style="text-align: right;">${p95}</td>
+            <td style="text-align: right;">${p99}</td>
+            <td style="text-align: right;">${min}</td>
+            <td style="text-align: right;">${max}</td>
+            <td style="text-align: right; ${group.failed > 0 ? 'color: #c92a2a; font-weight: 700;' : ''}">${errPct}%</td>
+            <td style="text-align: right; font-weight: 600;">${rps}</td>
+            <td style="text-align: right;">${kb}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Status Code Distribution Chips
+      const statusChipsHtml = Object.entries(stressState.statusCounts).map(([code, cnt]) => {
+        const numCode = parseInt(code);
+        let badgeClass = 'badge-err';
+        if (numCode >= 200 && numCode < 300) badgeClass = 'badge-2xx';
+        else if (numCode >= 300 && numCode < 400) badgeClass = 'badge-3xx';
+        else if (numCode >= 400 && numCode < 500) badgeClass = 'badge-4xx';
+        else if (numCode >= 500) badgeClass = 'badge-5xx';
+        const pct = stressState.completedRequests > 0
+          ? ((cnt / stressState.completedRequests) * 100).toFixed(1)
+          : '0.0';
+        return `
+          <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; background: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; font-size: 11px;">
+            <span class="badge ${badgeClass}">${code}</span>
+            <span><strong>${cnt}</strong> req</span>
+            <span style="color: #868e96; font-size: 10px;">(${pct}%)</span>
+          </div>
+        `;
+      }).join('');
+
+      // Error Breakdown Diagnostics
+      const errorEntries = Object.entries(stressState.errorCounts);
+      let errorDiagnosticsHtml = '';
+      if (errorEntries.length > 0) {
+        errorDiagnosticsHtml = `
+          <div style="margin-top: 8px; padding: 8px 12px; background: #fff5f5; border: 1px solid #ffc9c9; border-radius: 4px; font-size: 11px; color: #c92a2a;">
+            <strong>⚠️ Diagnostik Error Terdeteksi:</strong>
+            <ul style="margin: 4px 0 0 18px;">
+              ${errorEntries.map(([err, cnt]) => `<li>${escapeHtml(err)}: <strong>${cnt} kali</strong></li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      // SVG Performance Chart
+      let chartSvgHtml = '';
+      const pts = stressState.chartPoints;
+      if (pts && pts.length >= 2) {
+        const maxRps = Math.max(10, ...pts.map(p => p.rps)) * 1.15;
+        const maxLat = Math.max(50, ...pts.map(p => p.lat)) * 1.15;
+        const width = 800;
+        const height = 120;
+        let rpsPoints = '';
+        let latPoints = '';
+        for (let i = 0; i < pts.length; i++) {
+          const x = Math.round((i / (pts.length - 1)) * width);
+          const yRps = Math.round(height - (pts[i].rps / maxRps) * (height - 20));
+          const yLat = Math.round(height - (pts[i].lat / maxLat) * (height - 20));
+          rpsPoints += `${x},${Math.max(5, Math.min(height, yRps))} `;
+          latPoints += `${x},${Math.max(5, Math.min(height, yLat))} `;
+        }
+        chartSvgHtml = `
+          <div class="sec-title avoid-break" style="margin-top: 14px;">3. Grafik Riwayat Throughput &amp; Waktu Respon</div>
+          <div class="chart-container avoid-break">
+            <div class="chart-legend">
+              <span class="legend-item"><span class="legend-color" style="background: #fe8019;"></span> Throughput (RPS)</span>
+              <span class="legend-item"><span class="legend-color" style="background: #1c7ed6;"></span> Response Time (ms)</span>
+            </div>
+            <svg width="100%" height="120" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" style="display: block; overflow: visible;">
+              <line x1="0" y1="20" x2="${width}" y2="20" stroke="#e9ecef" stroke-width="1" stroke-dasharray="3,3" />
+              <line x1="0" y1="60" x2="${width}" y2="60" stroke="#e9ecef" stroke-width="1" stroke-dasharray="3,3" />
+              <line x1="0" y1="100" x2="${width}" y2="100" stroke="#e9ecef" stroke-width="1" stroke-dasharray="3,3" />
+              <line x1="0" y1="${height}" x2="${width}" y2="${height}" stroke="#ced4da" stroke-width="1" />
+              <polyline fill="none" stroke="#fe8019" stroke-width="2.2" stroke-linejoin="round" points="${rpsPoints.trim()}" />
+              <polyline fill="none" stroke="#1c7ed6" stroke-width="2.2" stroke-linejoin="round" points="${latPoints.trim()}" />
+            </svg>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: #868e96; margin-top: 4px;">
+              <span>0.0s (Mulai)</span>
+              <span>Puncak Throughput: ~${Math.round(maxRps)} req/s | Puncak Latensi: ~${Math.round(maxLat)} ms</span>
+              <span>${elapsedSec}s (Selesai)</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // Sample Requests (first 50 for clean PDF layout)
+      const maxSamples = 50;
+      const sampleResults = stressState.results.slice(0, maxSamples);
+      const sampleRowsHtml = sampleResults.map(r => {
+        let statusBadgeClass = 'badge-err';
+        if (r.status >= 200 && r.status < 300) statusBadgeClass = 'badge-2xx';
+        else if (r.status >= 300 && r.status < 400) statusBadgeClass = 'badge-3xx';
+        else if (r.status >= 400 && r.status < 500) statusBadgeClass = 'badge-4xx';
+        else if (r.status >= 500) statusBadgeClass = 'badge-5xx';
+
+        const sizeKb = r.byteSize ? (r.byteSize > 1024 ? (r.byteSize / 1024).toFixed(1) + ' KB' : r.byteSize + ' B') : '0 B';
+
+        return `
+          <tr>
+            <td style="text-align: center; color: #868e96; font-family: SFMono-Regular, Consolas, monospace;">${r.seq}</td>
+            <td style="font-family: SFMono-Regular, Consolas, monospace; font-size: 10px; color: #d9480f;">${escapeHtml(r.vu)}</td>
+            <td><span class="method-tag method-${(r.method || 'GET').toLowerCase()}">${r.method}</span></td>
+            <td style="max-width: 250px; word-break: break-all; font-family: SFMono-Regular, Consolas, monospace; font-size: 10px;">${escapeHtml(r.finalUrl || r.rawUrl)}</td>
+            <td style="text-align: center;"><span class="badge ${statusBadgeClass}">${r.status} ${escapeHtml(r.statusText || '')}</span></td>
+            <td style="text-align: right; font-family: SFMono-Regular, Consolas, monospace;">${r.duration} ms</td>
+            <td style="text-align: right; font-family: SFMono-Regular, Consolas, monospace; font-size: 10px; color: #495057;">${sizeKb}</td>
+            <td style="font-size: 10px; color: #868e96; font-family: SFMono-Regular, Consolas, monospace;">${escapeHtml(r.timestamp || '')}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Target description
+      let targetDisplay = 'Active Request';
+      if (stressState.requestsToRun.length === 1) {
+        const req = stressState.requestsToRun[0];
+        targetDisplay = `${req.method || 'GET'} ${req.url || '-'}`;
+      } else if (stressState.requestsToRun.length > 1) {
+        targetDisplay = `Multi-Request (${stressState.requestsToRun.length} requests in collection)`;
+      }
+
+      const modeDisplay = stressState.mode === 'requests'
+        ? `Target ${stressState.targetRequests} Requests`
+        : `Durasi Waktu ${stressState.durationSeconds} Detik`;
+
+      const nowFormatted = new Date().toLocaleString('id-ID', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+
+      return `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RestBox Stress Test Report - ${escapeHtml(targetDisplay)}</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 12mm 14mm;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; color: #212529 !important; padding: 0 !important; }
+      .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; }
+      .avoid-break { page-break-inside: avoid; }
+      .page-break { page-break-before: always; }
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f8f9fa;
+      color: #212529;
+      line-height: 1.45;
+      font-size: 11.5px;
+      padding-bottom: 40px;
+    }
+    .report-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #1d2021;
+      color: #ebdbb2;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+    .report-btn {
+      background: #fe8019;
+      color: #1d2021;
+      border: none;
+      padding: 7px 16px;
+      font-weight: 700;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .report-btn:hover { background: #fabd2f; }
+    .report-btn-secondary {
+      background: #3c3836;
+      color: #ebdbb2;
+      border: 1px solid #504945;
+      padding: 7px 14px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .report-btn-secondary:hover { background: #504945; }
+    .container {
+      max-width: 920px;
+      margin: 20px auto;
+      background: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 24px 28px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+    }
+    .header {
+      border-bottom: 2px solid #fe8019;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1d2021;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-badge {
+      background: #fe8019;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      font-size: 11px;
+    }
+    .meta-item label {
+      display: block;
+      font-weight: 600;
+      color: #6c757d;
+      font-size: 9.5px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .meta-item value {
+      display: block;
+      font-weight: 600;
+      color: #212529;
+      font-family: SFMono-Regular, Consolas, monospace;
+      word-break: break-all;
+    }
+    .sec-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #212529;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .kpi-card.highlight {
+      background: #fff8f0;
+      border-color: #fe8019;
+    }
+    .kpi-val {
+      font-size: 15px;
+      font-weight: 800;
+      font-family: SFMono-Regular, Consolas, monospace;
+      color: #1d2021;
+    }
+    .kpi-lbl {
+      font-size: 9px;
+      font-weight: 600;
+      color: #6c757d;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.5px;
+      margin-bottom: 16px;
+    }
+    .report-table th {
+      background: #e9ecef;
+      color: #495057;
+      font-weight: 700;
+      text-align: left;
+      padding: 6px 8px;
+      border: 1px solid #dee2e6;
+      font-size: 10px;
+    }
+    .report-table td {
+      padding: 5px 8px;
+      border: 1px solid #dee2e6;
+      color: #212529;
+    }
+    .report-table tr:nth-child(even) td {
+      background: #f8f9fa;
+    }
+    .report-table tfoot td {
+      background: #e9ecef;
+      font-weight: 700;
+      border-top: 2px solid #adb5bd;
+    }
+    .badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: SFMono-Regular, Consolas, monospace;
+    }
+    .badge-2xx { background: #d4edda; color: #155724; }
+    .badge-3xx { background: #cce5ff; color: #004085; }
+    .badge-4xx { background: #fff3cd; color: #856404; }
+    .badge-5xx { background: #f8d7da; color: #721c24; }
+    .badge-err { background: #f8d7da; color: #721c24; }
+    .method-tag {
+      display: inline-block;
+      font-family: SFMono-Regular, Consolas, monospace;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: #e9ecef;
+      color: #495057;
+    }
+    .method-get { color: #2b8a3e; background: #ebfbee; }
+    .method-post { color: #1c7ed6; background: #e7f5ff; }
+    .method-put { color: #e67700; background: #fff9db; }
+    .method-delete { color: #c92a2a; background: #ffe3e3; }
+    .chart-container {
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 10px 14px;
+      background: #fafafa;
+      margin-bottom: 16px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 10.5px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend-color {
+      width: 12px;
+      height: 4px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .report-footer {
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #868e96;
+    }
+  </style>
+</head>
+<body>
+  <!-- Print Bar (Screen Only) -->
+  <div class="report-topbar no-print">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-weight: 800; color: #fe8019; font-size: 14px;">RestBox</span>
+      <span style="color: #a89984; font-size: 12px;">| Laporan Stress Test &amp; Benchmark</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 11px; color: #d5c4a1;">💡 Tips: Pada dialog cetak browser, pilih Destination: <strong>"Save as PDF"</strong></span>
+      <button type="button" class="report-btn" onclick="window.print()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        <span>Cetak / Simpan PDF</span>
+      </button>
+      <button type="button" class="report-btn-secondary" onclick="window.close()">✕ Tutup</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <div class="brand-title">
+          <span>RestBox</span>
+          <span class="brand-badge">Stress Test Report</span>
+        </div>
+        <div style="font-size: 12px; color: #6c757d; margin-top: 3px;">
+          Laporan Hasil Uji Beban &amp; Benchmark Kinerja API (Standar JMeter &amp; Postman)
+        </div>
+      </div>
+      <div style="text-align: right; font-size: 11px; color: #6c757d;">
+        <div>Waktu Uji: <strong style="color: #212529;">${escapeHtml(nowFormatted)}</strong></div>
+        <div>Durasi: <strong style="color: #212529;">${elapsedSec} detik</strong></div>
+      </div>
+    </div>
+
+    <!-- Metadata Grid -->
+    <div class="meta-grid">
+      <div class="meta-item" style="grid-column: span 2;">
+        <label>Target Endpoint:</label>
+        <value title="${escapeHtml(targetDisplay)}">${escapeHtml(targetDisplay)}</value>
+      </div>
+      <div class="meta-item">
+        <label>Mode Pengujian:</label>
+        <value>${escapeHtml(modeDisplay)}</value>
+      </div>
+      <div class="meta-item">
+        <label>Virtual Users / Concurrency:</label>
+        <value>${stressState.vuCount} VUs (Max: ${stressState.concurrency})</value>
+      </div>
+      <div class="meta-item">
+        <label>Pacing &amp; Ramp-Up:</label>
+        <value>Delay: ${stressState.pacingDelay}ms | Ramp: ${stressState.rampUp}s</value>
+      </div>
+      <div class="meta-item">
+        <label>Request Timeout:</label>
+        <value>${stressState.timeout} ms</value>
+      </div>
+      <div class="meta-item">
+        <label>CORS Reverse Proxy:</label>
+        <value>${stressState.useProxy ? 'Aktif (server.py)' : 'Direct Browser'}</value>
+      </div>
+      <div class="meta-item">
+        <label>Status Akhir:</label>
+        <value style="${stressState.autoStopped ? 'color: #c92a2a;' : 'color: #2b8a3e;'}">${stressState.autoStopped ? '⏹ Auto-Stop (>50% error)' : '✓ Selesai (Completed)'}</value>
+      </div>
+    </div>
+
+    <!-- Executive KPI Summary -->
+    <div class="sec-title">1. Ringkasan Eksekutif &amp; Indikator Kinerja Utama (KPI)</div>
+    <div class="kpi-grid">
+      <div class="kpi-card highlight">
+        <div class="kpi-val" style="color: #fe8019;">${stressState.completedRequests}</div>
+        <div class="kpi-lbl">Total Requests</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color: #2b8a3e;">${passedPct}%</div>
+        <div class="kpi-lbl">Success Rate (${stressState.passedCount})</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="${stressState.failedCount > 0 ? 'color: #c92a2a;' : 'color: #495057;'}">${failedPct}%</div>
+        <div class="kpi-lbl">Error Rate (${stressState.failedCount})</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-val" style="color: #fe8019;">${metrics.avgRps}</div>
+        <div class="kpi-lbl">Throughput (req/s)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${metrics.avg} ms</div>
+        <div class="kpi-lbl">Avg Response Time</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${metrics.p50} ms</div>
+        <div class="kpi-lbl">Median (p50)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${metrics.p90} ms</div>
+        <div class="kpi-lbl">90% Line (p90)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${metrics.p95} ms</div>
+        <div class="kpi-lbl">95% Line (p95)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${metrics.min} / ${metrics.max} ms</div>
+        <div class="kpi-lbl">Min / Max Latency</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${totalDataDisplay}</div>
+        <div class="kpi-lbl">Data Transferred</div>
+      </div>
+    </div>
+
+    <!-- JMeter Aggregate Report Table -->
+    <div class="sec-title">2. Tabel Agregat Kinerja (JMeter Aggregate Report Format)</div>
+    <table class="report-table avoid-break">
+      <thead>
+        <tr>
+          <th>Label / Request Target</th>
+          <th style="text-align: right;"># Samples</th>
+          <th style="text-align: right;">Average</th>
+          <th style="text-align: right;">Median</th>
+          <th style="text-align: right;">90% Line</th>
+          <th style="text-align: right;">95% Line</th>
+          <th style="text-align: right;">99% Line</th>
+          <th style="text-align: right;">Min (ms)</th>
+          <th style="text-align: right;">Max (ms)</th>
+          <th style="text-align: right;">Error %</th>
+          <th style="text-align: right;">Throughput</th>
+          <th style="text-align: right;">Received KB</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${aggregateRowsHtml}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td style="font-weight: 700;">Total / Keseluruhan</td>
+          <td style="text-align: right; font-weight: 700;">${stressState.completedRequests}</td>
+          <td style="text-align: right; font-weight: 700;">${metrics.avg}</td>
+          <td style="text-align: right; font-weight: 700;">${metrics.p50}</td>
+          <td style="text-align: right; font-weight: 700;">${metrics.p90}</td>
+          <td style="text-align: right; font-weight: 700;">${metrics.p95}</td>
+          <td style="text-align: right; font-weight: 700;">${metrics.p99}</td>
+          <td style="text-align: right; font-weight: 700;">${metrics.min}</td>
+          <td style="text-align: right; font-weight: 700;">${metrics.max}</td>
+          <td style="text-align: right; font-weight: 700; ${stressState.failedCount > 0 ? 'color: #c92a2a;' : ''}">${failedPct}%</td>
+          <td style="text-align: right; font-weight: 700;">${metrics.avgRps}</td>
+          <td style="text-align: right; font-weight: 700;">${totalKb}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Real-time SVG Performance Chart -->
+    ${chartSvgHtml}
+
+    <!-- Status Code & Errors -->
+    <div class="sec-title avoid-break" style="margin-top: 12px;">4. Distribusi Status HTTP &amp; Diagnostik Masalah</div>
+    <div class="avoid-break" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px 14px; margin-bottom: 16px;">
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        ${statusChipsHtml || '<span style="color: #6c757d;">Tidak ada data status</span>'}
+      </div>
+      ${errorDiagnosticsHtml}
+    </div>
+
+    <!-- Sample Requests Table -->
+    <div class="sec-title avoid-break" style="margin-top: 14px;">5. Log Sampel Request Terbaru (${sampleResults.length} dari ${stressState.results.length} total)</div>
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th style="width: 40px; text-align: center;">#</th>
+          <th style="width: 55px;">VU</th>
+          <th style="width: 60px;">Method</th>
+          <th>URL Endpoint</th>
+          <th style="width: 90px; text-align: center;">Status</th>
+          <th style="width: 80px; text-align: right;">Durasi</th>
+          <th style="width: 70px; text-align: right;">Ukuran</th>
+          <th style="width: 75px;">Waktu</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${sampleRowsHtml}
+      </tbody>
+    </table>
+    ${stressState.results.length > maxSamples ? `
+      <div style="font-size: 10px; color: #868e96; margin-top: -10px; margin-bottom: 16px;">
+        * Menampilkan ${maxSamples} dari total ${stressState.results.length} sampel request untuk efisiensi ukuran cetak dokumen PDF. Ekspor CSV tersedia untuk log baris lengkap.
+      </div>
+    ` : ''}
+
+    <!-- Footer -->
+    <div class="report-footer avoid-break">
+      <div>RestBox API Client &bull; Gruvbox Dark &amp; Multi-Theme cURL Executor</div>
+      <div>Dibuat secara otomatis &bull; Dokumen Siap Cetak (A4 Standard)</div>
+    </div>
+  </div>
+</body>
+</html>`;
+    }
+
+    function exportStressReportPdf() {
+      if (stressState.results.length === 0) {
+        showToast('Belum ada data hasil stress test untuk diexport');
+        return;
+      }
+
+      const html = generateStressReportPdfHtml();
+
+      // shortcut: relies on browser window.print() / print-to-pdf engine without external npm/cdn pdf bundles, upgrade to headless pdf binary generation if automated server-side pdf creation is required
+      const printWin = window.open('', '_blank');
+      if (printWin) {
+        printWin.document.open();
+        printWin.document.write(html);
+        printWin.document.close();
+        setTimeout(() => {
+          try {
+            printWin.focus();
+            printWin.print();
+          } catch (e) {
+            console.warn('Auto print error:', e);
+          }
+        }, 400);
+        showToast('✓ Membuka pratinjau & dialog ekspor PDF laporan stress test...');
+      } else {
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        document.body.appendChild(iframe);
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(html);
+        doc.close();
+        setTimeout(() => {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+          setTimeout(() => {
+            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+          }, 60000);
+        }, 400);
+        showToast('✓ Membuka dialog ekspor PDF laporan stress test...');
+      }
     }
 
     function initStressTestEvents() {
@@ -9865,6 +10576,9 @@
 
       const btnBack = document.getElementById('btnStressBackToSetup');
       if (btnBack) btnBack.addEventListener('click', () => switchStressView('setup'));
+
+      const btnExportPdf = document.getElementById('btnStressExportPdf');
+      if (btnExportPdf) btnExportPdf.addEventListener('click', exportStressReportPdf);
 
       const btnExportJson = document.getElementById('btnStressExportJson');
       if (btnExportJson) btnExportJson.addEventListener('click', exportStressReportJson);

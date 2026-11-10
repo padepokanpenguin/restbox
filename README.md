@@ -181,6 +181,14 @@ Fitur **Stress Testing & Load Benchmark** browser-native untuk menguji ketahanan
 - **Auto-Stop Safety Protection**:
   - Opsi auto-stop otomatis menghentikan pengujian jika tingkat kegagalan (error rate) melebihi 50%, mencegah overload fatal jika backend server tumbang.
 - **Export Laporan Komprehensif**:
+  - **Export PDF (Standar Postman & Apache JMeter)**: Menghasilkan dokumen laporan pengujian performa siap cetak atau simpan ke PDF dengan tata letak profesional standar A4 portrait. Mencakup:
+    - *Header & Metadata Uji*: Target URL endpoint, metode HTTP, waktu pengujian, durasi total, jumlah VU, batas concurrency, ramp-up time, pacing delay, request timeout, dan status proxy.
+    - *Ringkasan Eksekutif & KPI Cards*: Total request, tingkat keberhasilan (success rate %), tingkat kegagalan (error rate %), rata-rata throughput (RPS), average latency, median (p50), 90% line (p90), 95% line (p95), 99% line (p99), min/max latency, dan total data payload.
+    - *Tabel Agregat Format Apache JMeter*: Tabel performa komprehensif per endpoint (`# Samples`, `Average`, `Median`, `90% Line`, `95% Line`, `99% Line`, `Min`, `Max`, `Error %`, `Throughput req/s`, `Received KB`) dan baris ringkasan total.
+    - *Grafik Kinerja Throughput & Latensi (Vektor SVG)*: Kurva throughput (orange) dan waktu respon (biru) beresolusi tajam dan ramah tinta cetak.
+    - *Distribusi Status HTTP & Diagnostik*: Rincian kuantitas status code (2xx, 3xx, 4xx, 5xx) beserta persentase dan daftar rincian error.
+    - *Log Sampel Request*: Sampel log request terbaru (VU worker, method, URL, status, durasi ms, ukuran payload, timestamp).
+    - *Pencetakan Langsung Tanpa Dependensi*: Membuka jendela pratinjau bersih dan memicu dialog cetak browser (*Save as PDF*) secara native offline tanpa library pihak ketiga.
   - **Export JSON**: Laporan lengkap performa benchmark (`restbox-stresstest-report.json`) mencakup konfigurasi uji, metrik statistik (Avg, p90, p95, p99, Min, Max, RPS), distribusi status code, dan log rinci.
   - **Export CSV**: Ekspor seluruh baris respons ke file spreadsheet (`restbox-stresstest-results.csv`).
 - **Multi-Threaded CORS Proxy (`server.py`)**:
